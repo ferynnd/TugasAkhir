@@ -1,126 +1,198 @@
 package dev.ferynnd.tugasakhir.ui.layouts
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import dev.ferynnd.tugasakhir.R
-import dev.ferynnd.tugasakhir.ui.components.BackButton
-import dev.ferynnd.tugasakhir.ui.components.BackgroundImageWithOverlay
-import dev.ferynnd.tugasakhir.ui.components.TrainingCard
-import dev.ferynnd.tugasakhir.ui.theme.Primary
+import dev.ferynnd.tugasakhir.ui.theme.*
 
 @Composable
 fun TrainingList(navController: NavController) {
+    var searchQuery by remember { mutableStateOf("") }
 
-     val trainingItems = listOf(
-        R.drawable.bgta,
-        R.drawable.bgta,
-        R.drawable.bgta,
-        R.drawable.bgta,
-        R.drawable.bgta,
-        R.drawable.bgta
-    )
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize().statusBarsPadding().navigationBarsPadding()
-    ) {
-        BackgroundImageWithOverlay(
-            modifier = Modifier
-                .background(Color.Black.copy(alpha = 0.5f))
-        )
-
-        Column(
+    Scaffold(
+        containerColor = Background
+    ) { paddingValues ->
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp)
+                .padding(paddingValues)
+                .padding(horizontal = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            BackButton(
-                icon = Icons.Default.ArrowBack,
-                onClick = { navController.popBackStack() },
-                modifier = Modifier.padding(top = 25.dp)
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Text(
-                text = "List Latihan",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White,
-                modifier = Modifier.padding(start = 8.dp),
-            )
-            GradientLine(
-                modifier = Modifier
-                    .fillMaxWidth(0.4f)
-                    .padding(top = 15.dp, start = 10.dp)
-            )
-
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-             LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(trainingItems.size) { index ->
-                    TrainingCard(
-                        imageRes = trainingItems[index],
-                        title = "Push Up",
-                        onClick = {
-                            navController.navigate("trainingDetail")
-                        }
+            item {
+                Spacer(modifier = Modifier.height(20.dp))
+                Column {
+                    Text(
+                        text = "Choose Your",
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = TextMain
+                    )
+                    Text(
+                        text = "Exercise",
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Primary
                     )
                 }
             }
 
+            item {
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Input),
+                    placeholder = { Text("Search movements...", color = TextSub) },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = TextSub) },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color.Transparent,
+                        unfocusedBorderColor = Color.Transparent,
+                        cursorColor = Primary
+                    ),
+                    shape = RoundedCornerShape(16.dp),
+                    singleLine = true
+                )
+            }
+
+
+            item { ExerciseCard(
+                title = "Squat",
+                muscle = "Legs & Glutes",
+                kcal = "12 kcal/min",
+                level = "MEDIUM",
+                imageRes = R.drawable.bgta, // Ganti dengan gambar squat
+                onClick = { navController.navigate("trainingDetail") }
+            ) }
+
+            item { ExerciseCard(
+                title = "Push-up",
+                muscle = "Chest & Arms",
+                kcal = "15 kcal/min",
+                level = "HARD",
+                imageRes = R.drawable.bgta, // Ganti dengan gambar pushup
+                onClick = { navController.navigate("trainingDetail") }
+            ) }
+
+            item { Spacer(modifier = Modifier.height(100.dp)) } // Space for bottom nav
         }
     }
 }
 
 @Composable
-fun GradientLine(
-    modifier: Modifier = Modifier,
-    colors: List<Color> = listOf(
-        Primary,
-        Color.Transparent
-    )
+fun ExerciseCard(
+    title: String,
+    muscle: String,
+    kcal: String,
+    level: String,
+    imageRes: Int,
+    onClick: () -> Unit
 ) {
-    Box(
-        modifier = modifier
-            .height(5.dp)
+    Card(
+        modifier = Modifier
             .fillMaxWidth()
-            .background(
-                brush = Brush.horizontalGradient(colors)
-            )
-    )
-}
+            .clickable { onClick() },
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.8.dp)
+    ) {
+        Column {
+            Box {
+                Image(
+                    painter = painterResource(id = imageRes),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(180.dp),
+                    contentScale = ContentScale.Crop
+                )
+                // Level Tag
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(16.dp),
+                    color = if (level == "HARD") Primary else Color(0xFF64949C),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        text = level,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        color = White,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
 
+            Row(
+                modifier = Modifier
+                    .padding(20.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(text = title, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = TextMain)
+                    Text(text = muscle, fontSize = 14.sp, color = TextSub)
+                }
+
+                // Kcal Info Badge
+                Surface(
+                    color = Primary.copy(alpha = 0.1f),
+                    shape = RoundedCornerShape(50.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.icfire), // Pastikan icon ini ada
+                            contentDescription = null,
+                            tint = Primary,
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(text = kcal, color = Primary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+
+            Button(
+                onClick = onClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
+                    .padding(bottom = 20.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Primary),
+                shape = RoundedCornerShape(10.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(painterResource(id = R.drawable.icvideo), contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text("Start Analysis", fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+    }
+}

@@ -2,34 +2,28 @@ package dev.ferynnd.tugasakhir.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-
-// Base Colors (direct mapping from XML)
+// Base Colors
 val Black = Color(0xFF000000)
 val White = Color(0xFFFFFFFF)
 
-val Background = Color(0xFF0A0C10)
-val Foreground = Color(0xFFFFFFFF)
+// Primary / Brand Colors
+val Primary = Color(0xFFE31C25)       // Sporty Red
+val PrimaryDark = Color(0xFFC0121A)   // Darker Red for pressed states
 
-val Primary = Color(0xFFEEFF00)
-val PrimaryForeground = Color(0xFF0A0C10)
+// Background & Surface
+val Background = Color(0xFFFAFAFA)    // background-light
+val BackgroundDark = Color(0xFF121212)
 
-val Secondary = Color(0xFF3E2BF5)
+val Card = Color(0xFFFFFFFF)          // card-light
+val CardDark = Color(0xFF1E1E1E)
 
-val Card = Color(0xFF1C1F26)
-val Border = Color(0xFF2A2E35)
-val Input = Color(0xFF131921)
+// Typography & Border
+val TextMain = Color(0xFF111827)      // text-main (Sangat gelap/hampir hitam)
+val TextSub = Color(0xFF6B7280)       // text-sub (Abu-abu untuk keterangan)
+val Border = Color(0xFFE5E7EB)        // Border halus untuk mode light
+val Input = Color(0xFFF3F4F6)         // Warna background input field
 
-val Red = Color(0xFFBD0606)
-
-
-val Primary80 = Color(0xFFEEFF00)
-val Primary40 = Color(0xFF778000)
-
-val Secondary80 = Color(0xFF9186FF)
-val Secondary40 = Color(0xFF2518A8)
-
-val Background80 = Color(0xFF1E2025)
-val Background40 = Color(0xFF07080C)
-
-val Card80 = Color(0xFF2A2E35)
-val Card40 = Color(0xFF111317)
+// Helper untuk penyesuaian variable lama Anda
+val Foreground = TextMain
+val Secondary = Color(0xFFC0121A)     // Menggunakan variasi red sebagai secondary
+val Red = Primary                     // Alias untuk warna utama

@@ -4,6 +4,7 @@
 
     <uses-feature android:name="android.hardware.camera" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
         android:allowBackup="true"
@@ -15,9 +16,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TugasAkhir"
         tools:targetApi="31">
-        <activity
-            android:name=".CameraActivity"
-            android:exported="false" />
+<!--        <activity-->
+<!--            android:name=".CameraActivity"-->
+<!--            android:exported="false" />-->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -27,6 +28,13 @@
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter android:label="supabase_auth">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="io.supabase" android:host="login" />
             </intent-filter>
         </activity>
     </application>

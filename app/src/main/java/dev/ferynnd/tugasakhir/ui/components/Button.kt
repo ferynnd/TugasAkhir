@@ -24,8 +24,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.ferynnd.tugasakhir.ui.theme.Black
 import dev.ferynnd.tugasakhir.ui.theme.Primary
-import dev.ferynnd.tugasakhir.ui.theme.PrimaryForeground
 import dev.ferynnd.tugasakhir.ui.theme.Secondary
+import dev.ferynnd.tugasakhir.ui.theme.TextMain
 
 
 @Composable
@@ -50,39 +50,12 @@ fun PrimaryButton(
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
         ) {
-            Text(text, color = PrimaryForeground, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-            Icon(icon, contentDescription = null, tint = PrimaryForeground)
+            Text(text, color = TextMain, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Icon(icon, contentDescription = null, tint = TextMain)
         }
     }
 }
 
-@Composable
-fun OutlineButton(
-    text: String,
-    icon: ImageVector,
-    onClick: () -> Unit
-) {
-    OutlinedButton(
-        onClick = onClick,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Secondary.copy(alpha = 0.2f)
-        ),
-        shape = RoundedCornerShape(50),
-        border = BorderStroke(2.dp, Secondary),
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(60.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(text, color = Color.White, fontSize = 16.sp , fontWeight = FontWeight.Bold)
-            Icon(icon, contentDescription = null, tint = Color.White)
-        }
-    }
-}
 
 @Composable
 fun BackButton(

@@ -8,14 +8,14 @@ import dev.ferynnd.tugasakhir.ui.theme.TugasAkhirTheme
 import androidx.activity.compose.setContent
 import dev.ferynnd.tugasakhir.ui.layouts.CameraScreen
 
-class CameraActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            TugasAkhirTheme {
-                CameraScreen()
-            }
-        }
-    }
-}
+//class CameraActivity : ComponentActivity() {
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//        enableEdgeToEdge()
+//        setContent {
+//            TugasAkhirTheme {
+//                CameraScreen()
+//            }
+//        }
+//    }
+//}
