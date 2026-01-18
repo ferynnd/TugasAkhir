@@ -73,19 +73,18 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.LifecycleOwner
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
+import dev.ferynnd.tugasakhir.data.model.ExerciseType
+import dev.ferynnd.tugasakhir.data.model.dummyExercises
 import dev.ferynnd.tugasakhir.helper.CameraAnalyzerHelper
 import dev.ferynnd.tugasakhir.helper.PoseLandmarkerHelper
 import dev.ferynnd.tugasakhir.helper.TypeOfExercise
-import dev.ferynnd.tugasakhir.ui.components.BackgroundImageWithOverlay
 import dev.ferynnd.tugasakhir.ui.components.PoseOverlay
 import dev.ferynnd.tugasakhir.ui.theme.Background
 import dev.ferynnd.tugasakhir.ui.theme.BackgroundDark
-import dev.ferynnd.tugasakhir.ui.theme.Secondary
 import java.util.concurrent.Executors
 
 @Composable
 fun CameraScreen( navController: NavController ) {
-    val activity = LocalActivity.current
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -110,6 +109,14 @@ fun CameraScreen( navController: NavController ) {
     }
 
 
+    val exerciseType = navController
+        .currentBackStackEntry
+        ?.arguments
+        ?.getString("exercise")
+        ?.let { ExerciseType.valueOf(it) }
+        ?: ExerciseType.PUSH_UP
+
+
     var poseResult by remember { mutableStateOf<PoseLandmarkerResult?>(null) }
     var counter by remember { mutableStateOf(0) }
     var status by remember { mutableStateOf(true) }
@@ -126,10 +133,16 @@ fun CameraScreen( navController: NavController ) {
                         val firstPerson = allLandmarks[0] // Ambil orang pertama yang terdeteksi
 
                         val exerciseLogic = TypeOfExercise(firstPerson)
-                        val resultData = exerciseLogic.pushUp(counter, status) // Nanti Bisa Sesuai Item di Latihan
+
+                        val resultData = exerciseLogic.process(
+                            type = exerciseType,
+                            counter = counter,
+                            status = status
+                        )
 
                         counter = resultData.counter
                         status = resultData.status
+
                     }
                 }
                 override fun onError(message: String) {
@@ -142,15 +155,15 @@ fun CameraScreen( navController: NavController ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Primary.copy(alpha = 0.6f))
+            .background(BackgroundDark)
             .statusBarsPadding() // Padding untuk area notch/status bar
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f) // MENGAMBIL SISA RUANG di atas Bottom Panel
-                .padding(10.dp) // Memberikan "Space" agar kamera tidak nempel ke pinggir layar
-                .clip(RoundedCornerShape(12.dp)) // Membuat sudut kamera membulat
+                .weight(1f)
+                .padding(10.dp)
+                .clip(RoundedCornerShape(12.dp))
         ) {
             if (hasCameraPermission) {
                 CameraPreviewContent(
@@ -164,7 +177,6 @@ fun CameraScreen( navController: NavController ) {
                 )
             }
 
-            // Tombol Back di dalam area kamera
             BackButton(
                 icon = Icons.AutoMirrored.Filled.ArrowBack,
                 onClick = { navController.popBackStack() },
@@ -173,7 +185,6 @@ fun CameraScreen( navController: NavController ) {
                     .padding(16.dp)
             )
 
-            // Reps Badge di dalam area kamera
             RepsBadge(
                 count = counter,
                 modifier = Modifier
@@ -186,7 +197,8 @@ fun CameraScreen( navController: NavController ) {
             modifier = Modifier
                 .fillMaxWidth()
                 .navigationBarsPadding(), // Padding untuk navigasi bar sistem (garis bawah HP)
-            onEndSessionClick = { navController.navigate("home") }
+            onEndSessionClick = { navController.navigate("home") },
+            type = exerciseType.name
         )
     }
 }
@@ -278,7 +290,8 @@ fun RepsBadge(count: Int, modifier: Modifier = Modifier) {
 @Composable
 fun BottomInfoPanel(
     modifier: Modifier = Modifier,
-    onEndSessionClick: () -> Unit
+    onEndSessionClick: () -> Unit,
+    type: String
 ) {
     Column(
         modifier = modifier
@@ -318,7 +331,7 @@ fun BottomInfoPanel(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.",
+            text = "Ini latihan ${type}. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.",
             color = Color.Gray,
             fontSize = 14.sp,
             lineHeight = 22.sp

@@ -24,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.ferynnd.tugasakhir.R // Pastikan import R untuk icon google
@@ -47,32 +48,32 @@ fun LoginScreen(viewModel: AuthViewModel, onNavToHome: () -> Unit, onNavToRegist
     val scope = rememberCoroutineScope()
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
+    var passwordVisible by remember { mutableStateOf(true) }
 
-    val googleLoginAction = SupabaseClient.client.composeAuth.rememberSignInWithGoogle(
-        onResult = { result ->
-            when (result) {
-                is NativeSignInResult.Success -> {
-                    scope.launch {
-                        val user = SupabaseClient.client.auth.currentUserOrNull()
-                                   ?: SupabaseClient.client.auth.currentSessionOrNull()?.user
-                        val email = user?.email
-                        if (email != null) {
-                            viewModel.onGoogleLoginSuccess(email)
-                            onNavToHome()
-                        } else {
-                            Toast.makeText(context, "Gagal mengambil data user", Toast.LENGTH_LONG).show()
-                        }
-                    }
-                }
-                is NativeSignInResult.Error -> Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
-                else -> {}
-            }
-        },
-        fallback = {
-            scope.launch { SupabaseClient.client.auth.signInWith(Google) }
-        }
-    )
+//    val googleLoginAction = SupabaseClient.client.composeAuth.rememberSignInWithGoogle(
+//        onResult = { result ->
+//            when (result) {
+//                is NativeSignInResult.Success -> {
+//                    scope.launch {
+//                        val user = SupabaseClient.client.auth.currentUserOrNull()
+//                                   ?: SupabaseClient.client.auth.currentSessionOrNull()?.user
+//                        val email = user?.email
+//                        if (email != null) {
+//                            viewModel.onGoogleLoginSuccess(email)
+//                            onNavToHome()
+//                        } else {
+//                            Toast.makeText(context, "Gagal mengambil data user", Toast.LENGTH_LONG).show()
+//                        }
+//                    }
+//                }
+//                is NativeSignInResult.Error -> Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
+//                else -> {}
+//            }
+//        },
+//        fallback = {
+//            scope.launch { SupabaseClient.client.auth.signInWith(Google) }
+//        }
+//    )
 
     Column(
         modifier = Modifier
@@ -81,8 +82,24 @@ fun LoginScreen(viewModel: AuthViewModel, onNavToHome: () -> Unit, onNavToRegist
             .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(60.dp))
+         if (viewModel.isDialogVisible) {
+            AlertDialog(
+                onDismissRequest = { viewModel.dismissDialog() },
+                confirmButton = {
+                    TextButton(onClick = { viewModel.dismissDialog() }) {
+                        Text("OK")
+                    }
+                },
+                title = {
+                    Text(viewModel.dialogTitle)
+                },
+                text = {
+                    Text(viewModel.dialogMessage)
+                }
+            )
+        }
 
+        Spacer(modifier = Modifier.height(60.dp))
         Box(
             modifier = Modifier
                 .size(120.dp)
@@ -92,24 +109,25 @@ fun LoginScreen(viewModel: AuthViewModel, onNavToHome: () -> Unit, onNavToRegist
                 ),
             contentAlignment = Alignment.Center
         ) {
-            CustomIcon(
-                iconRes = R.drawable.jump,
-                contentDescription = null,
-                tint = Color.White,
-                modifier = Modifier.size(100.dp)
-            )
+//            CustomIcon(
+//                iconRes = R.drawable.jump,
+//                contentDescription = null,
+//                tint = Color.White,
+//                modifier = Modifier.size(100.dp)
+//            )
+              Text("LOGO", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.White)
         }
 
         Spacer(modifier = Modifier.height(32.dp))
 
         Text(
-            text = "Welcome Back",
+            text = "Login",
             fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
             color = TextMain
         )
         Text(
-            text = "Sign in to continue your movement\nanalysis and research.",
+            text = "Enter your email and password to login",
             fontSize = 16.sp,
             color = TextSub,
             textAlign = TextAlign.Center,
@@ -155,7 +173,9 @@ fun LoginScreen(viewModel: AuthViewModel, onNavToHome: () -> Unit, onNavToRegist
         }
 
         TextButton(
-            onClick = {},
+            onClick = {
+                Toast.makeText(context, "Coming soon...", Toast.LENGTH_SHORT).show()
+            },
             modifier = Modifier.align(Alignment.End)
         ) {
             Text("Forgot password?", color = Primary, fontWeight = FontWeight.SemiBold)
@@ -164,7 +184,7 @@ fun LoginScreen(viewModel: AuthViewModel, onNavToHome: () -> Unit, onNavToRegist
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
-            onClick = { viewModel.onLogin(email, password) },
+            onClick = { viewModel.validateInputLogin(email, password) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
@@ -172,7 +192,7 @@ fun LoginScreen(viewModel: AuthViewModel, onNavToHome: () -> Unit, onNavToRegist
             colors = ButtonDefaults.buttonColors(containerColor = Primary)
         ) {
             if (viewModel.isLoading) CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
-            else Text("Log In", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            else Text("Sign In", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
         }
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -206,7 +226,8 @@ fun LoginScreen(viewModel: AuthViewModel, onNavToHome: () -> Unit, onNavToRegist
 //            }
 //        }
 
-        Spacer(modifier = Modifier.weight(1f))
+//        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.height(32.dp))
 
         Row(modifier = Modifier.padding(bottom = 32.dp)) {
             Text("Don't have an account? ", color = Color.Gray)

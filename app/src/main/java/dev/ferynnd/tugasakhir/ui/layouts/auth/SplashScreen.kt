@@ -26,11 +26,13 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.ferynnd.tugasakhir.ui.components.CustomIcon
 import dev.ferynnd.tugasakhir.ui.theme.Primary // Warna Red Sporty
 import dev.ferynnd.tugasakhir.R
+import dev.ferynnd.tugasakhir.ui.theme.Black
 import dev.ferynnd.tugasakhir.ui.theme.TextMain
 
  @Composable
@@ -41,7 +43,7 @@ fun SplashScreenNavigation(onNavigationComplete: () -> Unit) {
     }
     SplashScreen()
 }
-
+@Preview
 @Composable
 fun SplashScreen() {
     val animatedProgress = remember { Animatable(0f) }
@@ -87,26 +89,30 @@ fun SplashScreen() {
                         ),
                     contentAlignment = Alignment.Center
                 ) {
-                    CustomIcon(
-                        iconRes = R.drawable.jump,
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(100.dp)
-                    )
+//                    CustomIcon(
+//                        iconRes = R.drawable.jump,
+//                        contentDescription = null,
+//                        tint = Color.White,
+//                        modifier = Modifier.size(100.dp)
+//                    )
+                    Text("LOGO", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.White)
                 }
             }
 
             Spacer(modifier = Modifier.height(48.dp))
 
             Text(
-                text = buildAnnotatedString {
-                    withStyle(style = SpanStyle(color = TextMain, fontWeight = FontWeight.Black, fontStyle = FontStyle.Italic)) {
-                        append("BLAZE")
-                    }
-                    withStyle(style = SpanStyle(color = Primary, fontWeight = FontWeight.Black, fontStyle = FontStyle.Italic)) {
-                        append("FIT")
-                    }
-                },
+//                text = buildAnnotatedString {
+//                    withStyle(style = SpanStyle(color = TextMain, fontWeight = FontWeight.Black, fontStyle = FontStyle.Italic)) {
+//                        append("BLAZE")
+//                    }
+//                    withStyle(style = SpanStyle(color = Primary, fontWeight = FontWeight.Black, fontStyle = FontStyle.Italic)) {
+//                        append("FIT")
+//                    }
+//                },
+                text = "NAMEAPP",
+                color = Black,
+                fontWeight = FontWeight.Black,
                 fontSize = 42.sp,
                 letterSpacing = (-1).sp
             )

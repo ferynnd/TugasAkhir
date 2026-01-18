@@ -12,7 +12,7 @@ val PrimaryDark = Color(0xFFC0121A)   // Darker Red for pressed states
 
 // Background & Surface
 val Background = Color(0xFFFAFAFA)    // background-light
-val BackgroundDark = Color(0xFF121212)
+val BackgroundDark = Color(0xFFA0A0A0)
 
 val Card = Color(0xFFFFFFFF)          // card-light
 val CardDark = Color(0xFF1E1E1E)

@@ -31,11 +31,12 @@ import dev.ferynnd.tugasakhir.ui.theme.Primary
 
 @Composable
 fun RegisterScreen(viewModel: AuthViewModel, onNavToLogin: () -> Unit) {
-    var fullName by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
+    var passwordVisible by remember { mutableStateOf(true) }
+    var confirmPasswordVisible by remember { mutableStateOf(true) }
     var isChecked by remember { mutableStateOf(false) }
 
 
@@ -48,15 +49,31 @@ fun RegisterScreen(viewModel: AuthViewModel, onNavToLogin: () -> Unit) {
             .verticalScroll(rememberScrollState())
     ) {
 
-        Spacer(modifier = Modifier.height(32.dp))
+        if (viewModel.isDialogVisible) {
+            AlertDialog(
+                onDismissRequest = { viewModel.dismissDialog() },
+                confirmButton = {
+                    TextButton(onClick = { viewModel.dismissDialog() }) {
+                        Text("OK")
+                    }
+                },
+                title = {
+                    Text(viewModel.dialogTitle)
+                },
+                text = {
+                    Text(viewModel.dialogMessage)
+                }
+            )
+        }
 
+        Spacer(modifier = Modifier.height(32.dp))
         Text(
             text = buildAnnotatedString {
                 withStyle(style = SpanStyle(color = TextMain, fontWeight = FontWeight.Bold)) {
                     append("Create Your\n")
                 }
                 withStyle(style = SpanStyle(color = Primary, fontWeight = FontWeight.Bold)) {
-                    append("Profile")
+                    append("Account")
                 }
             },
             fontSize = 36.sp,
@@ -65,7 +82,7 @@ fun RegisterScreen(viewModel: AuthViewModel, onNavToLogin: () -> Unit) {
 
         Spacer(modifier = Modifier.height(12.dp))
         Text(
-            text = "Start your fitness evaluation journey with BlazePose analysis.",
+            text = "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
             fontSize = 16.sp,
             color = TextSub,
             lineHeight = 24.sp
@@ -74,11 +91,11 @@ fun RegisterScreen(viewModel: AuthViewModel, onNavToLogin: () -> Unit) {
         Spacer(modifier = Modifier.height(32.dp))
 
         Column(modifier = Modifier.fillMaxWidth()) {
-            Text("Full Name", fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
+            Text("Username", fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
             OutlinedTextField(
-                value = fullName,
-                onValueChange = { fullName = it },
-                placeholder = { Text("Student", color = Color.LightGray) },
+                value = username,
+                onValueChange = { username = it },
+                placeholder = { Text("student", color = Color.LightGray) },
                 leadingIcon = { CustomIcon(iconRes = R.drawable.icuser, null, tint = Color.LightGray) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
@@ -130,15 +147,15 @@ fun RegisterScreen(viewModel: AuthViewModel, onNavToLogin: () -> Unit) {
                 placeholder = { Text("••••••••", color = Color.LightGray) },
                 leadingIcon = { Icon(Icons.Default.Lock, null, tint = Color.LightGray) },
                 trailingIcon = {
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
                         CustomIcon(
-                            iconRes = if (passwordVisible) R.drawable.iceyeon else R.drawable.iceyeoff,
-                            contentDescription = if (passwordVisible) "Sembunyikan password" else "Tampilkan password",
+                            iconRes = if (confirmPasswordVisible) R.drawable.iceyeon else R.drawable.iceyeoff,
+                            contentDescription = if (confirmPasswordVisible) "Sembunyikan password" else "Tampilkan password",
                             tint = Color.LightGray
                         )
                     }
                 },
-                visualTransformation = if (passwordVisible) PasswordVisualTransformation() else VisualTransformation.None,
+                visualTransformation = if (confirmPasswordVisible) PasswordVisualTransformation() else VisualTransformation.None,
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Border)
@@ -175,7 +192,13 @@ fun RegisterScreen(viewModel: AuthViewModel, onNavToLogin: () -> Unit) {
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
-            onClick = { viewModel.onRegister(email, password, fullName) },
+            onClick = { viewModel.validateInputRegister(
+                email =email,
+                pass =password,
+                confirmPass =confirmPassword,
+                username = username,
+                isChecked = isChecked)
+                      },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
@@ -203,7 +226,7 @@ fun RegisterScreen(viewModel: AuthViewModel, onNavToLogin: () -> Unit) {
         ) {
             Text("Already have an account? ", color = TextSub)
             Text(
-                text = "Log in",
+                text = "Sign in",
                 color = Primary,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.clickable { onNavToLogin() }

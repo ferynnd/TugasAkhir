@@ -3,6 +3,7 @@ package dev.ferynnd.tugasakhir
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.LaunchedEffect
@@ -24,16 +25,18 @@ import dev.ferynnd.tugasakhir.ui.theme.TugasAkhirTheme
 import io.github.jan.supabase.auth.auth
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.compose.runtime.getValue
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import dev.ferynnd.tugasakhir.data.helper.SharedPreferenceHelper
 import dev.ferynnd.tugasakhir.ui.layouts.BMIProfileScreen
 import dev.ferynnd.tugasakhir.ui.layouts.CameraScreen
+import dev.ferynnd.tugasakhir.ui.layouts.EditProfileScreen
 import dev.ferynnd.tugasakhir.ui.layouts.ProfileScreen
 
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        enableEdgeToEdge()
 
         val repository = AuthRepository(SupabaseClient.client)
         val pref = SharedPreferenceHelper(this)
@@ -78,7 +81,6 @@ class MainActivity : ComponentActivity() {
                                 SplashScreenNavigation(
                                     onNavigationComplete = {
                                         val dest = if (authViewModel.isUserLoggedIn() && currentUser != null) "home" else "login"
-//                                        val dest = if (currentUser != null) "home" else "login"
                                         navController.navigate(dest) {
                                             popUpTo("splash") { inclusive = true }
                                         }
@@ -91,8 +93,6 @@ class MainActivity : ComponentActivity() {
                                     onNavToHome = { navController.navigate("home") },
                                     onNavToRegister = { navController.navigate("register") }
                                 )
-
-                                // Jika login berhasil, pindah ke home
                                 if (authViewModel.isSuccess) {
                                     LaunchedEffect(Unit) {
                                         navController.navigate("home") {
@@ -128,16 +128,22 @@ class MainActivity : ComponentActivity() {
                             composable("trainingDetail") {
                                 TrainingDetail(navController)
                             }
-                            composable("settings") {
-                                // Settings Screen
-                            }
                             composable("profile") {
                                 ProfileScreen(navController)
+                            }
+
+                            composable("editProfile") {
+                                EditProfileScreen(navController)
                             }
                             composable("bmiProfile") {
                                 BMIProfileScreen(navController)
                             }
-                            composable("cameraScan") {
+                            composable(
+                                "cameraScan/{exercise}",
+                                arguments = listOf(
+                                    navArgument("exercise") { type = NavType.StringType }
+                                )
+                            ) {
                                 CameraScreen(navController)
                             }
 

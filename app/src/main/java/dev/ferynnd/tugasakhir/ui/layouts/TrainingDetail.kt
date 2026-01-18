@@ -42,11 +42,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import dev.ferynnd.tugasakhir.R
 import dev.ferynnd.tugasakhir.ui.components.BackButton
-import dev.ferynnd.tugasakhir.ui.components.BackgroundImageWithOverlay
 import dev.ferynnd.tugasakhir.ui.components.DetailCard
 import dev.ferynnd.tugasakhir.ui.components.PrimaryButton
-import dev.ferynnd.tugasakhir.ui.components.TrainingCard
-import dev.ferynnd.tugasakhir.ui.theme.Primary
 import dev.ferynnd.tugasakhir.ui.theme.Secondary
 
 
@@ -59,11 +56,6 @@ fun TrainingDetail(navController: NavController) {
         modifier = Modifier
             .fillMaxSize().statusBarsPadding().navigationBarsPadding()
     ) {
-
-        BackgroundImageWithOverlay(
-            modifier = Modifier.
-                background(Color.Black.copy(alpha = 0.8f))
-        )
 
         Column(
             modifier = Modifier
