@@ -3,21 +3,20 @@ package dev.ferynnd.tugasakhir.helper
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import com.google.mlkit.vision.pose.PoseLandmark
 import dev.ferynnd.tugasakhir.data.model.ExerciseResult
-import dev.ferynnd.tugasakhir.data.model.ExerciseType
 
 class TypeOfExercise(landmarks: List<NormalizedLandmark>) : BodyPartAngle(landmarks) {
 
-    fun process(
-        type: ExerciseType,
-        counter: Int,
-        status: Boolean
-    ): ExerciseResult {
-        return when (type) {
-            ExerciseType.PUSH_UP -> pushUp(counter, status)
-            ExerciseType.SQUAT -> squat(counter, status)
-            ExerciseType.SIT_UP -> TODO()
-        }
-    }
+//    fun process(
+//        type: ExerciseType,
+//        counter: Int,
+//        status: Boolean
+//    ): ExerciseResult {
+//        return when (type) {
+//            ExerciseType.PUSH_UP -> pushUp(counter, status)
+//            ExerciseType.SQUAT -> squat(counter, status)
+//            ExerciseType.SIT_UP -> TODO()
+//        }
+//    }
 
     private fun pushUp(counter: Int, status: Boolean): ExerciseResult {
         val avgArmAngle = (angleLeftArm() + angleRightArm()) / 2

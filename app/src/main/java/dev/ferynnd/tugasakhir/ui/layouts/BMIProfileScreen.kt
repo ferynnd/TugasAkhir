@@ -1,21 +1,20 @@
 package dev.ferynnd.tugasakhir.ui.layouts
 
-import android.graphics.drawable.Icon
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -26,36 +25,95 @@ import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import dev.ferynnd.tugasakhir.ui.theme.*
 import dev.ferynnd.tugasakhir.R
+import dev.ferynnd.tugasakhir.data.model.Gender
+import dev.ferynnd.tugasakhir.data.remote.supabase.SupabaseClient
+import dev.ferynnd.tugasakhir.data.viewmodel.UserViewModel
 import dev.ferynnd.tugasakhir.ui.components.CustomIcon
+import dev.ferynnd.tugasakhir.ui.components.LottieDialog
+import io.github.jan.supabase.auth.auth
+import kotlinx.coroutines.launch
 
 @Composable
-fun BMIProfileScreen(navController: NavController) {
-    var weight by remember { mutableStateOf(70) }
-    var gender by remember { mutableStateOf("Male") }
+fun BMIProfileScreen(navController: NavController, userViewModel: UserViewModel) {
 
+    val user = remember { SupabaseClient.client.auth.currentUserOrNull() }
+    val scope = rememberCoroutineScope()
+
+    var gender by remember { mutableStateOf(Gender.MALE) }
+    var weightValue by remember { mutableIntStateOf(60) } // Default 60kg
     var ageValue by remember { mutableStateOf("") }
     var heightValue by remember { mutableStateOf("") }
 
+    val dialogState by remember { derivedStateOf { userViewModel.dialogState } }
+    var showSuccessDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(user?.id) {
+        user?.id?.let { id ->
+            userViewModel.getUserBMI(id)
+        }
+    }
+
+    LaunchedEffect(userViewModel.weightValue, userViewModel.heightValue , userViewModel.ageValue, userViewModel.selectedGender) {
+        weightValue = userViewModel.weightValue
+        heightValue = userViewModel.heightValue.toString()
+        ageValue = userViewModel.ageValue.toString()
+        gender = userViewModel.selectedGender
+    }
+
     Scaffold(
         containerColor = Background,
-        topBar = {
-            Box(
+          topBar = {
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .statusBarsPadding()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .padding(24.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
                     onClick = { navController.popBackStack() },
                     modifier = Modifier
-                        .align(Alignment.CenterStart)
-                        .border(1.dp, Border, CircleShape)
+                        .size(36.dp)
+                        .clip(CircleShape)
+                       .background(Color(0xFFE5E5E5))
+
                 ) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = null, tint = TextMain)
+                    CustomIcon(
+                        R.drawable.icarrowr,
+                        contentDescription = null,
+                        tint = TextSub,
+                        modifier = Modifier
+                            .size(24.dp)
+                            .graphicsLayer(scaleX = -1f) // Flip horizontal
+
+                    )
                 }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Text(
+                    text = "Edit BMI",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.Black
+                )
+
             }
-        }
+        },
     ) { paddingValues ->
+
+          dialogState?.let { state ->
+              LottieDialog(
+                  lottieRes = state.lottieRes,
+                  title = state.title,
+                  message = state.message,
+                  colorBg = state.colorBg,
+                  autoDismiss = state.autoDismiss,
+                  onConfirm = { userViewModel.dismissDialog() },
+                  onDismiss = { userViewModel.dismissDialog() }
+              )
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -87,7 +145,6 @@ fun BMIProfileScreen(navController: NavController) {
                 )
             }
 
-            // Gender Selection
             Column {
                 Text("GENDER", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TextSub)
                 Spacer(Modifier.height(8.dp))
@@ -95,37 +152,35 @@ fun BMIProfileScreen(navController: NavController) {
                     GenderCard(
                         modifier = Modifier.weight(1f),
                         label = "Male",
-                        isSelected = gender == "Male",
-                        onClick = { gender = "Male" }
+                        isSelected = gender == Gender.MALE,
+                        onClick = { gender = Gender.MALE }
                     )
                     GenderCard(
                         modifier = Modifier.weight(1f),
                         label = "Female",
-                        isSelected = gender == "Female",
-                        onClick = { gender = "Female" }
+                        isSelected = gender == Gender.FEMALE,
+                        onClick = { gender = Gender.FEMALE }
                     )
                 }
             }
 
-            // Age and Height
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 InputMetricField(
                     modifier = Modifier.weight(1f),
                     label = "AGE",
                     value = ageValue,
-                    onValueChange = { ageValue = it },
+                    onValueChange = { if (it.length <= 3) ageValue = it },
                     unit = "yrs"
                 )
                 InputMetricField(
                     modifier = Modifier.weight(1f),
                     label = "HEIGHT",
                     value = heightValue,
-                    onValueChange = { heightValue = it },
+                    onValueChange = { if (it.length <= 3) heightValue = it },
                     unit = "cm"
                 )
             }
 
-            // Weight Counter
             Column {
                 Text("WEIGHT", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TextSub)
                 Spacer(Modifier.height(8.dp))
@@ -139,17 +194,17 @@ fun BMIProfileScreen(navController: NavController) {
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     IconButton(
-                        onClick = { if (weight > 0) weight-- },
+                        onClick = { if (weightValue > 0) weightValue-- },
                         modifier = Modifier.background(Input, RoundedCornerShape(12.dp))
                     ) {
                         Text("-", fontSize = 24.sp, color = Primary, fontWeight = FontWeight.Bold)
                     }
                     Row(verticalAlignment = Alignment.Bottom) {
-                        Text(weight.toString(), fontSize = 28.sp, fontWeight = FontWeight.Black, color = TextMain)
+                        Text(weightValue.toString(), fontSize = 28.sp, fontWeight = FontWeight.Black, color = TextMain)
                         Text(" kg", fontSize = 14.sp, color = TextSub, modifier = Modifier.padding(bottom = 6.dp))
                     }
                     IconButton(
-                        onClick = { weight++ },
+                        onClick = { weightValue++ },
                         modifier = Modifier.background(Input, RoundedCornerShape(12.dp))
                     ) {
                         Text("+", fontSize = 24.sp, color = Primary, fontWeight = FontWeight.Bold)
@@ -157,75 +212,50 @@ fun BMIProfileScreen(navController: NavController) {
                 }
             }
 
-            // Activity Level Dropdown
-            Column {
-                Text("ACTIVITY LEVEL", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TextSub)
-                Spacer(Modifier.height(8.dp))
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Card, RoundedCornerShape(16.dp))
-                        .border(1.dp, Border, RoundedCornerShape(16.dp))
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("Select activity level", color = TextMain)
-                    Icon(Icons.Default.KeyboardArrowDown, contentDescription = null, tint = Primary)
-                }
-            }
+            BMICardEdit(
+                height = heightValue.toIntOrNull() ?: 0,
+                weight = weightValue
+            )
 
-            // BMI Result Card
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = Card),
-                shape = RoundedCornerShape(24.dp),
-                elevation = CardDefaults.cardElevation(2.dp)
-            ) {
-                Column(modifier = Modifier.padding(20.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(modifier = Modifier.size(8.dp).background(Color(0xFF22C55E), CircleShape))
-                            Spacer(Modifier.width(8.dp))
-                            Text("BMI CALCULATION", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TextSub)
-                        }
-                        Surface(color = Color(0xFFDCFCE7), shape = RoundedCornerShape(50)) {
-                            Text("NORMAL", modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp), color = Color(0xFF166534), fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                        }
-                    }
-                    Text("22.8", fontSize = 48.sp, fontWeight = FontWeight.Black, color = TextMain)
-
-                    // BMI Multi-color Slider
-                    Box(modifier = Modifier.fillMaxWidth().height(12.dp).clip(CircleShape).background(Color.LightGray)) {
-                        Row(modifier = Modifier.fillMaxSize()) {
-                            Box(modifier = Modifier.weight(0.2f).fillMaxHeight().background(Color(0xFFBFDBFE))) // Under
-                            Box(modifier = Modifier.weight(0.3f).fillMaxHeight().background(Color(0xFFBBF7D0))) // Normal
-                            Box(modifier = Modifier.weight(0.2f).fillMaxHeight().background(Color(0xFFFEF08A))) // Over
-                            Box(modifier = Modifier.weight(0.3f).fillMaxHeight().background(Color(0xFFFECACA))) // Obese
-                        }
-                    }
-                }
-            }
-
-            // Save Button
             Button(
-                onClick = { /* Save action */ },
-                modifier = Modifier.fillMaxWidth().height(60.dp),
+                onClick = {
+                    scope.launch {
+                        val h = heightValue.toIntOrNull() ?: 0
+                        val a = ageValue.toIntOrNull() ?: 0
+
+                        if (h > 0 && a > 0 && weightValue > 0) {
+                            userViewModel.updateBMI(
+                                userId = user?.id ?: "",
+                                gender = gender,
+                                height = h,
+                                weight = weightValue,
+                                age = a
+                            )
+                        } else {
+                            userViewModel.showError("Error", "Semua field harus diisi")
+                        }
+                    }
+                    showSuccessDialog = true
+                },
+                modifier = Modifier.fillMaxWidth().height(52.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Primary),
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Save Profile", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                    Spacer(Modifier.width(8.dp))
-                    Icon(painterResource(R.drawable.icarrowr), contentDescription = null, modifier = Modifier.size(20.dp))
+                    Text("Save Profile", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = White)
                 }
             }
             Spacer(modifier = Modifier.height(24.dp))
         }
     }
+
+     if (showSuccessDialog) {
+        ShowDialog(
+            textMessage = userViewModel.textMessage,
+            onConfirm = { showSuccessDialog = false },
+            onDismiss = { showSuccessDialog = false }
+        )
+     }
 }
 
 @Composable
@@ -287,11 +317,10 @@ fun InputMetricField(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.Bottom
         ) {
-            // Komponen Input Utama
             BasicTextField(
                 value = value,
                 onValueChange = onValueChange,
-                modifier = Modifier.width(IntrinsicSize.Min), // Lebar mengikuti isi teks
+                modifier = Modifier.weight(1f),
                 textStyle = LocalTextStyle.current.copy(
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Black,
@@ -301,16 +330,24 @@ fun InputMetricField(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
                 decorationBox = { innerTextField ->
-                    // Tempat teks diketik, jika kosong tampilkan placeholder
-                    if (value.isEmpty()) {
-                        Text(
-                            text = "0",
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Black,
-                            color = TextSub
-                        )
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center // Memastikan teks di tengah secara vertikal & horizontal
+                    ) {
+                        if (value.isEmpty()) {
+                            Text(
+                                text = "0",
+                                style = LocalTextStyle.current.copy(
+                                    fontSize = 24.sp,
+                                    fontWeight = FontWeight.Black,
+                                    color = TextSub.copy(alpha = 0.5f), // Placeholder agak transparan
+                                    textAlign = TextAlign.Center
+                                )
+                            )
+                        }
+                        // Penting: innerTextField() harus selalu dipanggil agar teks yang diketik muncul
+                        innerTextField()
                     }
-                    innerTextField()
                 }
             )
 
@@ -320,6 +357,129 @@ fun InputMetricField(
                 color = TextSub,
                 modifier = Modifier.padding(bottom = 4.dp)
             )
+        }
+    }
+}
+
+
+@Composable
+fun BMICardEdit(height: Int, weight: Int) {
+    val bmiData by remember(height, weight) {
+        derivedStateOf {
+            if (height > 0 && weight > 0) {
+                val heightInMeter = height / 100.0
+                val score = weight / (heightInMeter * heightInMeter)
+
+                // Tentukan kategori dan progress bar (0.0f sampai 1.0f)
+                val (category, progress) = when {
+                    score < 18.5 -> "Underweight" to 0.15f
+                    score < 25.0 -> "Normal" to 0.5f
+                    score < 30.0 -> "Overweight" to 0.85f
+                    else -> "Obese" to 0.95f
+                }
+
+                Triple(score, category, progress)
+            } else {
+                Triple(0.0, "-", 0.0f)
+            }
+        }
+    }
+
+    val (bmiResult, categoryName, bmiProgress) = bmiData
+
+    Card(
+        modifier = Modifier.fillMaxWidth().border(1.dp, Border, RoundedCornerShape(24.dp)),
+        colors = CardDefaults.cardColors(containerColor = White),
+        shape = RoundedCornerShape(24.dp),
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text("Body Mass Index", fontSize = 14.sp, color = TextSub, fontWeight = FontWeight.Bold)
+                    // Menampilkan 1 angka di belakang koma
+                    Text(
+                        text = String.format("%.1f", bmiResult),
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Black,
+                        color = TextMain
+                    )
+                }
+
+                // Status Badge (Warna berubah sesuai kategori)
+                Surface(
+                    color = if (categoryName == "Normal") Color(0xFFDCFCE7) else Color(0xFFFFEBEE),
+                    shape = RoundedCornerShape(50)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                    ) {
+                        if (categoryName == "Normal") {
+                            Icon(
+                                painter = painterResource(id = R.drawable.iccheck),
+                                contentDescription = null,
+                                tint = Color(0xFF166534),
+                                modifier = Modifier.size(14.dp)
+                            )
+                            Spacer(Modifier.width(4.dp))
+                        }
+                        Text(
+                            text = categoryName,
+                            color = if (categoryName == "Normal") Color(0xFF166534) else Color(0xFFC62828),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text("UNDERWEIGHT", fontSize = 10.sp, color = TextSub, fontWeight = FontWeight.Bold)
+                Text("NORMAL", fontSize = 10.sp, color = TextSub, fontWeight = FontWeight.Bold)
+                Text("OVERWEIGHT", fontSize = 10.sp, color = TextSub, fontWeight = FontWeight.Bold)
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Progress Bar dengan Indikator Dinamis
+            BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                val barWidth = maxWidth
+
+                // Background Bar (Gradient)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(14.dp)
+                        .clip(RoundedCornerShape(50))
+                        .background(
+                            Brush.horizontalGradient(
+                                listOf(
+                                    Color(0xFF2196F3), // Blue
+                                    Color(0xFF00C853), // Green
+                                    Color(0xFFFFC107), // Yellow/Orange
+                                    Color(0xFFF44336)  // Red
+                                )
+                            )
+                        )
+                )
+
+                // Indikator (Garis Hitam)
+                Box(
+                    modifier = Modifier
+                        .offset(x = (barWidth * bmiProgress) - 3.dp)
+                        .width(6.dp)
+                        .height(18.dp)
+                        .align(Alignment.CenterStart)
+                        .background(Color.Black.copy(alpha = 0.8f), RoundedCornerShape(2.dp))
+                        .zIndex(1f)
+                )
+            }
         }
     }
 }

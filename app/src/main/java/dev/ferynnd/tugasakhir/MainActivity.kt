@@ -28,10 +28,14 @@ import androidx.compose.runtime.getValue
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import dev.ferynnd.tugasakhir.data.helper.SharedPreferenceHelper
+import dev.ferynnd.tugasakhir.data.viewmodel.UserViewModel
+import dev.ferynnd.tugasakhir.ui.components.LottieDialog
 import dev.ferynnd.tugasakhir.ui.layouts.BMIProfileScreen
 import dev.ferynnd.tugasakhir.ui.layouts.CameraScreen
 import dev.ferynnd.tugasakhir.ui.layouts.EditProfileScreen
 import dev.ferynnd.tugasakhir.ui.layouts.ProfileScreen
+import dev.ferynnd.tugasakhir.ui.theme.colEmail
+import dev.ferynnd.tugasakhir.ui.theme.colSuccess
 
 class MainActivity : ComponentActivity() {
 
@@ -39,14 +43,12 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val repository = AuthRepository(SupabaseClient.client)
-        val pref = SharedPreferenceHelper(this)
-        val authViewModel = AuthViewModel(repository, pref)
+        val authViewModel = AuthViewModel(repository)
+        val userViewModel = UserViewModel(SupabaseClient)
 
         setContent {
             TugasAkhirTheme {
                 val navController = rememberNavController()
-
-                val currentUser = SupabaseClient.client.auth.currentUserOrNull()
 
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
@@ -80,7 +82,10 @@ class MainActivity : ComponentActivity() {
                             composable("splash") {
                                 SplashScreenNavigation(
                                     onNavigationComplete = {
-                                        val dest = if (authViewModel.isUserLoggedIn() && currentUser != null) "home" else "login"
+                                        // Cek session terbaru langsung saat navigasi selesai
+                                        val session = SupabaseClient.client.auth.currentSessionOrNull()
+                                        val dest = if (session != null) "home" else "login"
+
                                         navController.navigate(dest) {
                                             popUpTo("splash") { inclusive = true }
                                         }
@@ -90,37 +95,46 @@ class MainActivity : ComponentActivity() {
                             composable("login") {
                                 LoginScreen(
                                     viewModel = authViewModel,
-                                    onNavToHome = { navController.navigate("home") },
-                                    onNavToRegister = { navController.navigate("register") }
-                                )
-                                if (authViewModel.isSuccess) {
-                                    LaunchedEffect(Unit) {
+                                    onNavToHome = {
                                         navController.navigate("home") {
                                             popUpTo("login") { inclusive = true }
                                         }
-                                        authViewModel.isSuccess = false // Reset state
-                                    }
-                                }
+                                    },
+                                    onNavToRegister = { navController.navigate("register") }
+                                )
                             }
 
                             composable("register") {
                                 RegisterScreen(
                                     viewModel = authViewModel,
-                                    onNavToLogin = { navController.popBackStack() }
+                                    onNavToLogin = { navController.popBackStack() },
                                 )
-
-                                // Jika registrasi berhasil (biasanya minta cek email dulu atau langsung login)
                                 if (authViewModel.isSuccess) {
-                                    LaunchedEffect(Unit) {
-                                        navController.navigate("login") {
-                                            popUpTo("register") { inclusive = true }
+                                    LottieDialog(
+                                        lottieRes = R.raw.email,
+                                        title = "Pendaftaran Berhasil",
+                                        colorBg = colEmail.copy(alpha = 0.15f),
+                                        message = "Kami telah mengirim email aktivasi.\nSilakan cek email kamu untuk mengaktifkan akun.",
+                                        confirmText = "OK",
+                                        autoDismiss = true,
+                                        timeDelay = 5000,
+                                        onConfirm = {
+                                            authViewModel.resetSuccess()
+                                            navController.navigate("login") {
+                                                popUpTo("register") { inclusive = true }
+                                            }
+                                        },
+                                        onDismiss = {
+                                            authViewModel.resetSuccess()
+                                            navController.navigate("login") {
+                                                popUpTo("register") { inclusive = true }
+                                            }
                                         }
-                                        authViewModel.isSuccess = false // Reset state
-                                    }
+                                    )
                                 }
                             }
                             composable("home") {
-                                HomeScreen(navController)
+                                HomeScreen(navController, userViewModel)
                             }
                             composable("trainingList") {
                                 TrainingList(navController)
@@ -129,14 +143,14 @@ class MainActivity : ComponentActivity() {
                                 TrainingDetail(navController)
                             }
                             composable("profile") {
-                                ProfileScreen(navController)
+                                ProfileScreen(navController, userViewModel)
                             }
 
                             composable("editProfile") {
-                                EditProfileScreen(navController)
+                                EditProfileScreen(navController, authViewModel, userViewModel)
                             }
-                            composable("bmiProfile") {
-                                BMIProfileScreen(navController)
+                            composable("editBMI") {
+                                BMIProfileScreen(navController, userViewModel)
                             }
                             composable(
                                 "cameraScan/{exercise}",

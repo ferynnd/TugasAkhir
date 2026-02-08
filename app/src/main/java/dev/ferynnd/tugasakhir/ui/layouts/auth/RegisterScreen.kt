@@ -26,18 +26,22 @@ import dev.ferynnd.tugasakhir.ui.components.CustomIcon
 import dev.ferynnd.tugasakhir.ui.theme.TextMain
 import dev.ferynnd.tugasakhir.ui.theme.TextSub
 import dev.ferynnd.tugasakhir.R // Pastikan import R untuk icon google
+import dev.ferynnd.tugasakhir.ui.components.LottieDialog
 import dev.ferynnd.tugasakhir.ui.theme.Border
 import dev.ferynnd.tugasakhir.ui.theme.Primary
+import dev.ferynnd.tugasakhir.ui.theme.colEmail
+import dev.ferynnd.tugasakhir.ui.theme.colSuccess
 
 @Composable
 fun RegisterScreen(viewModel: AuthViewModel, onNavToLogin: () -> Unit) {
-    var username by remember { mutableStateOf("") }
+    var fullname by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(true) }
     var confirmPasswordVisible by remember { mutableStateOf(true) }
     var isChecked by remember { mutableStateOf(false) }
+    val dialogState = viewModel.dialogState
 
 
     Column(
@@ -49,40 +53,35 @@ fun RegisterScreen(viewModel: AuthViewModel, onNavToLogin: () -> Unit) {
             .verticalScroll(rememberScrollState())
     ) {
 
-        if (viewModel.isDialogVisible) {
-            AlertDialog(
-                onDismissRequest = { viewModel.dismissDialog() },
-                confirmButton = {
-                    TextButton(onClick = { viewModel.dismissDialog() }) {
-                        Text("OK")
-                    }
-                },
-                title = {
-                    Text(viewModel.dialogTitle)
-                },
-                text = {
-                    Text(viewModel.dialogMessage)
-                }
+        dialogState?.let { state ->
+            LottieDialog(
+                lottieRes = state.lottieRes,
+                title = state.title,
+                message = state.message,
+                colorBg = state.colorBg,
+                autoDismiss = state.autoDismiss,
+                onConfirm = { viewModel.dismissDialog() },
+                onDismiss = { viewModel.dismissDialog() }
             )
         }
-
         Spacer(modifier = Modifier.height(32.dp))
+
         Text(
             text = buildAnnotatedString {
                 withStyle(style = SpanStyle(color = TextMain, fontWeight = FontWeight.Bold)) {
-                    append("Create Your\n")
+                    append("Create\n")
                 }
                 withStyle(style = SpanStyle(color = Primary, fontWeight = FontWeight.Bold)) {
                     append("Account")
                 }
             },
-            fontSize = 36.sp,
-            lineHeight = 42.sp
+            fontSize = 32.sp,
+            lineHeight = 36.sp
         )
 
         Spacer(modifier = Modifier.height(12.dp))
         Text(
-            text = "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+            text = "Create a new account to get started and enjoy.",
             fontSize = 16.sp,
             color = TextSub,
             lineHeight = 24.sp
@@ -91,10 +90,10 @@ fun RegisterScreen(viewModel: AuthViewModel, onNavToLogin: () -> Unit) {
         Spacer(modifier = Modifier.height(32.dp))
 
         Column(modifier = Modifier.fillMaxWidth()) {
-            Text("Username", fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
+            Text("Fullname", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = TextSub,  modifier = Modifier.padding(bottom = 8.dp))
             OutlinedTextField(
-                value = username,
-                onValueChange = { username = it },
+                value = fullname,
+                onValueChange = { fullname = it },
                 placeholder = { Text("student", color = Color.LightGray) },
                 leadingIcon = { CustomIcon(iconRes = R.drawable.icuser, null, tint = Color.LightGray) },
                 modifier = Modifier.fillMaxWidth(),
@@ -104,7 +103,7 @@ fun RegisterScreen(viewModel: AuthViewModel, onNavToLogin: () -> Unit) {
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Text("Email", fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
+            Text("Email",  fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = TextSub,  modifier = Modifier.padding(bottom = 8.dp))
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
@@ -117,7 +116,7 @@ fun RegisterScreen(viewModel: AuthViewModel, onNavToLogin: () -> Unit) {
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Text("Password", fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
+            Text("Password",  fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = TextSub,  modifier = Modifier.padding(bottom = 8.dp))
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
@@ -140,7 +139,7 @@ fun RegisterScreen(viewModel: AuthViewModel, onNavToLogin: () -> Unit) {
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Text("Confirm Password", fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
+            Text("Confirm Password",  fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = TextSub,  modifier = Modifier.padding(bottom = 8.dp))
             OutlinedTextField(
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
@@ -172,7 +171,7 @@ fun RegisterScreen(viewModel: AuthViewModel, onNavToLogin: () -> Unit) {
             Checkbox(
                 checked = isChecked,
                 onCheckedChange = { isChecked = it },
-                colors = CheckboxDefaults.colors(checkedColor = Primary)
+                colors = CheckboxDefaults.colors(checkedColor = Primary),
             )
             val annotatedString = buildAnnotatedString {
                 append("I agree to the ")
@@ -189,16 +188,17 @@ fun RegisterScreen(viewModel: AuthViewModel, onNavToLogin: () -> Unit) {
             )
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick = { viewModel.validateInputRegister(
                 email =email,
                 pass =password,
                 confirmPass =confirmPassword,
-                username = username,
+                fullname = fullname,
                 isChecked = isChecked)
                       },
+            enabled = !viewModel.isLoading,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
@@ -210,8 +210,8 @@ fun RegisterScreen(viewModel: AuthViewModel, onNavToLogin: () -> Unit) {
             } else {
                 Text(
                     text = "Create Account",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
                     color = Color.White
                 )
             }
@@ -226,11 +226,14 @@ fun RegisterScreen(viewModel: AuthViewModel, onNavToLogin: () -> Unit) {
         ) {
             Text("Already have an account? ", color = TextSub)
             Text(
-                text = "Sign in",
+                text = "Sign in here",
                 color = Primary,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.clickable { onNavToLogin() }
             )
+
         }
+
     }
+
 }

@@ -73,8 +73,6 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.LifecycleOwner
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
-import dev.ferynnd.tugasakhir.data.model.ExerciseType
-import dev.ferynnd.tugasakhir.data.model.dummyExercises
 import dev.ferynnd.tugasakhir.helper.CameraAnalyzerHelper
 import dev.ferynnd.tugasakhir.helper.PoseLandmarkerHelper
 import dev.ferynnd.tugasakhir.helper.TypeOfExercise
@@ -109,12 +107,12 @@ fun CameraScreen( navController: NavController ) {
     }
 
 
-    val exerciseType = navController
-        .currentBackStackEntry
-        ?.arguments
-        ?.getString("exercise")
-        ?.let { ExerciseType.valueOf(it) }
-        ?: ExerciseType.PUSH_UP
+//    val exerciseType = navController
+//        .currentBackStackEntry
+//        ?.arguments
+//        ?.getString("exercise")
+//        ?.let { ExerciseType.valueOf(it) }
+//        ?: ExerciseType.PUSH_UP
 
 
     var poseResult by remember { mutableStateOf<PoseLandmarkerResult?>(null) }
@@ -134,14 +132,14 @@ fun CameraScreen( navController: NavController ) {
 
                         val exerciseLogic = TypeOfExercise(firstPerson)
 
-                        val resultData = exerciseLogic.process(
-                            type = exerciseType,
-                            counter = counter,
-                            status = status
-                        )
+//                        val resultData = exerciseLogic.process(
+//                            type = exerciseType,
+//                            counter = counter,
+//                            status = status
+//                        )
 
-                        counter = resultData.counter
-                        status = resultData.status
+//                        counter = resultData.counter
+//                        status = resultData.status
 
                     }
                 }
@@ -198,7 +196,7 @@ fun CameraScreen( navController: NavController ) {
                 .fillMaxWidth()
                 .navigationBarsPadding(), // Padding untuk navigasi bar sistem (garis bawah HP)
             onEndSessionClick = { navController.navigate("home") },
-            type = exerciseType.name
+            type = "HH"
         )
     }
 }

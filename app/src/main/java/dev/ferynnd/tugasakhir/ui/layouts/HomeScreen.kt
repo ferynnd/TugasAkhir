@@ -1,15 +1,15 @@
 package dev.ferynnd.tugasakhir.ui.layouts
 
+import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,125 +21,62 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import dev.ferynnd.tugasakhir.R
+import dev.ferynnd.tugasakhir.data.model.CategoryBmi
 import dev.ferynnd.tugasakhir.data.model.dummyExercises
 import dev.ferynnd.tugasakhir.data.remote.supabase.SupabaseClient
+import dev.ferynnd.tugasakhir.data.viewmodel.AuthViewModel
+import dev.ferynnd.tugasakhir.data.viewmodel.UserViewModel
 import dev.ferynnd.tugasakhir.ui.components.CustomIcon
 import dev.ferynnd.tugasakhir.ui.components.ExerciseListDialog
+import dev.ferynnd.tugasakhir.ui.components.LottieDialog
 import dev.ferynnd.tugasakhir.ui.theme.*
 import io.github.jan.supabase.auth.auth
 
 
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(navController: NavController, userViewModel: UserViewModel) {
     val user = remember { SupabaseClient.client.auth.currentUserOrNull() }
-    val displayUsername = user?.userMetadata?.get("username")?.toString()?.replace("\"", "") ?: "User"
+    LaunchedEffect(user?.id) {
+        if (user != null) {
+            userViewModel.getProfile(user.id)
+            userViewModel.getUserBMI(user.id)
+        }
+    }
+
+    val displayUsername by remember { derivedStateOf { userViewModel.fullName } }
+    val displayAvatar by remember { derivedStateOf { userViewModel.avatar } }
+    val displayBMIValue by remember { derivedStateOf { userViewModel.bmiResult } }
+    val displayBMICategory by remember { derivedStateOf { userViewModel.bmiCategory } }
+    Log.d("HomeScreen", "displayBMICat: $displayBMICategory")
+//    val timestamp = remember(displayAvatar) { System.currentTimeMillis() }
 
     var showExerciseDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         containerColor = White,
-        topBar = { TopBarSection( username = displayUsername) }
+        topBar = { TopBarSection( fullname = displayUsername, avatar = displayAvatar) }
     ) { paddingValues ->
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .padding(paddingValues)
                 .padding(horizontal = 20.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            item { Spacer(modifier = Modifier.height(10.dp)) }
 
-            item { BMIStatusCard() }
-
-            item { ProgressSection() }
-
-            item {
-                Column {
-                    Text("QUICK ACTIONS", fontWeight = FontWeight.Black, color = TextMain)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Card(
-                        onClick = {showExerciseDialog = true },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(180.dp),
-                        shape = RoundedCornerShape(18.dp)
-                    ) {
-                        Box(modifier = Modifier.fillMaxSize()) {
-
-                            Image(
-                                painter = painterResource(R.drawable.bgta),
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(Color.Black.copy(alpha = 0.35f))
-                            )
-
-                            Column(
-                                modifier = Modifier
-                                    .align(Alignment.BottomStart) // ⬅️ INI KUNCINYA
-                                    .padding(20.dp)
-                            ) {
-
-                                Surface(
-                                    color = Primary,
-                                    shape = RoundedCornerShape(12.dp)
-                                ) {
-                                    Text(
-                                        "RECOMMENDED",
-                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp),
-                                        color = White,
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-
-                                Spacer(Modifier.height(10.dp))
-
-                                Text(
-                                    "LET'S\nEXERCISE",
-                                    color = White,
-                                    fontSize = 28.sp,
-                                    fontWeight = FontWeight.Black,
-                                    lineHeight = 28.sp
-                                )
-
-                                Spacer(Modifier.height(12.dp))
-
-                                Button(
-                                    onClick = {},
-                                    colors = ButtonDefaults.buttonColors(containerColor = White),
-                                    shape = RoundedCornerShape(50),
-                                    contentPadding = PaddingValues(horizontal = 16.dp)
-                                ) {
-                                    Text("Click Now", color = TextMain, fontWeight = FontWeight.Bold)
-                                    Spacer(Modifier.width(8.dp))
-                                    CustomIcon(
-                                        R.drawable.icarrowr,
-                                        null,
-                                        tint = White,
-                                        backgroundColor = Primary,
-                                        cornerRadius = 50.dp,
-                                        padding = 2.dp,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-                }
-            }
+            BMIStatusCard( displayBMIValue = displayBMIValue, displayBMICategory = CategoryBmi.valueOf(displayBMICategory) )
+            ProgressSection()
+            QuickAction(onActionClick = { showExerciseDialog = true })
         }
     }
 
@@ -149,7 +86,25 @@ fun HomeScreen(navController: NavController) {
             onDismiss = { showExerciseDialog = false },
             onSelect = { exercise ->
                 showExerciseDialog = false
-                navController.navigate("cameraScan/${exercise.type.name}")
+                navController.navigate("cameraScan/")
+            }
+        )
+    }
+
+    if (userViewModel.showBmiWarning) {
+        LottieDialog(
+            lottieRes = R.raw.warning, // Ganti dengan file lottie Anda
+            title = "Lengkapi Profil BMI",
+            message = "Lengkapi data BMI untuk mengetahui status berat badan Anda.",
+            confirmText = "Lengkapi Sekarang",
+            colorBg = colWarning.copy(alpha = 0.15f),
+            dismissText = "Nanti Saja",
+            onConfirm = {
+                userViewModel.showBmiWarning = false
+                navController.navigate("editBMI") // Arahkan ke halaman edit
+            },
+            onDismiss = {
+                userViewModel.showBmiWarning = false
             }
         )
     }
@@ -158,7 +113,9 @@ fun HomeScreen(navController: NavController) {
 
 @Composable
 fun TopBarSection(
-    username: String = "Guest"
+    avatar: String = "",
+    fullname: String = "Guest",
+    timestamp: Long = 0
 ) {
     Row(
         modifier = Modifier
@@ -171,14 +128,19 @@ fun TopBarSection(
         Row(verticalAlignment = Alignment.CenterVertically) {
             // Profile Picture with Online Dot
             Box {
-                Image(
-                    painter = painterResource(id = R.drawable.bgta), // Ganti sesuai drawable Anda
-                    contentDescription = null,
+                 AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(avatar)
+                        .crossfade(true)
+                        .size(120)
+                        .build(),
+                    contentDescription = "Image Profil User",
                     modifier = Modifier
                         .size(48.dp)
                         .clip(CircleShape)
                         .border(2.dp, Primary.copy(alpha = 0.2f), CircleShape),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Fit,
+                    placeholder = painterResource(R.drawable.placeholder), error = painterResource(R.drawable.placeholder)
                 )
                 Box(
                     modifier = Modifier
@@ -191,14 +153,14 @@ fun TopBarSection(
             Spacer(modifier = Modifier.width(12.dp))
             Column {
                 Text("LET'S MOVE", fontSize = 12.sp, color = TextSub, fontWeight = FontWeight.Bold)
-                Text(username.uppercase(), fontSize = 18.sp, color = TextMain, fontWeight = FontWeight.Black)
+                Text(fullname.uppercase(), fontSize = 18.sp, color = TextMain, fontWeight = FontWeight.Black)
             }
         }
     }
 }
 
 @Composable
-fun BMIStatusCard() {
+fun BMIStatusCard( displayBMIValue: Double = 0.0, displayBMICategory: CategoryBmi ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -219,8 +181,8 @@ fun BMIStatusCard() {
                 }
                 Spacer(modifier = Modifier.height(12.dp))
                 Row(verticalAlignment = Alignment.Bottom) {
-                    Text("22.4", fontSize = 38.sp, fontWeight = FontWeight.Black, color = TextMain)
-                    Text(" BMI", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = TextSub, modifier = Modifier.padding(bottom = 6.dp))
+                    Text(String.format("%.1f", displayBMIValue), fontSize = 38.sp, fontWeight = FontWeight.Black, color = TextMain)
+                    Text("BMI", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = TextSub, modifier = Modifier.padding(bottom = 6.dp))
                 }
                 Spacer(modifier = Modifier.height(10.dp))
                 // Normal Weight Chip
@@ -231,7 +193,7 @@ fun BMIStatusCard() {
                     Row(modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                         Icon(painterResource(R.drawable.iccheck), null, tint = Color(0xFF166534), modifier = Modifier.size(14.dp))
                         Spacer(Modifier.width(4.dp))
-                        Text("NORMAL WEIGHT", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF166534))
+                        Text(displayBMICategory.toString(), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF166534))
                     }
                 }
             }
@@ -293,6 +255,89 @@ fun ProgressSection() {
                     Text("EXERCISE", fontSize = 10.sp, color = TextSub, fontWeight = FontWeight.Bold)
                     Text("3", fontSize = 24.sp, color = TextMain, fontWeight = FontWeight.Black)
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun QuickAction(
+    onActionClick : () -> Unit
+) {
+    Column {
+        Text("QUICK ACTIONS", fontWeight = FontWeight.Black, color = TextMain)
+        Spacer(modifier = Modifier.height(16.dp))
+        Card(
+            onClick = { onActionClick() },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(180.dp),
+            shape = RoundedCornerShape(18.dp)
+        ) {
+            Box(modifier = Modifier.fillMaxSize()) {
+
+                Image(
+                    painter = painterResource(R.drawable.bgta),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.35f))
+                )
+
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart) // ⬅️ INI KUNCINYA
+                        .padding(20.dp)
+                ) {
+
+                    Surface(
+                        color = Primary,
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(
+                            "RECOMMENDED",
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp),
+                            color = White,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    Spacer(Modifier.height(10.dp))
+
+                    Text(
+                        "LET'S\nEXERCISE",
+                        color = White,
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Black,
+                        lineHeight = 28.sp
+                    )
+
+                    Spacer(Modifier.height(12.dp))
+
+                    Button(
+                        onClick = {},
+                        colors = ButtonDefaults.buttonColors(containerColor = White),
+                        shape = RoundedCornerShape(50),
+                        contentPadding = PaddingValues(horizontal = 16.dp)
+                    ) {
+                        Text("Click Now", color = TextMain, fontWeight = FontWeight.Bold)
+                        Spacer(Modifier.width(8.dp))
+                        CustomIcon(
+                            R.drawable.icarrowr,
+                            null,
+                            tint = White,
+                            backgroundColor = Primary,
+                            cornerRadius = 50.dp,
+                            padding = 2.dp,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+            }
             }
         }
     }

@@ -31,10 +31,12 @@ import dev.ferynnd.tugasakhir.R // Pastikan import R untuk icon google
 import dev.ferynnd.tugasakhir.data.remote.supabase.SupabaseClient
 import dev.ferynnd.tugasakhir.data.viewmodel.AuthViewModel
 import dev.ferynnd.tugasakhir.ui.components.CustomIcon
+import dev.ferynnd.tugasakhir.ui.components.LottieDialog
 import dev.ferynnd.tugasakhir.ui.theme.Border
 import dev.ferynnd.tugasakhir.ui.theme.Primary
 import dev.ferynnd.tugasakhir.ui.theme.TextMain
 import dev.ferynnd.tugasakhir.ui.theme.TextSub
+import dev.ferynnd.tugasakhir.ui.theme.colSuccess
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.Google
 import io.github.jan.supabase.compose.auth.composable.NativeSignInResult
@@ -49,31 +51,31 @@ fun LoginScreen(viewModel: AuthViewModel, onNavToHome: () -> Unit, onNavToRegist
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(true) }
+    val dialogState = viewModel.dialogState
 
-//    val googleLoginAction = SupabaseClient.client.composeAuth.rememberSignInWithGoogle(
-//        onResult = { result ->
-//            when (result) {
-//                is NativeSignInResult.Success -> {
-//                    scope.launch {
-//                        val user = SupabaseClient.client.auth.currentUserOrNull()
-//                                   ?: SupabaseClient.client.auth.currentSessionOrNull()?.user
-//                        val email = user?.email
-//                        if (email != null) {
-//                            viewModel.onGoogleLoginSuccess(email)
-//                            onNavToHome()
-//                        } else {
-//                            Toast.makeText(context, "Gagal mengambil data user", Toast.LENGTH_LONG).show()
-//                        }
-//                    }
-//                }
-//                is NativeSignInResult.Error -> Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
-//                else -> {}
-//            }
-//        },
-//        fallback = {
-//            scope.launch { SupabaseClient.client.auth.signInWith(Google) }
-//        }
-//    )
+    val googleLoginAction = SupabaseClient.client.composeAuth.rememberSignInWithGoogle(
+        onResult = { result ->
+            when (result) {
+                is NativeSignInResult.Success -> {
+                    scope.launch {
+                        val user = SupabaseClient.client.auth.currentUserOrNull()
+                                   ?: SupabaseClient.client.auth.currentSessionOrNull()?.user
+                        val email = user?.email
+                        if (email != null) {
+                            viewModel.onGoogleLoginSuccess()
+                        } else {
+                            Toast.makeText(context, "Gagal mengambil data user", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                }
+                is NativeSignInResult.Error -> Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
+                else -> {}
+            }
+        },
+        fallback = {
+            scope.launch { SupabaseClient.client.auth.signInWith(Google) }
+        }
+    )
 
     Column(
         modifier = Modifier
@@ -82,20 +84,15 @@ fun LoginScreen(viewModel: AuthViewModel, onNavToHome: () -> Unit, onNavToRegist
             .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-         if (viewModel.isDialogVisible) {
-            AlertDialog(
-                onDismissRequest = { viewModel.dismissDialog() },
-                confirmButton = {
-                    TextButton(onClick = { viewModel.dismissDialog() }) {
-                        Text("OK")
-                    }
-                },
-                title = {
-                    Text(viewModel.dialogTitle)
-                },
-                text = {
-                    Text(viewModel.dialogMessage)
-                }
+        dialogState?.let { state ->
+            LottieDialog(
+                lottieRes = state.lottieRes,
+                title = state.title,
+                message = state.message,
+                colorBg = state.colorBg,
+                autoDismiss = state.autoDismiss,
+                onConfirm = { viewModel.dismissDialog() },
+                onDismiss = { viewModel.dismissDialog() }
             )
         }
 
@@ -137,7 +134,7 @@ fun LoginScreen(viewModel: AuthViewModel, onNavToHome: () -> Unit, onNavToRegist
         Spacer(modifier = Modifier.height(40.dp))
 
         Column(modifier = Modifier.fillMaxWidth()) {
-            Text("Email", fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
+            Text("Email", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = TextSub, modifier = Modifier.padding(bottom = 8.dp))
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
@@ -150,7 +147,7 @@ fun LoginScreen(viewModel: AuthViewModel, onNavToHome: () -> Unit, onNavToRegist
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Text("Password", fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
+            Text("Password", fontWeight = FontWeight.SemiBold, fontSize = 14.sp,  color = TextSub, modifier = Modifier.padding(bottom = 8.dp))
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
@@ -178,13 +175,14 @@ fun LoginScreen(viewModel: AuthViewModel, onNavToHome: () -> Unit, onNavToRegist
             },
             modifier = Modifier.align(Alignment.End)
         ) {
-            Text("Forgot password?", color = Primary, fontWeight = FontWeight.SemiBold)
+            Text("Forgot password?", color = TextSub, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
             onClick = { viewModel.validateInputLogin(email, password) },
+            enabled = !viewModel.isLoading,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
@@ -192,41 +190,41 @@ fun LoginScreen(viewModel: AuthViewModel, onNavToHome: () -> Unit, onNavToRegist
             colors = ButtonDefaults.buttonColors(containerColor = Primary)
         ) {
             if (viewModel.isLoading) CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
-            else Text("Sign In", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            else Text("Sign In", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
         }
 
         Spacer(modifier = Modifier.height(32.dp))
 
-//        Row(verticalAlignment = Alignment.CenterVertically) {
-//            HorizontalDivider(modifier = Modifier.weight(1f), color = Border)
-//            Text(" Or continue with ", color = Color.Gray, fontSize = 14.sp, modifier = Modifier.padding(horizontal = 8.dp))
-//            HorizontalDivider(modifier = Modifier.weight(1f), color = Border)
-//        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            HorizontalDivider(modifier = Modifier.weight(1f), color = Border)
+            Text(" Or continue with ", color = Color.Gray, fontSize = 14.sp, modifier = Modifier.padding(horizontal = 8.dp))
+            HorizontalDivider(modifier = Modifier.weight(1f), color = Border)
+        }
 
-//        Spacer(modifier = Modifier.height(24.dp))
-//
-//        OutlinedButton(
-//            onClick = { googleLoginAction.startFlow() },
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .height(56.dp),
-//            shape = RoundedCornerShape(12.dp),
-//            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Black),
-//            border = androidx.compose.foundation.BorderStroke(1.dp, Border)
-//        ) {
-//            Row(verticalAlignment = Alignment.CenterVertically) {
-//                Icon(
-//                    painter = painterResource(id = R.drawable.icgoogle), // Ganti dengan R.drawable.ic_google jika ada
-//                    contentDescription = null,
-//                    modifier = Modifier.size(20.dp),
-//                    tint = Color.Unspecified
-//                )
-//                Spacer(modifier = Modifier.width(12.dp))
-//                Text("Sign in with Google", fontWeight = FontWeight.Bold)
-//            }
-//        }
+        Spacer(modifier = Modifier.height(24.dp))
 
-//        Spacer(modifier = Modifier.weight(1f))
+        OutlinedButton(
+            onClick = { googleLoginAction.startFlow() },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Black),
+            border = androidx.compose.foundation.BorderStroke(1.dp, Border)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    painter = painterResource(id = R.drawable.icgoogle), // Ganti dengan R.drawable.ic_google jika ada
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                    tint = Color.Unspecified
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text("Sign in with Google", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            }
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
         Spacer(modifier = Modifier.height(32.dp))
 
         Row(modifier = Modifier.padding(bottom = 32.dp)) {
@@ -244,5 +242,25 @@ fun LoginScreen(viewModel: AuthViewModel, onNavToHome: () -> Unit, onNavToRegist
                     }
             )
         }
+    }
+
+    if (viewModel.isSuccess) {
+        LottieDialog(
+            lottieRes = R.raw.success,
+            title = "Login Berhasil",
+            colorBg = colSuccess.copy(alpha = 0.15f),
+            message = " Proses login berhasil, selamat datang di aplikasi",
+            confirmText = "OK",
+            autoDismiss = true,
+            timeDelay = 3000,
+            onConfirm = {
+                viewModel.resetSuccess()
+                onNavToHome()
+            },
+            onDismiss = {
+                viewModel.resetSuccess()
+                onNavToHome()
+            }
+        )
     }
 }

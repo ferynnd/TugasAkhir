@@ -77,7 +77,8 @@ dependencies {
     // Supabase modules
     implementation("io.github.jan-tennert.supabase:auth-kt")
     implementation("io.github.jan-tennert.supabase:postgrest-kt")
-    implementation("io.github.jan-tennert.supabase:realtime-kt")
+//    implementation("io.github.jan-tennert.supabase:realtime-kt")
+    implementation("io.github.jan-tennert.supabase:storage-kt")
 
     implementation("io.github.jan-tennert.supabase:compose-auth:3.0.0")
     implementation("io.github.jan-tennert.supabase:compose-auth-ui:3.0.0") // Opsional, untuk tombol siap pakai
@@ -87,5 +88,11 @@ dependencies {
 
     // Serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+
+    // Lottie
+    implementation("com.airbnb.android:lottie-compose:6.6.7")
+
+    // Image Loader
+    implementation("io.coil-kt:coil-compose:2.7.0")
 
 }

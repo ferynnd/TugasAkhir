@@ -1,40 +1,60 @@
 package dev.ferynnd.tugasakhir.data.viewmodel
 
+import android.content.Context
+import android.net.Uri
 import android.util.Log
+import android.util.Patterns
+import dev.ferynnd.tugasakhir.R
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.ferynnd.tugasakhir.data.helper.SharedPreferenceHelper
+import dev.ferynnd.tugasakhir.data.model.Profile
 import dev.ferynnd.tugasakhir.data.remote.supabase.SupabaseClient
 import dev.ferynnd.tugasakhir.data.repository.AuthRepository
+import dev.ferynnd.tugasakhir.ui.components.DialogState
+import dev.ferynnd.tugasakhir.ui.theme.colError
 import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.auth.providers.builtin.Email
+import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.storage.storage
 import kotlinx.coroutines.launch
 
-class AuthViewModel(private val repository: AuthRepository,  private val pref: SharedPreferenceHelper) : ViewModel() {
+class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
 
     var isLoading by mutableStateOf(false)
+        private set
     var isSuccess by mutableStateOf(false)
-
-
-    var isDialogVisible by mutableStateOf(false)
+    var textMessage by mutableStateOf("")
+    var dialogState by mutableStateOf<DialogState?>(null)
         private set
+    var fullName by mutableStateOf("")
+    var email by mutableStateOf("")
+    var avatar by mutableStateOf("")
+    var isUpdateSuccess by mutableStateOf(false)
 
-    var dialogTitle by mutableStateOf("")
-        private set
-
-    var dialogMessage by mutableStateOf("")
-        private set
-
-    private fun showDialog(title: String, message: String) {
-        dialogTitle = title
-        dialogMessage = message
-        isDialogVisible = true
+    fun showError(title: String, message: String) {
+        dialogState = DialogState(
+            lottieRes = R.raw.error,
+            colorBg = colError.copy(alpha = 0.15f),
+            title = title,
+            message = message,
+            autoDismiss = true
+        )
     }
 
     fun dismissDialog() {
-        isDialogVisible = false
+        dialogState = null
+    }
+
+    fun resetSuccess() {
+        isSuccess = false
+    }
+
+    fun clearMessage() {
+        textMessage = ""
     }
 
 
@@ -42,34 +62,31 @@ class AuthViewModel(private val repository: AuthRepository,  private val pref: S
         email: String,
         pass: String,
         confirmPass: String,
-        username: String,
+        fullname: String,
         isChecked: Boolean
     ) {
         when {
-            username.isBlank() ->
-                showDialog("Error", "Username tidak boleh kosong")
-
-            username != username.lowercase() ->
-                showDialog("Error", "Username harus menggunakan huruf kecil")
+            fullname.isBlank() ->
+                showError("Error", "Nama lengkap tidak boleh kosong")
 
             email.isBlank() ->
-                showDialog("Error", "Email tidak boleh kosong")
+                showError("Error", "Email tidak boleh kosong")
 
-            !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() ->
-                showDialog("Error", "Email tidak valid")
+            !Patterns.EMAIL_ADDRESS.matcher(email).matches() ->
+                showError("Error", "Email tidak valid")
 
             pass.length < 6 ->
-                showDialog("Error", "Password minimal 6 karakter")
+                showError("Error", "Password minimal 6 karakter")
 
             pass != confirmPass ->
-                showDialog("Error", "Password tidak sama")
+                showError("Error", "Password tidak sama")
 
             !isChecked ->
-                showDialog("Error", "Harus menyetujui syarat dan ketentuan")
+                showError("Error", "Harus menyetujui syarat dan ketentuan")
 
             else -> {
-                showDialog("Berhasil", "Akun berhasil dibuat")
-                onRegister(email, pass, username)
+                onRegister(email, pass, fullname)
+                Log.d("AuthViewModel", "Validasi berhasil")
             }
         }
     }
@@ -81,39 +98,47 @@ class AuthViewModel(private val repository: AuthRepository,  private val pref: S
                 isLoading = true
                 repository.signUp(email, pass, username)
                 isSuccess = true
+                Log.d("AuthViewModel", "Registrasi berhasil")
             } catch (e: Exception) {
-                showDialog("Error", e.localizedMessage ?: "Registrasi Gagal")
+                showError("Error", e.localizedMessage ?: "Registrasi Gagal")
+                Log.d("AuthViewModel", "Registrasi gagal: ${e.localizedMessage}")
             } finally {
                 isLoading = false
             }
         }
     }
 
-    fun validateInputLogin(
-        email: String,
-        pass: String
-    ) {
+     fun validateInputLogin(email: String, password: String) {
+        Log.d("AuthViewModel", "Validasi dimulai")
+
         when {
-            email.isBlank() ->
-                showDialog("Error", "Email tidak boleh kosong")
-            pass.isBlank() ->
-                showDialog("Error", "Password tidak boleh kosong")
-            else -> {
-                onLogin(email, pass)
+            email.isBlank() || password.isBlank() -> {
+                showError("Error", "Email dan password tidak boleh kosong")
+                return
+            }
+
+            !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
+                showError("Error", "Email tidak valid")
+                return
             }
         }
+
+        Log.d("AuthViewModel", "Validasi berhasil")
+        onLogin(email, password)
     }
 
 
-    fun onLogin(identifier: String, pass: String) {
+    private fun onLogin(email: String, password: String) {
         viewModelScope.launch {
+            isLoading = true
+            Log.d("AuthViewModel", "Login dimulai")
+
             try {
-                isLoading = true
-                repository.signIn(identifier, pass)
-//                pref.setLogin(true, identifier)
+                repository.signIn(email, password)
                 isSuccess = true
+                Log.d("AuthViewModel", "Login berhasil")
             } catch (e: Exception) {
-                 val message = when {
+                val message = when {
                     e.message?.contains("Invalid login credentials", true) == true ->
                         "Email atau password salah"
                     e.message?.contains("Email not confirmed", true) == true ->
@@ -121,31 +146,59 @@ class AuthViewModel(private val repository: AuthRepository,  private val pref: S
                     else ->
                         "Login gagal, silakan coba lagi"
                 }
-                showDialog("Error", message)
+
+                showError("Error", message)
+                isSuccess = false
             } finally {
                 isLoading = false
             }
         }
     }
 
-    fun onGoogleLoginSuccess(email: String?) {
-        pref.setLogin(true, email)
+    fun onGoogleLoginSuccess() {
+        isSuccess = true
     }
 
      fun logout() {
         viewModelScope.launch {
             SupabaseClient.client.auth.signOut() // logout Supabase
-            pref.logout() // hapus state lokal
         }
     }
 
-
-//    fun isUserLoggedIn(): Boolean {
-//        return pref.isLogin()
-//    }
-
      fun isUserLoggedIn(): Boolean {
         return SupabaseClient.client.auth.currentSessionOrNull() != null
+    }
+
+    fun changePassword(email: String, oldPassword: String, newPassword: String) {
+        viewModelScope.launch {
+            try {
+                isLoading = true
+                isSuccess = false
+                textMessage = ""
+                Log.d("AuthViewModel", "Email : ${email} dan Password : ${oldPassword}")
+                SupabaseClient.client.auth.signInWith(Email) {
+                    this.email = email
+                    this.password = oldPassword
+                }
+                // 2. EKSEKUSI: Jika login berhasil, baru update password
+                SupabaseClient.client.auth.updateUser {
+                    password = newPassword
+                }
+                isSuccess = true
+                textMessage = "Berhasil memperbarui password."
+            } catch (e: Exception) {
+                val errorMessage = when {
+                    e.message?.contains("invalid", ignoreCase = true) == true -> "Password lama tidak valid."
+                    e.message?.contains("network", ignoreCase = true) == true -> "Koneksi internet bermasalah."
+                    e.message?.contains("weak", ignoreCase = true) == true -> "Password terlalu lemah. gunakan kombinasi huruf besar, huruf kecil dan angka."
+                    else -> "Gagal memperbarui password. Silakan coba lagi."
+                }
+                showError("Gagal", errorMessage)
+                isSuccess = false
+            } finally {
+                isLoading = false
+            }
+        }
     }
 
 }

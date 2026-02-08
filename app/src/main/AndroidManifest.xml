@@ -17,9 +17,6 @@
         android:theme="@style/Theme.TugasAkhir"
         android:forceDarkAllowed="false"
         tools:targetApi="31">
-<!--        <activity-->
-<!--            android:name=".CameraActivity"-->
-<!--            android:exported="false" />-->
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -1,18 +1,35 @@
 package dev.ferynnd.tugasakhir.data.model
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import kotlin.time.Duration
 
 data class Exercise(
     val id: Int,
+    val code : String,
     val name: String,
-    val description: String,
     val met: Float,
-    val reps: Int,
-    val sets: Int,
-    val duration: Duration? = null,
-    val type: ExerciseType,
+    val description: String? = null,
 )
 
+enum class ExerciseCode {
+    PUSH_UP, SIT_UP, SQUAT
+}
+
+@Serializable
+data class HistoryExercise(
+    val id: Int,
+    @SerialName("user_id")
+    val userId: String,
+    @SerialName("exercise_id")
+    val exerciseId: Int,
+    val reps: Int?,
+    val duration: String?,     // "00:15:00"
+    @SerialName("total_calorie")
+    val totalCalorie: Int,
+    @SerialName("created_at")
+    val createdAt: String
+)
 
 data class ExerciseResult(
     val counter: Int,
@@ -20,41 +37,23 @@ data class ExerciseResult(
 )
 
 
-enum class ExerciseType {
-    PUSH_UP,
-    SQUAT,
-    SIT_UP,
-}
-
-
 val dummyExercises = listOf(
     Exercise(
         id = 1,
+        code = ExerciseCode.PUSH_UP.name,
         name = "Push Up",
-        description = "Latihan untuk memperkuat otot dada, bahu, dan lengan.",
-        met = 8.0f,
-        reps = 12,
-        sets = 3,
-        type = ExerciseType.PUSH_UP
+        met = 8.0f
     ),
-
     Exercise(
         id = 2,
-        name = "Squat",
-        description = "Melatih otot paha, pinggul, dan gluteus.",
-        met = 5.0f,
-        reps = 15,
-        sets = 3,
-        type = ExerciseType.SQUAT
+        code = ExerciseCode.SIT_UP.name,
+        name = "Sit Up",
+        met = 6.0f
     ),
-
     Exercise(
         id = 3,
-        name = "Sit Up",
-        description = "Latihan inti untuk memperkuat otot perut.",
-        met = 4.0f,
-        reps = 20,
-        sets = 3,
-        type = ExerciseType.SIT_UP
-    ),
+        code = ExerciseCode.SQUAT.name,
+        name = "Squat",
+        met = 7.0f
+    )
 )
