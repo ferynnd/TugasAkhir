@@ -237,9 +237,9 @@ fun BMIProfileScreen(navController: NavController, userViewModel: UserViewModel)
                     }
                     showSuccessDialog = true
                 },
-                modifier = Modifier.fillMaxWidth().height(52.dp),
+                modifier = Modifier.fillMaxWidth().height(54.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Primary),
-                shape = RoundedCornerShape(16.dp)
+                shape = RoundedCornerShape(14.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("Save Profile", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = White)

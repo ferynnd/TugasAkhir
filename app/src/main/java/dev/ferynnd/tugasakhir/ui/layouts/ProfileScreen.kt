@@ -31,6 +31,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -47,17 +48,16 @@ import dev.ferynnd.tugasakhir.ui.components.SmallFab
 @Composable
 fun ProfileScreen(navController: NavController,  userViewModel: UserViewModel) {
     val user = remember { SupabaseClient.client.auth.currentUserOrNull() }
-    LaunchedEffect(user?.id) {
-        if (user != null) {
-            userViewModel.getProfile(user.id)
-            userViewModel.getUserBMI(user.id)
+
+    LaunchedEffect(Unit) {
+        user?.id?.let {
+            userViewModel.loadProfileIfNeeded(it)
         }
     }
+
     // state ViewModel (Observe)
-    val displayUsername by remember {
-        derivedStateOf { userViewModel.fullName.uppercase() }
-    }
-    val avatar by remember { derivedStateOf { userViewModel.avatar } }
+    val displayUsername = userViewModel.fullName.uppercase()
+    val avatar = userViewModel.avatar
     val weightValue = userViewModel.weightValue.toString()
     val ageValue = userViewModel.ageValue
     val heightValue = userViewModel.heightValue
@@ -69,7 +69,7 @@ fun ProfileScreen(navController: NavController,  userViewModel: UserViewModel) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .statusBarsPadding()
-                    .padding(horizontal = 24.dp, vertical = 16.dp),
+                    .padding(horizontal = 24.dp, vertical = 24.dp),
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -77,27 +77,33 @@ fun ProfileScreen(navController: NavController,  userViewModel: UserViewModel) {
             }
         }
     ) { paddingValues ->
-        Column(
+       LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 24.dp)
-                .verticalScroll(rememberScrollState()),
+                .padding(horizontal = 24.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            HeaderProfile(avatar, displayUsername)
-            Biometric(
-                heightValue = heightValue,
-                weightValue = weightValue.toString(),
-                ageValue = ageValue.toString()
-            )
-            BMICard(
-                bmiValue = userViewModel.bmiResult,
-                categoryName = CategoryBmi.valueOf( userViewModel.bmiCategory)
-            )
-            SummarySection()
+           item {
+                HeaderProfile(avatar, displayUsername)
+           }
+           item {
+                Biometric(
+                    heightValue = heightValue,
+                    weightValue = weightValue.toString(),
+                    ageValue = ageValue.toString()
+                )
+           }
+           item {
+                BMICard(
+                    bmiValue = userViewModel.bmiResult,
+                    categoryName = CategoryBmi.valueOf( userViewModel.bmiCategory)
+                )
+           }
+           item {
+                SummarySection()
+           }
         }
-
          ExpandableFab(
             onEdBmi = {
                 navController.navigate("editBMI")
@@ -123,8 +129,8 @@ fun HeaderProfile(
              AsyncImage(
                  model = ImageRequest.Builder(LocalContext.current)
                         .data(avatar)
-                        .crossfade(true)
-                        .size(300)
+                        .size(128) // sesuai UI
+                        .crossfade(false)
                         .build(),
                 contentDescription = "Image Profil User",
                 modifier = Modifier

@@ -33,45 +33,46 @@ fun TrainingList(navController: NavController) {
     Scaffold(
         containerColor = Background
     ) { paddingValues ->
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+                .padding(horizontal = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            item {
-                Spacer(modifier = Modifier.height(20.dp))
-                Column {
-                    Text(
-                        text = "Choose Your",
-                        fontSize = 32.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = TextMain
-                    )
-                    Text(
-                        text = "Exercise",
-                        fontSize = 32.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = Primary
-                    )
-                }
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Column {
+                Text(
+                    text = "Choose Your",
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = TextMain
+                )
+                Text(
+                    text = "Exercise",
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Primary
+                )
             }
 
-            item { ExerciseCard(
+            Spacer(modifier = Modifier.height(12.dp))
+
+            ExerciseCard(
                 title = "Squat",
                 muscle = "Legs & Glutes",
                 kcal = "12 kcal/min",
                 imageRes = R.drawable.bgta,
                 onDetail = {
-                    Toast.makeText(context, "Coming Soon..", Toast.LENGTH_SHORT).show()
+//                    Toast.makeText(context, "Coming Soon..", Toast.LENGTH_SHORT).show()
+                    navController.navigate("trainingDetail")
                 },
                 onStart = {
                     Toast.makeText(context, "Coming Soon..", Toast.LENGTH_SHORT).show()
                 }
-            ) }
-
-            item { ExerciseCard(
+            )
+            ExerciseCard(
                 title = "Push-up",
                 muscle = "Chest & Arms",
                 kcal = "15 kcal/min",
@@ -82,9 +83,21 @@ fun TrainingList(navController: NavController) {
                 onStart = {
                     Toast.makeText(context, "Coming Soon..", Toast.LENGTH_SHORT).show()
                 }
-            ) }
+            )
 
-            item { Spacer(modifier = Modifier.height(100.dp)) } // Space for bottom nav
+            ExerciseCard(
+                title = "Sit-Up",
+                muscle = "Back & Core",
+                kcal = "15 kcal/min",
+                imageRes = R.drawable.bgta,
+                 onDetail = {
+                    Toast.makeText(context, "Coming Soon..", Toast.LENGTH_SHORT).show()
+                },
+                onStart = {
+                    Toast.makeText(context, "Coming Soon..", Toast.LENGTH_SHORT).show()
+                }
+            )
+
         }
     }
 }

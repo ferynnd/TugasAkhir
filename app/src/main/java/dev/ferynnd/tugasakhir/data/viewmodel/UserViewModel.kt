@@ -39,6 +39,7 @@ class UserViewModel(private val supabaseClient: SupabaseClient) : ViewModel() {
 
     var showBmiWarning by mutableStateOf(false)
     private var hasCheckBMIWarning = false
+    private var hasLoadedProfile = false
     // State untuk menyimpan data bmi
     var heightValue by mutableStateOf("0")
     var weightValue by mutableIntStateOf(60)
@@ -69,6 +70,13 @@ class UserViewModel(private val supabaseClient: SupabaseClient) : ViewModel() {
 
     fun clearMessage() {
         textMessage = ""
+    }
+
+    fun loadProfileIfNeeded(userId: String) {
+        if (hasLoadedProfile) return
+        hasLoadedProfile = true
+        getProfile(userId)
+        getUserBMI(userId)
     }
 
 
@@ -185,9 +193,6 @@ class UserViewModel(private val supabaseClient: SupabaseClient) : ViewModel() {
             val bmiResult = weight / (heightInMeter * heightInMeter)
             val category = determineCategory(bmiResult)
 
-            Log.d("BMI", "BMI: $bmiResult, Category: $category")
-
-
             val data = UserBmi(
                 userId = userId,
                 gender = gender,
@@ -198,33 +203,26 @@ class UserViewModel(private val supabaseClient: SupabaseClient) : ViewModel() {
                 categoryValue = category
             )
 
-            Log.d("BMI", "Data: $data")
-
-
             viewModelScope.launch {
                 try {
                     // OnConflict menentukan kolom mana yang jadi acuan (biasanya user_id)
                     supabaseClient.client.postgrest["user_bmi"].upsert(data) {
                         onConflict = "user_id"
                     }
-                    Log.d("BMI", "Berhasil memperbarui BMI")
                     isSuccess = true
                     textMessage = "Berhasil memperbarui BMI."
+                    hasCheckBMIWarning = false
+                    getUserBMI(userId)
                 } catch (e: Exception) {
                     showError("Error", "Gagal memperbarui BMI")
                     isSuccess = false
-                    Log.e("BMI", "Error: ${e.message}")
                 } finally {
                     isLoading = false
-                    Log.d("BMI", "Finally")
                 }
             }
-
-
         } catch ( e: Exception) {
             showError("Error", "Gagal memperbarui BMI")
             isSuccess = false
-            Log.e("BMI", "Error: ${e.message}")
         }
     }
 
