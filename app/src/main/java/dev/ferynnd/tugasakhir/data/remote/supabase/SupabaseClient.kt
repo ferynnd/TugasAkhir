@@ -10,8 +10,8 @@ import io.github.jan.supabase.storage.Storage
 object SupabaseClient {
 
     // Ganti dengan kredensial dari Dashboard Supabase -> Settings -> API
-    private const val SUPABASE_URL = "https://dgosuntfquttgeqhtsvr.supabase.co"
-    private const val SUPABASE_KEY = "sb_publishable_66ml-4eJDwGHIaVqOuq1oA_ArtLuSKW"
+    private const val SUPABASE_URL = ""
+    private const val SUPABASE_KEY = ""
 
     val client = createSupabaseClient(
         supabaseUrl = SUPABASE_URL,
