@@ -49,7 +49,7 @@ fun MainBottomNav (
                         modifier = Modifier.size(24.dp)
                     )
                 },
-                label = { Text("Home", fontSize = 12.sp) },
+                label = { Text("Beranda", fontSize = 12.sp) },
                 colors = navColors()
             )
 
@@ -63,15 +63,13 @@ fun MainBottomNav (
                         modifier = Modifier.size(24.dp)
                     )
                 },
-                label = { Text("Exercise", fontSize = 12.sp) },
+                label = { Text("Latihan", fontSize = 12.sp) },
                 colors = navColors()
             )
 
             NavigationBarItem(
-                selected = currentRoute == "History",
-                onClick = {
-                    Toast.makeText(context, "Coming Soon..", Toast.LENGTH_SHORT).show()
-                },
+                selected = currentRoute == "trainingHistory",
+                onClick = { onNavigate("trainingHistory") },
                 icon = {
                     Icon(
                         painter = painterResource(R.drawable.ichistory),
@@ -79,7 +77,7 @@ fun MainBottomNav (
                         modifier = Modifier.size(24.dp)
                     )
                 },
-                label = { Text("History", fontSize = 12.sp) },
+                label = { Text("Riwayat", fontSize = 12.sp) },
                 colors = navColors()
             )
 
@@ -93,7 +91,7 @@ fun MainBottomNav (
                         modifier = Modifier.size(28.dp)
                     )
                 },
-                label = { Text("Profile", fontSize = 12.sp) },
+                label = { Text("Profil", fontSize = 12.sp) },
                 colors = navColors()
             )
         }

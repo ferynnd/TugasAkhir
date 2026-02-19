@@ -4,7 +4,6 @@ import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 
 open class BodyPartAngle(private val landmarks: List<NormalizedLandmark>) {
 
-
     fun getPoint(index: Int): PoseMath.Point {
         val lm = landmarks[index]
         return PoseMath.Point(lm.x(), lm.y())
@@ -33,6 +32,21 @@ open class BodyPartAngle(private val landmarks: List<NormalizedLandmark>) {
         getPoint(26), // RIGHT_KNEE
         getPoint(28)  // RIGHT_ANKLE
     )
+
+    fun angleSpine() = PoseMath.calculateAngle(
+        getPoint(11), // LEFT_SHOULDER
+        getPoint(23), // LEFT_HIP
+        getPoint(27)  // LEFT_ANKLE
+    )
+
+
+    fun angleTorso() = PoseMath.calculateAngle(
+        getPoint(11), // LEFT_SHOULDER
+        getPoint(23), // LEFT_HIP
+        getPoint(25)  // LEFT_KNEE
+    )
+
+    fun angleKnee() = (angleLeftLeg() + angleRightLeg()) / 2
 
 }
 

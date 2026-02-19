@@ -55,7 +55,6 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.pose.detection.common)
-//    implementation(libs.androidx.navigation.compose.jvmstubs)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -77,7 +76,6 @@ dependencies {
     // Supabase modules
     implementation("io.github.jan-tennert.supabase:auth-kt")
     implementation("io.github.jan-tennert.supabase:postgrest-kt")
-//    implementation("io.github.jan-tennert.supabase:realtime-kt")
     implementation("io.github.jan-tennert.supabase:storage-kt")
 
     implementation("io.github.jan-tennert.supabase:compose-auth:3.0.0")
@@ -94,5 +92,12 @@ dependencies {
 
     // Image Loader
     implementation("io.coil-kt:coil-compose:2.7.0")
+
+    // Pager
+    implementation ("com.google.accompanist:accompanist-pager:0.36.0")
+
+    // Optional: ExoPlayer Compose untuk video
+    implementation ("com.google.android.exoplayer:exoplayer:2.19.1")
+    implementation ("com.google.android.exoplayer:exoplayer-ui:2.19.1")
 
 }

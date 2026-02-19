@@ -258,6 +258,12 @@ fun BMIProfileScreen(navController: NavController, userViewModel: UserViewModel)
      }
 }
 
+
+// ==========================================================
+//                   COMPONENT SECTION
+// ==========================================================
+
+
 @Composable
 fun GenderCard(modifier: Modifier, label: String, isSelected: Boolean, onClick: () -> Unit) {
     Surface(

@@ -381,6 +381,10 @@ fun EditProfileScreen(navController: NavController, authViewModel: AuthViewModel
     }
 }
 
+// ==========================================================
+//                   COMPONENT SECTION
+// ==========================================================
+
 
 @Composable
 fun ProfileInput(

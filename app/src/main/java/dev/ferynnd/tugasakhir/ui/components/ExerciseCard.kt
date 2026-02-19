@@ -112,13 +112,13 @@ fun ExerciseCard(
                                 painter = painterResource(id = R.drawable.icfire),
                                 contentDescription = null,
                                 tint = Primary,
-                                modifier = Modifier.size(12.dp)
+                                modifier = Modifier.size(14.dp)
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = kcal ,
+                                text = kcal + "Kal" ,
                                 color = Primary,
-                                fontSize = 10.sp,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.ExtraBold
                             )
                         }
@@ -148,7 +148,7 @@ fun ExerciseCard(
                             )
                             Spacer(Modifier.width(8.dp))
                             Text(
-                                "START",
+                                "MULAI",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 14.sp,
                                 color = White

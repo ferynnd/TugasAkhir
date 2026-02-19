@@ -73,7 +73,7 @@ fun ProfileScreen(navController: NavController,  userViewModel: UserViewModel) {
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Profile",  fontSize = 20.sp, fontWeight = FontWeight.Black, color = TextMain)
+                Text("Profil",  fontSize = 20.sp, fontWeight = FontWeight.Black, color = TextMain)
             }
         }
     ) { paddingValues ->
@@ -114,6 +114,10 @@ fun ProfileScreen(navController: NavController,  userViewModel: UserViewModel) {
         )
     }
 }
+
+// ==========================================================
+//                   COMPONENT SECTION
+// ==========================================================
 
 @Composable
 fun HeaderProfile(
@@ -162,15 +166,15 @@ fun Biometric(
     ageValue : String
 ) {
     Column {
-        Text("Biometrics", fontSize = 18.sp, fontWeight = FontWeight.Black, color = TextMain)
+        Text("Biometrik", fontSize = 18.sp, fontWeight = FontWeight.Black, color = TextMain)
         Spacer(modifier = Modifier.height(12.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            BiometricCard(modifier = Modifier.weight(1f), value = heightValue, unit = "cm", label = "HEIGHT")
-            BiometricCard(modifier = Modifier.weight(1f), value = weightValue, unit = "kg", label = "WEIGHT")
-            BiometricCard(modifier = Modifier.weight(1f), value = ageValue, unit = "", label = "AGE")
+            BiometricCard(modifier = Modifier.weight(1f), value = heightValue, unit = "cm", label = "TINGGI")
+            BiometricCard(modifier = Modifier.weight(1f), value = weightValue, unit = "kg", label = "BERAT")
+            BiometricCard(modifier = Modifier.weight(1f), value = ageValue, unit = "", label = "UMUR")
         }
     }
 }
@@ -221,7 +225,7 @@ fun BMICard(
             ) {
                 Column {
                     Text(
-                        "Body Mass Index",
+                        "Indeks Massa Tubuh",
                         fontSize = 14.sp,
                         color = TextSub,
                         fontWeight = FontWeight.Bold
@@ -327,7 +331,7 @@ fun BMICard(
 @Composable
 fun SummarySection() {
     Column {
-        Text("Activity Summary", fontSize = 18.sp, fontWeight = FontWeight.Black, color = TextMain)
+        Text("Ringkasan Aktivitas", fontSize = 18.sp, fontWeight = FontWeight.Black, color = TextMain)
         Spacer(modifier = Modifier.height(12.dp))
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {

@@ -3,20 +3,20 @@ package dev.ferynnd.tugasakhir.ui.layouts
 import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
+import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
+import android.util.Log
 import android.widget.Toast
-import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.view.CameraController
-import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,20 +30,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -70,21 +70,52 @@ import dev.ferynnd.tugasakhir.ui.theme.Red
 import dev.ferynnd.tugasakhir.ui.theme.White
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.lifecycle.LifecycleOwner
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
+import dev.ferynnd.tugasakhir.R
+import dev.ferynnd.tugasakhir.data.model.ExerciseCode
 import dev.ferynnd.tugasakhir.helper.CameraAnalyzerHelper
+import dev.ferynnd.tugasakhir.helper.ExerciseState
 import dev.ferynnd.tugasakhir.helper.PoseLandmarkerHelper
 import dev.ferynnd.tugasakhir.helper.TypeOfExercise
+import dev.ferynnd.tugasakhir.ui.components.CustomIcon
+import dev.ferynnd.tugasakhir.ui.components.LottieDialog
 import dev.ferynnd.tugasakhir.ui.components.PoseOverlay
-import dev.ferynnd.tugasakhir.ui.theme.Background
 import dev.ferynnd.tugasakhir.ui.theme.BackgroundDark
+import dev.ferynnd.tugasakhir.ui.theme.TextSub
+import dev.ferynnd.tugasakhir.ui.theme.colWarning
+import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.suspendCancellableCoroutine
+import java.time.Month
+import java.util.Locale
 import java.util.concurrent.Executors
+import kotlin.coroutines.resume
 
 @Composable
-fun CameraScreen( navController: NavController ) {
+fun CameraScreen( navController: NavController, exerciseCode: ExerciseCode) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
+
+//    val reps by remember { mutableStateOf(20) }
+//    val durationSeconds by remember { mutableStateOf(300) }
+
+    var quitDialog by remember { mutableStateOf(false) }
+
+    var tts by remember { mutableStateOf<TextToSpeech?>(null) }
+    var isTtsReady by remember { mutableStateOf(false) }
+
+    var lastRepsSpoken by remember { mutableStateOf(0) }
+    var lastFeedbackSpoken by remember { mutableStateOf<String?>(null) }
+
+    var isCountdownActive by remember { mutableStateOf(true) }
+    var countdownValue by remember { mutableStateOf(0) }
+
+    var currentContinuation by remember {
+        mutableStateOf<CancellableContinuation<Unit>?>(null)
+    }
 
     var hasCameraPermission by remember {
         mutableStateOf(
@@ -106,48 +137,144 @@ fun CameraScreen( navController: NavController ) {
         if (!hasCameraPermission) launcher.launch(Manifest.permission.CAMERA)
     }
 
-
-//    val exerciseType = navController
-//        .currentBackStackEntry
-//        ?.arguments
-//        ?.getString("exercise")
-//        ?.let { ExerciseType.valueOf(it) }
-//        ?: ExerciseType.PUSH_UP
-
-
     var poseResult by remember { mutableStateOf<PoseLandmarkerResult?>(null) }
     var counter by remember { mutableStateOf(0) }
-    var status by remember { mutableStateOf(true) }
+    var currentState by remember { mutableStateOf(ExerciseState.TOP) }
+    var feedback by remember { mutableStateOf<String?>(null) }
 
-    // setup pose landmarker
+    val lastUpdateTime = remember { mutableStateOf(0L) }
+
     val poseHelper = remember {
         PoseLandmarkerHelper(
             context,
             listener = object : PoseLandmarkerHelper.Listener {
+
                 override fun onPoseResult(result: PoseLandmarkerResult, time: Long) {
-                    poseResult = result
+
+                    if (isCountdownActive) return
+
+                    val now = System.currentTimeMillis()
+
+                    // 🔥 THROTTLE 100ms (≈10 FPS UI)
+                    if (now - lastUpdateTime.value < 100) return
+                    lastUpdateTime.value = now
+
                     val allLandmarks = result.landmarks()
-                    if (allLandmarks.isNotEmpty()) {
-                        val firstPerson = allLandmarks[0] // Ambil orang pertama yang terdeteksi
+                    if (allLandmarks.isEmpty()) return
 
-                        val exerciseLogic = TypeOfExercise(firstPerson)
+                    val firstPerson = allLandmarks[0]
 
-//                        val resultData = exerciseLogic.process(
-//                            type = exerciseType,
-//                            counter = counter,
-//                            status = status
-//                        )
+                    val exerciseLogic = TypeOfExercise(firstPerson)
 
-//                        counter = resultData.counter
-//                        status = resultData.status
+                    val evaluation = when (exerciseCode) {
+                        ExerciseCode.PUSH_UP ->
+                            exerciseLogic.evaluatePushUp(counter, currentState)
 
+                        ExerciseCode.SQUAT ->
+                            exerciseLogic.evaluateSquat(counter, currentState)
+
+                        ExerciseCode.SIT_UP ->
+                            exerciseLogic.evaluateSitUp(counter, currentState)
                     }
+
+                    // Update Compose state hanya setelah throttle
+                    poseResult = result
+                    counter = evaluation.reps
+                    currentState = evaluation.state
+                    feedback = evaluation.feedback
                 }
+
                 override fun onError(message: String) {
-                    println("PoseError: $message")
+                    Log.e("PoseError", message)
                 }
             }
         )
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            poseHelper.close()
+        }
+    }
+
+    DisposableEffect(Unit) {
+        tts = TextToSpeech(context) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+
+                tts?.setLanguage(Locale("id", "ID"))
+                isTtsReady = true
+
+                tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+
+                    override fun onStart(utteranceId: String?) {}
+
+                    override fun onDone(utteranceId: String?) {
+                        currentContinuation?.resume(Unit)
+                    }
+
+                    override fun onError(utteranceId: String?) {
+                        currentContinuation?.resume(Unit)
+                    }
+                })
+            }
+        }
+
+        onDispose {
+            tts?.stop()
+            tts?.shutdown()
+        }
+    }
+
+    suspend fun speakAndWait(text: String) {
+
+        if (!isTtsReady) return
+
+        suspendCancellableCoroutine<Unit> { continuation ->
+
+            currentContinuation = continuation
+
+            tts?.speak(
+                text,
+                TextToSpeech.QUEUE_FLUSH,
+                null,
+                System.currentTimeMillis().toString()
+            )
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        var current = 5
+        countdownValue = current
+
+        while (current > 0) {
+
+            countdownValue = current   // ✅ Update UI dulu
+            Log.e("Countdown", "Countdown: $current")
+            speakAndWait(current.toString())
+            delay(1000)
+            current--
+        }
+
+        countdownValue = 0
+        speakAndWait("Mulai")
+
+        isCountdownActive = false
+    }
+
+    LaunchedEffect(counter) {
+        if (counter > lastRepsSpoken) {
+            speakAndWait("Repetisi $counter")
+            lastRepsSpoken = counter
+        }
+    }
+
+    LaunchedEffect(feedback) {
+        feedback?.let {
+            if (it != lastFeedbackSpoken) {
+                speakAndWait(it)
+                lastFeedbackSpoken = it
+            }
+        }
     }
 
     Column(
@@ -177,7 +304,9 @@ fun CameraScreen( navController: NavController ) {
 
             BackButton(
                 icon = Icons.AutoMirrored.Filled.ArrowBack,
-                onClick = { navController.popBackStack() },
+                onClick = {
+                    quitDialog = true
+                },
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .padding(16.dp)
@@ -189,6 +318,11 @@ fun CameraScreen( navController: NavController ) {
                     .align(Alignment.TopEnd)
                     .padding(16.dp)
             )
+
+            if (isCountdownActive) {
+                CountdownOverlay(countdownValue)
+            }
+
         }
 
         BottomInfoPanel(
@@ -196,10 +330,31 @@ fun CameraScreen( navController: NavController ) {
                 .fillMaxWidth()
                 .navigationBarsPadding(), // Padding untuk navigasi bar sistem (garis bawah HP)
             onEndSessionClick = { navController.navigate("home") },
-            type = "HH"
+            feedback = feedback ?: "Gerakan bagus!",
+            isCountdownActive = isCountdownActive
         )
     }
+
+    if (quitDialog) {
+        QuitDialog(
+            onDismissRequest = { quitDialog = false },
+            onConfirmQuit = {
+                quitDialog = false // Tutup dialog dulu
+                navController.popBackStack() // Kembali ke route sebelumnya
+            }
+        )
+    }
+
+    fun saveHistory()
+    {
+
+    }
 }
+
+
+// ==========================================================
+//                   COMPONENT SECTION
+// ==========================================================
 
 @Composable
 fun CameraPreviewContent(
@@ -207,59 +362,57 @@ fun CameraPreviewContent(
     poseHelper: PoseLandmarkerHelper,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
+
     val executor = remember { Executors.newSingleThreadExecutor() }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            executor.shutdown() //  FOR FIX THREAD LEAK
+        }
+    }
 
     AndroidView(
         modifier = modifier,
         factory = { ctx ->
-            PreviewView(ctx).apply {
-                scaleType = PreviewView.ScaleType.FILL_CENTER
-            }
-        },
-        update = { previewView ->
 
-            val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
+            val previewView = PreviewView(ctx)
+            val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
 
             cameraProviderFuture.addListener({
+
                 val cameraProvider = cameraProviderFuture.get()
 
-                // 1. Preview
                 val preview = Preview.Builder().build().apply {
                     surfaceProvider = previewView.surfaceProvider
                 }
 
-                // 2. Analyzer
                 val analyzer = ImageAnalysis.Builder()
-                    .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                    .setBackpressureStrategy(
+                        ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST
+                    )
                     .build().apply {
-                        setAnalyzer(
-                            executor,
-                            CameraAnalyzerHelper(poseHelper)
-                        )
+                        setAnalyzer(executor, CameraAnalyzerHelper(poseHelper))
                     }
 
-                // 3. Bind
-                try {
-                    cameraProvider.unbindAll()
-                    cameraProvider.bindToLifecycle(
-                        lifecycle,
-                        CameraSelector.DEFAULT_FRONT_CAMERA,
-                        preview,
-                        analyzer
-                    )
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
+                cameraProvider.unbindAll()
 
-            }, ContextCompat.getMainExecutor(context))
+                cameraProvider.bindToLifecycle(
+                    lifecycle,
+                    CameraSelector.DEFAULT_FRONT_CAMERA,
+                    preview,
+                    analyzer
+                )
+
+            }, ContextCompat.getMainExecutor(ctx))
+
+            previewView
         }
     )
 }
 
-
 @Composable
-fun RepsBadge(count: Int, modifier: Modifier = Modifier) {
+fun RepsBadge(count: Int, modifier: Modifier = Modifier)
+{
     Column(
         modifier = modifier
             .size(60.dp)
@@ -284,13 +437,15 @@ fun RepsBadge(count: Int, modifier: Modifier = Modifier) {
     }
 }
 
-
 @Composable
 fun BottomInfoPanel(
     modifier: Modifier = Modifier,
     onEndSessionClick: () -> Unit,
-    type: String
+    feedback: String? = null,
+    isCountdownActive: Boolean
 ) {
+    val elapsedTime = rememberElapsedTime(isRunning = !isCountdownActive)
+
     Column(
         modifier = modifier
             .padding(10.dp)
@@ -329,42 +484,177 @@ fun BottomInfoPanel(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Ini latihan ${type}. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.",
-            color = Color.Gray,
-            fontSize = 14.sp,
-            lineHeight = 22.sp
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = "Ensure your back is straight and lower your chest closer to the ground for better activation.",
-            color = Color(0xFF1A1C1E),
+            text = feedback.toString(),
             fontWeight = FontWeight.Medium,
-            fontSize = 14.sp
+            color = TextSub,
+            fontSize = 18.sp,
+            lineHeight = 22.sp
         )
 
         Spacer(modifier = Modifier.height(30.dp))
 
-        // Tombol Akhiri Sesi (Merah Solid)
-        androidx.compose.material3.Button(
-            onClick = onEndSessionClick,
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE12524)),
-            shape = RoundedCornerShape(25.dp),
+        SessionRunningCard(
+            elapsedTime = elapsedTime,
+            onEndSessionClick = onEndSessionClick
+        )
+    }
+}
+
+@Composable
+fun CountdownOverlay(count: Int)
+{
+
+    val animatedScale by animateFloatAsState(
+        targetValue = 1.2f,
+        animationSpec = tween(600),
+        label = ""
+    )
+
+    val animatedAlpha by animateFloatAsState(
+        targetValue = 1f,
+        animationSpec = tween(600),
+        label = ""
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.75f)),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = if (count > 0) count.toString() else "Mulai",
+            fontSize = 90.sp,
+            fontWeight = FontWeight.Black,
+            color = Color.White,
             modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(modifier = Modifier.size(12.dp).background(Color.White)) // Icon kotak stop
-                Spacer(modifier = Modifier.width(10.dp))
-                Text(
-                    "AKHIRI SESI",
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp
+                .graphicsLayer(
+                    scaleX = animatedScale,
+                    scaleY = animatedScale,
+                    alpha = animatedAlpha
                 )
+        )
+    }
+}
+
+@Composable
+fun SessionRunningCard(
+    elapsedTime: String,
+    onEndSessionClick: () -> Unit
+) {
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(90.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = TextSub.copy(alpha = 0.15f) // seperti textSub.copy(0.15f)
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = "TIME ELAPSED",
+                        fontSize = 12.sp,
+                        color = Black.copy(alpha = 0.8f)
+                    )
+
+                    Text(
+                        text = elapsedTime,
+                        fontSize = 26.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = TextSub
+                    )
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Button(
+                    onClick = onEndSessionClick,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Primary
+                    ),
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier
+                        .height(56.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+
+                        CustomIcon(
+                            iconRes = R.drawable.cancel,
+                            contentDescription = "berhenti",
+                            tint = Color.White,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        Text(
+                            text = "AKHIRI LATIHAN",
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp
+                        )
+                    }
+                }
             }
         }
     }
+}
+
+@Composable
+fun rememberElapsedTime(isRunning: Boolean): String
+{
+    var startTime by remember { mutableStateOf<Long?>(null) }
+    var currentTime by remember { mutableStateOf(0L) }
+    LaunchedEffect(isRunning) {
+        if (isRunning) {
+            if (startTime == null) {
+                startTime = System.currentTimeMillis()
+            }
+            while (isActive) {
+                currentTime = System.currentTimeMillis()
+                delay(1000)
+            }
+        }
+    }
+
+    val elapsedSeconds = startTime?.let {
+        ((currentTime - it) / 1000).toInt()
+    } ?: 0
+
+    val minutes = elapsedSeconds / 60
+    val seconds = elapsedSeconds % 60
+
+    return String.format("%02d:%02d", minutes, seconds)
+}
+
+@Composable
+fun QuitDialog(
+    onDismissRequest: () -> Unit,
+    onConfirmQuit: () -> Unit
+) {
+    LottieDialog(
+        lottieRes = R.raw.warning,
+        title = "Keluar",
+        message = "Apakah Anda yakin ingin keluar, ini tidak akan menyimpan progress latihan anda?",
+        confirmText = "Ya",
+        dismissText = "Tidak",
+        colorBg = colWarning.copy(alpha = 0.15f),
+        onConfirm = {
+            onConfirmQuit()
+        },
+        onDismiss = {
+            onDismissRequest()
+        }
+    )
 }

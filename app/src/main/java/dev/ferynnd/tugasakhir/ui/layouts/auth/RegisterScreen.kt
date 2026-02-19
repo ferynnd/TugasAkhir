@@ -43,7 +43,6 @@ fun RegisterScreen(viewModel: AuthViewModel, onNavToLogin: () -> Unit) {
     var isChecked by remember { mutableStateOf(false) }
     val dialogState = viewModel.dialogState
 
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -160,7 +159,6 @@ fun RegisterScreen(viewModel: AuthViewModel, onNavToLogin: () -> Unit) {
                 colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Border)
             )
         }
-
 
         Row(
             modifier = Modifier

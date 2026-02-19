@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import dev.ferynnd.tugasakhir.R
+import dev.ferynnd.tugasakhir.data.model.dummyExercises
 import dev.ferynnd.tugasakhir.ui.components.ExerciseCard
 import dev.ferynnd.tugasakhir.ui.theme.*
 
@@ -44,13 +45,13 @@ fun TrainingList(navController: NavController) {
 
             Column {
                 Text(
-                    text = "Choose Your",
+                    text = "Pilih Latihan",
                     fontSize = 32.sp,
                     fontWeight = FontWeight.ExtraBold,
                     color = TextMain
                 )
                 Text(
-                    text = "Exercise",
+                    text = "Untuk Kamu",
                     fontSize = 32.sp,
                     fontWeight = FontWeight.ExtraBold,
                     color = Primary
@@ -59,44 +60,25 @@ fun TrainingList(navController: NavController) {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            ExerciseCard(
-                title = "Squat",
-                muscle = "Legs & Glutes",
-                kcal = "12 kcal/min",
-                imageRes = R.drawable.bgta,
-                onDetail = {
-//                    Toast.makeText(context, "Coming Soon..", Toast.LENGTH_SHORT).show()
-                    navController.navigate("trainingDetail")
-                },
-                onStart = {
-                    Toast.makeText(context, "Coming Soon..", Toast.LENGTH_SHORT).show()
+           LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+           ) {
+                items(dummyExercises) { dummyExercise ->
+                    ExerciseCard(
+                        title = dummyExercise.name,
+                        muscle = dummyExercise.duration + " Min ",
+                        kcal = dummyExercise.cal,
+                        imageRes = dummyExercise.icon,
+                        onDetail = {
+                            navController.navigate("trainingDetail/${dummyExercise.id}")
+                        },
+                        onStart = {
+                            navController.navigate("cameraScan/${dummyExercise.code}")
+                        }
+                    )
                 }
-            )
-            ExerciseCard(
-                title = "Push-up",
-                muscle = "Chest & Arms",
-                kcal = "15 kcal/min",
-                imageRes = R.drawable.bgta,
-                 onDetail = {
-                    Toast.makeText(context, "Coming Soon..", Toast.LENGTH_SHORT).show()
-                },
-                onStart = {
-                    Toast.makeText(context, "Coming Soon..", Toast.LENGTH_SHORT).show()
-                }
-            )
-
-            ExerciseCard(
-                title = "Sit-Up",
-                muscle = "Back & Core",
-                kcal = "15 kcal/min",
-                imageRes = R.drawable.bgta,
-                 onDetail = {
-                    Toast.makeText(context, "Coming Soon..", Toast.LENGTH_SHORT).show()
-                },
-                onStart = {
-                    Toast.makeText(context, "Coming Soon..", Toast.LENGTH_SHORT).show()
-                }
-            )
+           }
 
         }
     }

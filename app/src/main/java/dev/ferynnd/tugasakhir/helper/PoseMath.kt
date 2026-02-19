@@ -25,4 +25,18 @@ object PoseMath {
 }
 
 
-data class ExerciseResult(val counter: Int, val status: Boolean)
+enum class ExerciseState {
+    TOP,
+    DESCENDING,
+    BOTTOM,
+    ASCENDING
+}
+
+data class ExerciseEvaluation(
+    val reps: Int,
+    val state: ExerciseState,
+    val postureValid: Boolean,
+    val depthValid: Boolean,
+    val feedback: String?
+)
+

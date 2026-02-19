@@ -86,7 +86,7 @@ fun HomeScreen(navController: NavController, userViewModel: UserViewModel) {
             onDismiss = { showExerciseDialog = false },
             onSelect = { exercise ->
                 showExerciseDialog = false
-                navController.navigate("cameraScan/")
+                navController.navigate("cameraScan/${exercise.code}")
             }
         )
     }
@@ -152,12 +152,17 @@ fun TopBarSection(
             }
             Spacer(modifier = Modifier.width(12.dp))
             Column {
-                Text("LET'S MOVE", fontSize = 12.sp, color = TextSub, fontWeight = FontWeight.Bold)
+                Text("SELAMAT DATANG", fontSize = 12.sp, color = TextSub, fontWeight = FontWeight.Bold)
                 Text(fullname.uppercase(), fontSize = 18.sp, color = TextMain, fontWeight = FontWeight.Black)
             }
         }
     }
 }
+
+// ==========================================================
+//                   COMPONENT SECTION
+// ==========================================================
+
 
 @Composable
 fun BMIStatusCard( displayBMIValue: Double = 0.0, displayBMICategory: CategoryBmi ) {
@@ -177,7 +182,7 @@ fun BMIStatusCard( displayBMIValue: Double = 0.0, displayBMICategory: CategoryBm
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     CustomIcon(iconRes = R.drawable.icheartrate, contentDescription = null, tint = Primary, backgroundColor = Primary.copy(alpha = 0.1f), cornerRadius = 8.dp, padding = 4.dp)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("HEALTH STATUS", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TextSub)
+                    Text("STATUS TUBUH", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TextSub)
                 }
                 Spacer(modifier = Modifier.height(12.dp))
                 Row(verticalAlignment = Alignment.Bottom) {
@@ -225,7 +230,7 @@ fun BMIStatusCard( displayBMIValue: Double = 0.0, displayBMICategory: CategoryBm
 fun ProgressSection() {
     Column {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("TODAY'S PROGRESS", fontWeight = FontWeight.Black, color = TextMain)
+            Text("PROGRES HARIAN", fontWeight = FontWeight.Black, color = TextMain)
         }
         Spacer(modifier = Modifier.height(16.dp))
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -240,8 +245,8 @@ fun ProgressSection() {
                 Column {
                     CustomIcon(R.drawable.icfire, null, tint = Primary, backgroundColor = White, cornerRadius = 50.dp, padding = 6.dp)
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text("CALORIES BURNED", fontSize = 10.sp, color = White.copy(0.8f), fontWeight = FontWeight.Bold)
-                    Text("450 Kcal", fontSize = 20.sp, color = White, fontWeight = FontWeight.Black)
+                    Text("KALORI TERBAKAR", fontSize = 10.sp, color = White.copy(0.8f), fontWeight = FontWeight.Bold)
+                    Text("450 Kal", fontSize = 20.sp, color = White, fontWeight = FontWeight.Black)
                 }
             }
             Card(
@@ -252,7 +257,7 @@ fun ProgressSection() {
                 Column(modifier = Modifier.padding(16.dp)) {
                     CustomIcon(R.drawable.icheartrate, null, tint = Color(0xFF3B82F6), backgroundColor = Color(0xFFDBEAFE), cornerRadius = 50.dp, padding = 6.dp)
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text("EXERCISE", fontSize = 10.sp, color = TextSub, fontWeight = FontWeight.Bold)
+                    Text("LATIHAN", fontSize = 10.sp, color = TextSub, fontWeight = FontWeight.Bold)
                     Text("3", fontSize = 24.sp, color = TextMain, fontWeight = FontWeight.Black)
                 }
             }
@@ -265,7 +270,7 @@ fun QuickAction(
     onActionClick : () -> Unit
 ) {
     Column {
-        Text("QUICK ACTIONS", fontWeight = FontWeight.Black, color = TextMain)
+        Text("AKSI CEPAT", fontWeight = FontWeight.Black, color = TextMain)
         Spacer(modifier = Modifier.height(16.dp))
         Card(
             onClick = { onActionClick() },
@@ -299,7 +304,7 @@ fun QuickAction(
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Text(
-                            "RECOMMENDED",
+                            "REKOMENDASI",
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp),
                             color = White,
                             fontSize = 10.sp,
@@ -310,7 +315,7 @@ fun QuickAction(
                     Spacer(Modifier.height(10.dp))
 
                     Text(
-                        "LET'S\nEXERCISE",
+                        "MARI\nBERLATIH",
                         color = White,
                         fontSize = 28.sp,
                         fontWeight = FontWeight.Black,
@@ -320,12 +325,14 @@ fun QuickAction(
                     Spacer(Modifier.height(12.dp))
 
                     Button(
-                        onClick = {},
+                        onClick = {
+                            onActionClick()
+                        },
                         colors = ButtonDefaults.buttonColors(containerColor = White),
                         shape = RoundedCornerShape(50),
                         contentPadding = PaddingValues(horizontal = 16.dp)
                     ) {
-                        Text("Click Now", color = TextMain, fontWeight = FontWeight.Bold)
+                        Text("Klik Sekarang", color = TextMain, fontWeight = FontWeight.Bold)
                         Spacer(Modifier.width(8.dp))
                         CustomIcon(
                             R.drawable.icarrowr,

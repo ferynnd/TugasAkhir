@@ -1,6 +1,7 @@
 package dev.ferynnd.tugasakhir
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatDelegate
@@ -23,19 +24,21 @@ import dev.ferynnd.tugasakhir.ui.layouts.auth.RegisterScreen
 import dev.ferynnd.tugasakhir.ui.layouts.auth.SplashScreenNavigation
 import dev.ferynnd.tugasakhir.ui.theme.TugasAkhirTheme
 import io.github.jan.supabase.auth.auth
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
-import dev.ferynnd.tugasakhir.data.helper.SharedPreferenceHelper
+import dev.ferynnd.tugasakhir.data.model.ExerciseCode
+import dev.ferynnd.tugasakhir.data.viewmodel.ExerciseViewModel
 import dev.ferynnd.tugasakhir.data.viewmodel.UserViewModel
 import dev.ferynnd.tugasakhir.ui.components.LottieDialog
 import dev.ferynnd.tugasakhir.ui.layouts.BMIProfileScreen
 import dev.ferynnd.tugasakhir.ui.layouts.CameraScreen
 import dev.ferynnd.tugasakhir.ui.layouts.EditProfileScreen
+import dev.ferynnd.tugasakhir.ui.layouts.ExerciseHistory
 import dev.ferynnd.tugasakhir.ui.layouts.ProfileScreen
+import dev.ferynnd.tugasakhir.ui.layouts.TrainingSummary
 import dev.ferynnd.tugasakhir.ui.theme.colEmail
-import dev.ferynnd.tugasakhir.ui.theme.colSuccess
 
 class MainActivity : ComponentActivity() {
 
@@ -45,6 +48,7 @@ class MainActivity : ComponentActivity() {
         val repository = AuthRepository(SupabaseClient.client)
         val authViewModel = AuthViewModel(repository)
         val userViewModel = UserViewModel(SupabaseClient)
+        val exerciseViewModel = ExerciseViewModel(SupabaseClient)
 
         setContent {
             TugasAkhirTheme {
@@ -53,7 +57,7 @@ class MainActivity : ComponentActivity() {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
 
-                val showBottomBar = currentRoute in listOf("home", "profile", "trainingList")
+                val showBottomBar = currentRoute in listOf("home", "profile", "trainingList", "trainingHistory")
 
                 Scaffold(
                     bottomBar = {
@@ -139,9 +143,24 @@ class MainActivity : ComponentActivity() {
                             composable("trainingList") {
                                 TrainingList(navController)
                             }
-                            composable("trainingDetail") {
-                                TrainingDetail(navController)
+
+                            composable(
+                                route = "trainingDetail/{id}",
+                                arguments = listOf(
+                                    navArgument("id") {
+                                        type = NavType.IntType
+                                    }
+                                )
+                            ) { backStackEntry ->
+
+                                val id = backStackEntry.arguments?.getInt("id") ?: 0
+                                TrainingDetail(navController, id)
                             }
+
+                            composable("trainingHistory") {
+                                ExerciseHistory(navController, exerciseViewModel )
+                            }
+
                             composable("profile") {
                                 ProfileScreen(navController, userViewModel)
                             }
@@ -152,18 +171,38 @@ class MainActivity : ComponentActivity() {
                             composable("editBMI") {
                                 BMIProfileScreen(navController, userViewModel)
                             }
+
                             composable(
                                 "cameraScan/{exercise}",
                                 arguments = listOf(
                                     navArgument("exercise") { type = NavType.StringType }
                                 )
-                            ) {
-                                CameraScreen(navController)
+                            ) { backStackEntry ->
+
+                                val exerciseArg = backStackEntry.arguments?.getString("exercise")
+
+                                val exerciseType = when (exerciseArg) {
+                                    "push_up" -> ExerciseCode.PUSH_UP
+                                    "squat" -> ExerciseCode.SQUAT
+                                    "sit_up" -> ExerciseCode.SIT_UP
+                                    else -> ExerciseCode.PUSH_UP
+                                }
+
+                                CameraScreen(
+                                    navController = navController,
+                                    exerciseCode = exerciseType
+                                )
                             }
+
+                            composable("trainingSummary") {
+                                TrainingSummary()
+                            }
+
 
                         }
                 }
             }
         }
     }
+
 }

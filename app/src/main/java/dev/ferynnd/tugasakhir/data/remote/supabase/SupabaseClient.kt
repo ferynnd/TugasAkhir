@@ -7,15 +7,14 @@ import io.github.jan.supabase.compose.auth.googleNativeLogin
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.storage.Storage
 
+
 object SupabaseClient {
 
     // Ganti dengan kredensial dari Dashboard Supabase -> Settings -> API
-    private const val SUPABASE_URL = ""
-    private const val SUPABASE_KEY = ""
 
     val client = createSupabaseClient(
-        supabaseUrl = SUPABASE_URL,
-        supabaseKey = SUPABASE_KEY
+        supabaseUrl = "https://dgosuntfquttgeqhtsvr.supabase.co",
+        supabaseKey = "sb_publishable_66ml-4eJDwGHIaVqOuq1oA_ArtLuSKW"
     ) {
         // Install plugin yang dibutuhkan
         install(Auth)

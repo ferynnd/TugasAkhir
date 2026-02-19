@@ -1,5 +1,6 @@
 package dev.ferynnd.tugasakhir.ui.layouts
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -34,6 +35,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import dev.ferynnd.tugasakhir.R
+import dev.ferynnd.tugasakhir.data.model.Additional
+import dev.ferynnd.tugasakhir.data.model.dummyExercises
 import dev.ferynnd.tugasakhir.ui.components.*
 import dev.ferynnd.tugasakhir.ui.theme.Background
 import dev.ferynnd.tugasakhir.ui.theme.Black
@@ -43,8 +46,16 @@ import dev.ferynnd.tugasakhir.ui.theme.White
 import dev.ferynnd.tugasakhir.ui.theme.colEmail
 
 @Composable
-fun TrainingDetail(navController: NavController) {
+fun TrainingDetail(navController: NavController, exerciseId: Int?) {
+
     val scrollState = rememberScrollState()
+
+    val exercise = dummyExercises.find { it.id == exerciseId }
+
+    if (exercise == null) {
+        Toast.makeText(navController.context, "Exercise not found", Toast.LENGTH_SHORT).show()
+        return
+    }
 
      Scaffold(
         containerColor = Background,
@@ -99,8 +110,8 @@ fun TrainingDetail(navController: NavController) {
                      .verticalScroll(scrollState)
              ) {
                  // Header Image Section
-                 HeaderImageSection(
-                     imageRes = R.drawable.bgta,
+                 MediaCarousel(
+                     mediaItems = exercise.media
                  )
 
                  // Content Section
@@ -121,7 +132,7 @@ fun TrainingDetail(navController: NavController) {
 
                      // Title
                      Text(
-                         text = "Push Up",
+                         text = exercise.name,
                          fontSize = 28.sp,
                          fontWeight = FontWeight.Bold,
                          color = Color.Black
@@ -131,57 +142,37 @@ fun TrainingDetail(navController: NavController) {
 
                      // Stats Row
                      StatsRow(
-                         calories = "230",
-                         duration = "15",
-                         level = "10"
+                         calories = exercise.cal,
+                         duration = exercise.duration,
+                         reps = exercise.reps
                      )
 
                      Spacer(modifier = Modifier.height(24.dp))
 
                      // Description Section
                      DescriptionSection(
-                         description = "The push-up is a total-body functional move that serves as a barometer of fitness. While primarily targeting the chest and arms, it requires coordinated engagement from your core and lower body to maintain a rigid plank, making it a superior builder of metabolic health and foundational strength."
-                     )
-
-                     Spacer(modifier = Modifier.height(24.dp))
-
-                     // Muscles Worked Section
-                     MusclesWorkedSection(
-                         primaryMuscles = listOf("Chest", "Triceps"),
-                         secondaryMuscles = listOf("Shoulders", "Core")
+                         description = exercise.description.toString()
                      )
 
                      Spacer(modifier = Modifier.height(24.dp))
 
                      // How to Perform Section
                      HowToPerformSection(
-                         steps = listOf(
-                             "The Setup" to "Place hands slightly wider than shoulder-width apart. Maintain a neutral spine by engaging your core, tucking your chin and squeezing your glutes to align your body from heels to head.",
-                             "The Descent" to "Inhale as you lower your body, keeping elbows at a 45-degree angle to your torso. Aim to descend until your chest nearly touches the floor without losing core tension.",
-                             "The Push" to "Exhale forcefully as you drive through your palms, screwing your hands into the floor, returning to the starting position without locking out elbows aggressively."
-                         )
+                         steps = exercise.howUse
                      )
 
                      Spacer(modifier = Modifier.height(24.dp))
 
                      // Common Mistakes Section
                      CommonMistakesSection(
-                         mistakes = listOf(
-                             "Sagging Hips\nThis often leads to avoid lower back strain.",
-                             "Elbows Flared Too Wide\nLock your shoulders in their sockets to protect joints.",
-                             "Short Range of Motion\nGo chest-to-floor for maximum muscle fiber activation."
-                         )
+                         mistakes = exercise.commonMistakes
                      )
 
                      Spacer(modifier = Modifier.height(24.dp))
 
                      // Benefits Section
                      BenefitsSection(
-                         benefits = listOf(
-                             "Total Upper Body Strength" to "Engages chest, shoulders, triceps and lats builds.",
-                             "Metabolic Boost" to "Burns significant calories by engaging massive muscle groups.",
-                             "Posture Correction" to "Strengthens core and back to counteract desk-bound slouching."
-                         )
+                         benefits = exercise.benefits
                      )
 
                      Spacer(modifier = Modifier.height(100.dp)) // Space for button
@@ -206,7 +197,9 @@ fun TrainingDetail(navController: NavController) {
 
              ) {
                  Button(
-                     onClick = {},
+                     onClick = {
+                         navController.navigate("cameraScan/${exercise.code}")
+                     },
                      modifier = Modifier.fillMaxWidth().height(60.dp),
                      colors = ButtonDefaults.buttonColors(containerColor = Primary),
                      shape = RoundedCornerShape(12.dp),
@@ -232,6 +225,10 @@ fun TrainingDetail(navController: NavController) {
          }
     }
 }
+
+// ==========================================================
+//                   COMPONENT SECTION
+// ==========================================================
 
 @Composable
 fun HeaderImageSection(
@@ -260,7 +257,7 @@ fun HeaderImageSection(
 fun StatsRow(
     calories: String,
     duration: String,
-    level: String
+    reps: String
 ) {
     Row(
         modifier = Modifier
@@ -286,13 +283,14 @@ fun StatsRow(
 
         StatItem(
             modifier = Modifier.weight(1f),
-            icon = R.drawable.icbolt,
-            value = level,
-            label = "MINS",
+            icon = R.drawable.jump,
+            value = reps,
+            label = "REPS",
             iconTint = Color(0xFF00C853)
         )
     }
 }
+
 
 @Composable
 fun StatItem(
@@ -399,43 +397,11 @@ fun DescriptionSection(
     }
 }
 
-// Muscles Worked Section
-@Composable
-fun MusclesWorkedSection(
-    primaryMuscles: List<String>,
-    secondaryMuscles: List<String>,
-    modifier: Modifier = Modifier
-) {
-    Column(modifier = modifier.fillMaxWidth()) {
-        SectionTitle(title = " Otot Yang Digunakan ")
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Ilustrasi Otot (bisa diganti dengan gambar)
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(120.dp)
-                .background(
-                    Color.Black.copy(alpha = 0.05f),
-                    shape = RoundedCornerShape(12.dp)
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "Muscle Illustration",
-                color = Color.Black.copy(alpha = 0.3f),
-                fontSize = 12.sp
-            )
-        }
-    }
-}
-
 
 // How to Perform Section
 @Composable
 fun HowToPerformSection(
-    steps: List<Pair<String, String>>, // Pair of (title, description)
+    steps: List<Additional>, // Pair of (title, description)
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
@@ -443,11 +409,11 @@ fun HowToPerformSection(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        steps.forEachIndexed { index, (title, description) ->
+        steps.forEachIndexed { index, ( id ,title, description) ->
             StepItem(
-                stepNumber = index + 1,
+                stepNumber = id,
                 title = title,
-                description = description
+                description = description.toString()
             )
 
             if (index < steps.size - 1) {
@@ -509,7 +475,7 @@ fun StepItem(
 // Common Mistakes Section
 @Composable
 fun CommonMistakesSection(
-    mistakes: List<String>,
+    mistakes: List<Additional>,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
@@ -517,8 +483,11 @@ fun CommonMistakesSection(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        mistakes.forEachIndexed { index, mistake ->
-            MistakeItem(mistake)
+        mistakes.forEachIndexed { index, (id, title , description )->
+            MistakeItem(
+                title = title,
+                mistake = description.toString()
+            )
 
             if (index < mistakes.size - 1) {
                 Spacer(modifier = Modifier.height(12.dp))
@@ -528,7 +497,7 @@ fun CommonMistakesSection(
 }
 
 @Composable
-fun MistakeItem(mistake: String) {
+fun MistakeItem(title: String, mistake: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -562,7 +531,7 @@ fun MistakeItem(mistake: String) {
 
          Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "title",
+                text = title,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Primary
@@ -583,7 +552,7 @@ fun MistakeItem(mistake: String) {
 // Benefits Section
 @Composable
 fun BenefitsSection(
-    benefits: List<Pair<String, String>>, // Pair of (title, description)
+    benefits: List<Additional>, // Pair of (title, description)
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
@@ -591,8 +560,8 @@ fun BenefitsSection(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        benefits.forEach { (title, description) ->
-            BenefitItem(title, description)
+        benefits.forEach { (id, title, description) ->
+            BenefitItem(title, description.toString())
             Spacer(modifier = Modifier.height(12.dp))
         }
     }
@@ -626,22 +595,12 @@ fun BenefitItem(
 
         Spacer(modifier = Modifier.width(12.dp))
 
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = title,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color.Black
-            )
+        Text(
+            text = title,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = Color.Black
+        )
 
-            Spacer(modifier = Modifier.height(6.dp))
-
-            Text(
-                text = description,
-                fontSize = 14.sp,
-                color = Color.Black.copy(alpha = 0.7f),
-                lineHeight = 18.sp
-            )
-        }
     }
 }
