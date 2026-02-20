@@ -139,7 +139,8 @@ fun CameraScreen( navController: NavController, exerciseCode: ExerciseCode) {
 
     var poseResult by remember { mutableStateOf<PoseLandmarkerResult?>(null) }
     var counter by remember { mutableStateOf(0) }
-    var currentState by remember { mutableStateOf(ExerciseState.TOP) }
+    var currentState by remember { mutableStateOf(ExerciseState.WAITING_START) }
+//    var currentState by remember { mutableStateOf(ExerciseState.TOP) } // Default
     var feedback by remember { mutableStateOf<String?>(null) }
 
     val lastUpdateTime = remember { mutableStateOf(0L) }
@@ -330,7 +331,7 @@ fun CameraScreen( navController: NavController, exerciseCode: ExerciseCode) {
                 .fillMaxWidth()
                 .navigationBarsPadding(), // Padding untuk navigasi bar sistem (garis bawah HP)
             onEndSessionClick = { navController.navigate("home") },
-            feedback = feedback ?: "Gerakan bagus!",
+            feedback = feedback ?: "-",
             isCountdownActive = isCountdownActive
         )
     }

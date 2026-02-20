@@ -5,7 +5,10 @@ import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 
 class TypeOfExercise(landmarks: List<NormalizedLandmark>) : BodyPartAngle(landmarks) {
 
-    fun evaluatePushUp(counter: Int, currentState: ExerciseState): ExerciseEvaluation {
+    fun evaluatePushUp(
+        counter: Int,
+        currentState: ExerciseState
+    ): ExerciseEvaluation {
 
         val elbow = (angleLeftArm() + angleRightArm()) / 2
         val spine = angleSpine()
@@ -15,7 +18,27 @@ class TypeOfExercise(landmarks: List<NormalizedLandmark>) : BodyPartAngle(landma
         var feedback: String? = null
 
         // 1️⃣ POSTURE VALIDATION
-        val postureValid = spine in 165.0..185.0
+        val postureValid =
+            elbow >= 160 &&
+            spine in 165.0..185.0
+
+        if (state == ExerciseState.WAITING_START) {
+
+            if (postureValid) {
+                state = ExerciseState.TOP
+                feedback = "Posisi siap, mulai"
+            } else {
+                feedback = "Ambil posisi push-up yang benar"
+            }
+
+            return ExerciseEvaluation(
+                reps,
+                state,
+                postureValid,
+                false,
+                feedback
+            )
+        }
 
         if (!postureValid) {
             feedback = if (spine < 150)
@@ -33,6 +56,12 @@ class TypeOfExercise(landmarks: List<NormalizedLandmark>) : BodyPartAngle(landma
 
         // 3️⃣ FSM
         when (state) {
+
+            ExerciseState.WAITING_START -> {
+                if (postureValid) {
+                    state = ExerciseState.TOP
+                }
+            }
 
             ExerciseState.TOP -> {
                 if (elbow < 150) {
@@ -97,6 +126,26 @@ class TypeOfExercise(landmarks: List<NormalizedLandmark>) : BodyPartAngle(landma
             knee in 80.0..110.0 &&
             spine in 150.0..180.0
 
+
+        if (state == ExerciseState.WAITING_START) {
+
+            if (postureValid) {
+                state = ExerciseState.TOP
+                feedback = "Posisi siap, mulai"
+            } else {
+                feedback = "Ambil posisi sit-up yang benar"
+            }
+
+            return ExerciseEvaluation(
+                reps,
+                state,
+                postureValid,
+                false,
+                feedback
+            )
+        }
+
+
         if (!postureValid) {
             feedback = when {
                 knee !in 80.0..110.0 ->
@@ -121,6 +170,12 @@ class TypeOfExercise(landmarks: List<NormalizedLandmark>) : BodyPartAngle(landma
 
         // 3️⃣ FSM (Finite State Machine)
         when (state) {
+
+            ExerciseState.WAITING_START -> {
+                if (postureValid) {
+                    state = ExerciseState.TOP
+                }
+            }
 
             ExerciseState.TOP -> {
                 // mulai turun
@@ -189,8 +244,27 @@ class TypeOfExercise(landmarks: List<NormalizedLandmark>) : BodyPartAngle(landma
 
         // 1️⃣ POSTURE VALIDATION (Standing / Bottom posture check)
         val postureValid =
-            spine in 160.0..185.0 &&
-            torso in 60.0..75.0
+            knee in 160.0..180.0 &&
+            hip in 160.0..180.0 &&
+            torso in 80.0..100.0
+
+        if (state == ExerciseState.WAITING_START) {
+
+            if (postureValid) {
+                state = ExerciseState.TOP
+                feedback = "Posisi siap, mulai"
+            } else {
+                feedback = "Ambil posisi squat yang benar"
+            }
+
+            return ExerciseEvaluation(
+                reps,
+                state,
+                postureValid,
+                false,
+                feedback
+            )
+        }
 
         if (!postureValid) {
             feedback = when {
@@ -217,6 +291,11 @@ class TypeOfExercise(landmarks: List<NormalizedLandmark>) : BodyPartAngle(landma
         // 3️⃣ FSM (Finite State Machine)
         when (state) {
 
+            ExerciseState.WAITING_START -> {
+                if (postureValid) {
+                    state = ExerciseState.TOP
+                }
+            }
             ExerciseState.TOP -> {
                 // STANDING
                 if (knee < 150) {
@@ -261,7 +340,6 @@ class TypeOfExercise(landmarks: List<NormalizedLandmark>) : BodyPartAngle(landma
             feedback
         )
     }
-
 
 
 }

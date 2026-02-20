@@ -26,6 +26,7 @@ object PoseMath {
 
 
 enum class ExerciseState {
+    WAITING_START,
     TOP,
     DESCENDING,
     BOTTOM,
