@@ -1,5 +1,7 @@
 package dev.ferynnd.tugasakhir.ui.layouts
 
+import android.graphics.drawable.Icon
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,7 +31,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -43,7 +47,11 @@ import dev.ferynnd.tugasakhir.R
 import dev.ferynnd.tugasakhir.data.viewmodel.ExerciseViewModel
 import dev.ferynnd.tugasakhir.ui.theme.Black
 import dev.ferynnd.tugasakhir.ui.theme.Card
+import dev.ferynnd.tugasakhir.ui.theme.Input
 import dev.ferynnd.tugasakhir.ui.theme.TextSub
+import dev.ferynnd.tugasakhir.ui.theme.White
+import dev.ferynnd.tugasakhir.ui.theme.colEmail
+import dev.ferynnd.tugasakhir.ui.theme.colWarning
 
 @Composable
 fun ExerciseHistory( navController: NavController, exerciseViewModel: ExerciseViewModel) {
@@ -53,17 +61,13 @@ fun ExerciseHistory( navController: NavController, exerciseViewModel: ExerciseVi
             .background(Color.White)
             .padding(16.dp)
     ) {
-        // Top Navigation
-        IconButton(onClick = { navController.popBackStack() }) {
-            Icon(Icons.Default.ArrowBack, contentDescription = "Back", modifier = Modifier.background(Color.LightGray, CircleShape))
-        }
 
         Text(
             text = buildAnnotatedString {
-                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold, color = Color.Black)) { append("Riwayat ") }
-                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold, color = Color.Red)) { append("Latihan") }
+                withStyle(style = SpanStyle(fontWeight = FontWeight.ExtraBold, color = Color.Black)) { append("Riwayat ") }
+                withStyle(style = SpanStyle(fontWeight = FontWeight.ExtraBold, color = Color.Red)) { append("Latihan") }
             },
-            fontSize = 28.sp,
+            fontSize = 32.sp,
             modifier = Modifier.padding(vertical = 24.dp)
         )
 
@@ -72,16 +76,16 @@ fun ExerciseHistory( navController: NavController, exerciseViewModel: ExerciseVi
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            SummaryCard("230")
-            SummaryCard("230")
-            SummaryCard("230")
+            SummaryCard(R.drawable.icfire, Color(0xFFFF6B6B),"1400", "Kal")
+            SummaryCard(R.drawable.icoclock,Color(0xFF4169E1), "120", "Min")
+            SummaryCard(R.drawable.jump,Color(0xFF00C853), "300", "Reps")
         }
 
         Spacer(modifier = Modifier.height(32.dp))
 
         Text(
             text = "Recent Activity",
-            style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 18.sp),
+            style = TextStyle(color = Black, fontWeight = FontWeight.Bold, fontSize = 18.sp),
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
@@ -95,13 +99,13 @@ fun ExerciseHistory( navController: NavController, exerciseViewModel: ExerciseVi
 }
 
 @Composable
-fun SummaryCard(calories: String) {
+fun SummaryCard( icon: Int, iconTint : Color, value: String, label : String) {
     Card(
         modifier = Modifier
-            .width(110.dp)
-            .height(130.dp),
+            .height(130.dp)
+            .width(130.dp),
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF7F7F7)),
+        colors = CardDefaults.cardColors(containerColor =  Input.copy(alpha = 0.7f)),
         elevation = CardDefaults.cardElevation(0.dp)
     ) {
         Column(
@@ -109,19 +113,29 @@ fun SummaryCard(calories: String) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Icon(
-                painter = painterResource(id = R.drawable.icfire), // Ganti dengan icon api Anda
-                contentDescription = null,
-                tint = Color.Red,
-                modifier = Modifier.size(28.dp)
-            )
+             Box(
+                modifier = Modifier
+                    .size(42.dp)
+                    .background(
+                        color = iconTint.copy(alpha = 0.12f),
+                        shape = CircleShape
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(id = icon),
+                    contentDescription = null,
+                    tint = iconTint,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
             Spacer(modifier = Modifier.height(6.dp))
             Text(
-                text = calories,
+                text = value,
                 style = TextStyle(color = Black,fontWeight = FontWeight.Bold, fontSize = 20.sp)
             )
             Text(
-                text = "Kcal",
+                text = label,
                 style = TextStyle(color = TextSub, fontSize = 12.sp)
             )
         }
@@ -134,9 +148,9 @@ fun HistoryCard() {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp),
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(12.dp),
+         border = BorderStroke(1.dp, Input.copy(0.9f)),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -147,7 +161,7 @@ fun HistoryCard() {
                 modifier = Modifier
                     .size(80.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFFD9D9D9))
+                    .background(TextSub.copy(0.15f))
             )
 
             Spacer(modifier = Modifier.width(16.dp))
@@ -160,16 +174,16 @@ fun HistoryCard() {
                 ) {
                     Text(
                         text = "Push Up",
-                        style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                        style = TextStyle(color = Black, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                     )
                     Surface(
-                        color = Color(0xFFC8E6C9),
-                        shape = RoundedCornerShape(12.dp)
+                        color = colEmail.copy(0.8f),
+                        shape = RoundedCornerShape(8.dp)
                     ) {
                         Text(
-                            text = "Completed",
+                            text = "Kamis, 23 Januari 2026",
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                            style = TextStyle(color = Color(0xFF2E7D32), fontSize = 10.sp)
+                            style = TextStyle(color = White, fontSize = 10.sp)
                         )
                     }
                 }
@@ -178,13 +192,19 @@ fun HistoryCard() {
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(painterResource(id = R.drawable.icfire), null, tint = Color.Red, modifier = Modifier.size(14.dp))
-                    Text(" 20  | ", fontSize = 12.sp)
-                    Icon(painterResource(id = R.drawable.icfire), null, tint = Color.Red, modifier = Modifier.size(14.dp))
-                    Text(" 100  | ", fontSize = 12.sp)
-                    Icon(painterResource(id = R.drawable.icfire), null, tint = Color.Red, modifier = Modifier.size(14.dp))
-                    Text(" 5min", fontSize = 12.sp)
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Icon(painterResource(id = R.drawable.icfire), null, tint = Color.Red, modifier = Modifier.size(14.dp))
+                        Text("200 Kal", fontSize = 12.sp , color = TextSub)
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Icon(painterResource(id = R.drawable.icoclock), null, tint = Color.Red, modifier = Modifier.size(14.dp))
+                        Text("3 Min ", fontSize = 12.sp , color = TextSub)
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Icon(painterResource(id = R.drawable.jump), null, tint = Color.Red, modifier = Modifier.size(14.dp))
+                        Text("30 Reps", fontSize = 12.sp , color = TextSub)
+                    }
                 }
             }
         }

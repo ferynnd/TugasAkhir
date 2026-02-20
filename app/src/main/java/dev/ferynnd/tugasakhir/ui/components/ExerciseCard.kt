@@ -71,7 +71,7 @@ fun ExerciseCard(
                     painter = painterResource(id = imageRes),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize().padding(16.dp)
                 )
             }
 

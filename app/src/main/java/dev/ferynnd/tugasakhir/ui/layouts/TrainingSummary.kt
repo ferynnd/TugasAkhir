@@ -24,6 +24,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -38,8 +40,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.ferynnd.tugasakhir.R
+import dev.ferynnd.tugasakhir.ui.theme.Black
+import androidx.compose.material3.TopAppBarDefaults.centerAlignedTopAppBarColors
 
-
+@ExperimentalMaterial3Api
 @Composable
 fun TrainingSummary() {
     Scaffold(
@@ -65,26 +70,44 @@ fun TrainingSummary() {
                 .padding(horizontal = 20.dp)
         ) {
             // Header
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = { /* Back */ }, modifier = Modifier.background(Color(0xFFE0E0E0), CircleShape)) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                }
-                Text(text = "Des 25 - 18:42", fontSize = 14.sp, color = Color.Gray)
-                Text(text = "Push Up", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-            }
+            CenterAlignedTopAppBar(
+                title = {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = "Push Up",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp
+                        )
+                        Text(
+                            text = "18:42 • 10 Des 2025",
+                            fontSize = 13.sp,
+                            color = Color.Gray
+                        )
+                    }
+                },
+                navigationIcon = {
+                    IconButton(
+                        onClick = { /* Back */ }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                },
+                colors = centerAlignedTopAppBarColors(
+                    containerColor = Color.White
+                )
+            )
 
             // Summary Cards (Reuse previous component)
             Row(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                SummaryCard("230") // Komponen dari jawaban sebelumnya
-                SummaryCard("230")
-                SummaryCard("230")
+                SummaryCard(R.drawable.icfire, Color(0xFFFF6B6B),"1400", "Kal")
+                SummaryCard(R.drawable.icoclock,Color(0xFF4169E1), "120", "Min")
+                SummaryCard(R.drawable.jump,Color(0xFF00C853), "300", "Reps")
             }
 
             Spacer(modifier = Modifier.height(16.dp))

@@ -17,9 +17,9 @@ val BackgroundDark = Color(0xFFA0A0A0)
 val Card = Color(0xFFFFFFFF)          // card-light
 val CardDark = Color(0xFF1E1E1E)
 
-val colSuccess = Color(0xFF198754)
+val colSuccess = Color(0xFF00C853)
 val colError = Color(0xFFDC2626)
-val colEmail = Color(0xFF4292C6)
+val colEmail = Color(0xFF4169E1)
 val colWarning = Color(0xFFFFA500)
 
 // Typography & Border
