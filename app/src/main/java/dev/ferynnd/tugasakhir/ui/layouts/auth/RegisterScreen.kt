@@ -21,6 +21,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import dev.ferynnd.tugasakhir.data.viewmodel.AuthViewModel
 import dev.ferynnd.tugasakhir.ui.components.CustomIcon
 import dev.ferynnd.tugasakhir.ui.theme.TextMain
@@ -33,7 +34,10 @@ import dev.ferynnd.tugasakhir.ui.theme.colEmail
 import dev.ferynnd.tugasakhir.ui.theme.colSuccess
 
 @Composable
-fun RegisterScreen(viewModel: AuthViewModel, onNavToLogin: () -> Unit) {
+fun RegisterScreen(
+    viewModel: AuthViewModel = hiltViewModel(),
+    onNavToLogin: () -> Unit
+) {
     var fullname by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }

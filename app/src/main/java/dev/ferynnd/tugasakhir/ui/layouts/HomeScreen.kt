@@ -26,6 +26,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -43,8 +44,12 @@ import io.github.jan.supabase.auth.auth
 
 
 @Composable
-fun HomeScreen(navController: NavController, userViewModel: UserViewModel) {
-    val user = remember { SupabaseClient.client.auth.currentUserOrNull() }
+fun HomeScreen(
+    navController: NavController,
+    userViewModel: UserViewModel = hiltViewModel(),
+    supabaseClient: SupabaseClient
+) {
+    val user = remember { supabaseClient.auth.currentUserOrNull() }
     LaunchedEffect(user?.id) {
         if (user != null) {
             userViewModel.getProfile(user.id)
@@ -63,7 +68,8 @@ fun HomeScreen(navController: NavController, userViewModel: UserViewModel) {
 
     Scaffold(
         containerColor = White,
-        topBar = { TopBarSection( fullname = displayUsername, avatar = displayAvatar) }
+        topBar = { TopBarSection( fullname = displayUsername, avatar = displayAvatar) },
+        modifier = Modifier.padding(bottom = 20.dp)
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -96,7 +102,7 @@ fun HomeScreen(navController: NavController, userViewModel: UserViewModel) {
             lottieRes = R.raw.warning, // Ganti dengan file lottie Anda
             title = "Lengkapi Profil BMI",
             message = "Lengkapi data BMI untuk mengetahui status berat badan Anda.",
-            confirmText = "Lengkapi Sekarang",
+            confirmText = "Lengkapi",
             colorBg = colWarning.copy(alpha = 0.15f),
             dismissText = "Nanti Saja",
             onConfirm = {

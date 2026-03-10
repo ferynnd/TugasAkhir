@@ -1,19 +1,14 @@
 package dev.ferynnd.tugasakhir
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import dev.ferynnd.tugasakhir.data.remote.supabase.SupabaseClient
-import dev.ferynnd.tugasakhir.data.repository.AuthRepository
 import dev.ferynnd.tugasakhir.data.viewmodel.AuthViewModel
 import dev.ferynnd.tugasakhir.ui.components.MainBottomNav
 import dev.ferynnd.tugasakhir.ui.layouts.HomeScreen
@@ -28,7 +23,9 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import dagger.hilt.android.AndroidEntryPoint
 import dev.ferynnd.tugasakhir.data.model.ExerciseCode
+import dev.ferynnd.tugasakhir.data.remote.supabase.SupabaseClient
 import dev.ferynnd.tugasakhir.data.viewmodel.ExerciseViewModel
 import dev.ferynnd.tugasakhir.data.viewmodel.UserViewModel
 import dev.ferynnd.tugasakhir.ui.components.LottieDialog
@@ -40,15 +37,17 @@ import dev.ferynnd.tugasakhir.ui.layouts.ProfileScreen
 import dev.ferynnd.tugasakhir.ui.layouts.TrainingSummary
 import dev.ferynnd.tugasakhir.ui.theme.colEmail
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val repository = AuthRepository(SupabaseClient.client)
-        val authViewModel = AuthViewModel(repository)
-        val userViewModel = UserViewModel(SupabaseClient)
-        val exerciseViewModel = ExerciseViewModel(SupabaseClient)
+        val supabaseClient = SupabaseClient()
+
+        val authViewModel = AuthViewModel(supabaseClient)
+        val userViewModel = UserViewModel(supabaseClient)
+        val exerciseViewModel = ExerciseViewModel(supabaseClient)
 
         setContent {
             TugasAkhirTheme {
@@ -87,7 +86,7 @@ class MainActivity : ComponentActivity() {
                                 SplashScreenNavigation(
                                     onNavigationComplete = {
                                         // Cek session terbaru langsung saat navigasi selesai
-                                        val session = SupabaseClient.client.auth.currentSessionOrNull()
+                                        val session = supabaseClient.auth.currentSessionOrNull()
                                         val dest = if (session != null) "home" else "login"
 
                                         navController.navigate(dest) {
@@ -104,7 +103,8 @@ class MainActivity : ComponentActivity() {
                                             popUpTo("login") { inclusive = true }
                                         }
                                     },
-                                    onNavToRegister = { navController.navigate("register") }
+                                    onNavToRegister = { navController.navigate("register") },
+                                    supabaseClient = supabaseClient
                                 )
                             }
 
@@ -138,7 +138,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                             composable("home") {
-                                HomeScreen(navController, userViewModel)
+                                HomeScreen(navController, userViewModel,  supabaseClient = supabaseClient)
                             }
                             composable("trainingList") {
                                 TrainingList(navController)
@@ -158,18 +158,18 @@ class MainActivity : ComponentActivity() {
                             }
 
                             composable("trainingHistory") {
-                                ExerciseHistory(navController, exerciseViewModel )
+                                ExerciseHistory( exerciseViewModel , supabaseClient = supabaseClient)
                             }
 
                             composable("profile") {
-                                ProfileScreen(navController, userViewModel)
+                                ProfileScreen(navController, userViewModel,  supabaseClient = supabaseClient)
                             }
 
                             composable("editProfile") {
-                                EditProfileScreen(navController, authViewModel, userViewModel)
+                                EditProfileScreen(navController, authViewModel, userViewModel,  supabaseClient = supabaseClient)
                             }
                             composable("editBMI") {
-                                BMIProfileScreen(navController, userViewModel)
+                                BMIProfileScreen(navController, userViewModel,  supabaseClient = supabaseClient)
                             }
 
                             composable(
@@ -181,16 +181,16 @@ class MainActivity : ComponentActivity() {
 
                                 val exerciseArg = backStackEntry.arguments?.getString("exercise")
 
-                                val exerciseType = when (exerciseArg) {
-                                    "push_up" -> ExerciseCode.PUSH_UP
-                                    "squat" -> ExerciseCode.SQUAT
-                                    "sit_up" -> ExerciseCode.SIT_UP
-                                    else -> ExerciseCode.PUSH_UP
+                                val exerciseType = try {
+                                    ExerciseCode.valueOf(exerciseArg ?: ExerciseCode.PUSH_UP.name)
+                                } catch (e: Exception) {
+                                    ExerciseCode.PUSH_UP
                                 }
 
                                 CameraScreen(
                                     navController = navController,
-                                    exerciseCode = exerciseType
+                                    exerciseCode = exerciseType ,
+                                    supabaseClient = supabaseClient
                                 )
                             }
 

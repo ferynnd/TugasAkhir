@@ -38,6 +38,7 @@ data class ExerciseEvaluation(
     val state: ExerciseState,
     val postureValid: Boolean,
     val depthValid: Boolean,
-    val feedback: String?
+    val feedback: String?,
+    val isCorrect: Boolean = true
 )
 

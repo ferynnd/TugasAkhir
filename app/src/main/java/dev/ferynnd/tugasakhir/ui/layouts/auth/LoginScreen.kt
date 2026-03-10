@@ -1,5 +1,6 @@
 package dev.ferynnd.tugasakhir.ui.layouts.auth
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,6 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import dev.ferynnd.tugasakhir.R // Pastikan import R untuk icon google
 import dev.ferynnd.tugasakhir.data.remote.supabase.SupabaseClient
 import dev.ferynnd.tugasakhir.data.viewmodel.AuthViewModel
@@ -45,7 +47,12 @@ import io.github.jan.supabase.compose.auth.composeAuth
 import kotlinx.coroutines.launch
 
 @Composable
-fun LoginScreen(viewModel: AuthViewModel, onNavToHome: () -> Unit, onNavToRegister: () -> Unit) {
+fun LoginScreen(
+    viewModel: AuthViewModel = hiltViewModel(),
+    onNavToHome: () -> Unit,
+    onNavToRegister: () -> Unit,
+    supabaseClient: SupabaseClient
+) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var email by remember { mutableStateOf("") }
@@ -53,14 +60,16 @@ fun LoginScreen(viewModel: AuthViewModel, onNavToHome: () -> Unit, onNavToRegist
     var passwordVisible by remember { mutableStateOf(true) }
     val dialogState = viewModel.dialogState
 
-    val googleLoginAction = SupabaseClient.client.composeAuth.rememberSignInWithGoogle(
+    val googleLoginAction = supabaseClient.composeAuth.rememberSignInWithGoogle(
         onResult = { result ->
             when (result) {
                 is NativeSignInResult.Success -> {
                     scope.launch {
-                        val user = SupabaseClient.client.auth.currentUserOrNull()
-                                   ?: SupabaseClient.client.auth.currentSessionOrNull()?.user
+                        val user = supabaseClient.auth.currentUserOrNull()
+                                   ?: supabaseClient.auth.currentSessionOrNull()?.user
+                        Log.d("GOOGLE", "cek ${user}")
                         val email = user?.email
+                        Log.d("GOOGLE", "cek ${email}")
                         if (email != null) {
                             viewModel.onGoogleLoginSuccess()
                         } else {
@@ -68,12 +77,16 @@ fun LoginScreen(viewModel: AuthViewModel, onNavToHome: () -> Unit, onNavToRegist
                         }
                     }
                 }
-                is NativeSignInResult.Error -> Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
+                is NativeSignInResult.Error -> {
+                    Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
+                    Log.d("GOOGLE", result.message)
+                }
+
                 else -> {}
             }
         },
         fallback = {
-            scope.launch { SupabaseClient.client.auth.signInWith(Google) }
+            scope.launch { supabaseClient.auth.signInWith(Google) }
         }
     )
 

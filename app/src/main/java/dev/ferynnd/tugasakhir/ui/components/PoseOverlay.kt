@@ -14,8 +14,12 @@ import com.google.mlkit.vision.pose.PoseLandmark
 @Composable
 fun PoseOverlay(
     poseResult: PoseLandmarkerResult?,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    correct: Boolean
 ) {
+    val skeletonColor = if (correct) Color(0xFF00E676) else Color(0xFFFF1744)
+    val jointColor = if (correct) Color(0xFF69F0AE) else Color(0xFFFF6B6B)
+
     Canvas(modifier = modifier.fillMaxSize()) {
 
         if (poseResult == null) return@Canvas
@@ -29,13 +33,13 @@ fun PoseOverlay(
             val y = point.y() * height
 
             drawCircle(
-                color = Color.Yellow,
+                color = jointColor,
                 radius = 6f,
                 center = androidx.compose.ui.geometry.Offset(x, y)
             )
         }
 
-        drawSkeleton(landmarks, width, height)
+        drawSkeleton(landmarks, width, height, skeletonColor)
     }
 }
 
@@ -83,15 +87,16 @@ val RIGHT_LEG_CONNECTIONS = listOf(24 to 26, 26 to 28, 28 to 32, 28 to 30)
 private fun DrawScope.drawSkeleton(
     landmarks: List<NormalizedLandmark>,
     width: Float,
-    height: Float
+    height: Float,
+    color: Color
 ) {
-    drawGroup(landmarks, TORSO_CONNECTIONS, width, height, Color.White)
+    drawGroup(landmarks, TORSO_CONNECTIONS, width, height, color)
 
-    drawGroup(landmarks, LEFT_ARM_CONNECTIONS, width, height, Color.Yellow)
-    drawGroup(landmarks, RIGHT_ARM_CONNECTIONS, width, height, Color.Yellow)
+    drawGroup(landmarks, LEFT_ARM_CONNECTIONS, width, height, color)
+    drawGroup(landmarks, RIGHT_ARM_CONNECTIONS, width, height, color)
 
-    drawGroup(landmarks, LEFT_LEG_CONNECTIONS, width, height, Color(0xFF22C55E)) // Hijau
-    drawGroup(landmarks, RIGHT_LEG_CONNECTIONS, width, height, Color(0xFF22C55E))
+    drawGroup(landmarks, LEFT_LEG_CONNECTIONS, width, height, color)
+    drawGroup(landmarks, RIGHT_LEG_CONNECTIONS, width, height,color)
 }
 
 private fun DrawScope.drawGroup(

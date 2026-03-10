@@ -214,7 +214,7 @@ fun TrainingDetail(navController: NavController, exerciseId: Int?) {
                          )
                          Spacer(Modifier.width(10.dp))
                          Text(
-                             "START EXERCISE",
+                             "MULAI LATIHAN",
                              fontWeight = FontWeight.Bold,
                              fontSize = 16.sp,
                              color = White

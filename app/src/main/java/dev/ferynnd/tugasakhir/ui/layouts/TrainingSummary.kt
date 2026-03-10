@@ -44,7 +44,6 @@ import dev.ferynnd.tugasakhir.R
 import dev.ferynnd.tugasakhir.ui.theme.Black
 import androidx.compose.material3.TopAppBarDefaults.centerAlignedTopAppBarColors
 
-@ExperimentalMaterial3Api
 @Composable
 fun TrainingSummary() {
     Scaffold(
@@ -70,44 +69,17 @@ fun TrainingSummary() {
                 .padding(horizontal = 20.dp)
         ) {
             // Header
-            CenterAlignedTopAppBar(
-                title = {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            text = "Push Up",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 20.sp
-                        )
-                        Text(
-                            text = "18:42 • 10 Des 2025",
-                            fontSize = 13.sp,
-                            color = Color.Gray
-                        )
-                    }
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = { /* Back */ }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
-                },
-                colors = centerAlignedTopAppBarColors(
-                    containerColor = Color.White
-                )
-            )
+            SummaryHeader()
 
             // Summary Cards (Reuse previous component)
             Row(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.spacedBy(7.dp),
+
             ) {
-                SummaryCard(R.drawable.icfire, Color(0xFFFF6B6B),"1400", "Kal")
-                SummaryCard(R.drawable.icoclock,Color(0xFF4169E1), "120", "Min")
-                SummaryCard(R.drawable.jump,Color(0xFF00C853), "300", "Reps")
+                SummaryCard(R.drawable.icfire, Color(0xFFFF6B6B),"1400", "Kal", modifier = Modifier.weight(1f))
+                SummaryCard(R.drawable.icoclock,Color(0xFF4169E1), "120", "Min", modifier = Modifier.weight(1f))
+                SummaryCard(R.drawable.jump,Color(0xFF00C853), "300", "Reps", modifier = Modifier.weight(1f))
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -235,6 +207,48 @@ fun ComparisonItem() {
                 Text(text = "+5%", color = Color(0xFF2E7D32), fontWeight = FontWeight.Bold, fontSize = 14.sp)
                 Text(text = "Improved", color = Color.Gray, fontSize = 10.sp)
             }
+        }
+    }
+}
+
+
+@Composable
+fun SummaryHeader() {
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.White)
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+    ) {
+
+        // Tombol Back di kiri
+        IconButton(
+            onClick = { /* Back */ },
+            modifier = Modifier.align(Alignment.CenterStart)
+        ) {
+            Icon(
+                imageVector = Icons.Default.ArrowBack,
+                contentDescription = "Back"
+            )
+        }
+
+        // Title di tengah
+        Column(
+            modifier = Modifier.align(Alignment.Center),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Push Up",
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
+            )
+
+            Text(
+                text = "18:42 • 10 Des 2025",
+                fontSize = 13.sp,
+                color = Color.Gray
+            )
         }
     }
 }

@@ -38,6 +38,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.zIndex
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import dev.ferynnd.tugasakhir.data.model.CategoryBmi
@@ -46,8 +47,12 @@ import dev.ferynnd.tugasakhir.ui.components.CustomIcon
 import dev.ferynnd.tugasakhir.ui.components.SmallFab
 
 @Composable
-fun ProfileScreen(navController: NavController,  userViewModel: UserViewModel) {
-    val user = remember { SupabaseClient.client.auth.currentUserOrNull() }
+fun ProfileScreen(
+    navController: NavController,
+    userViewModel: UserViewModel = hiltViewModel(),
+    supabaseClient: SupabaseClient
+) {
+    val user = remember { supabaseClient.auth.currentUserOrNull() }
 
     LaunchedEffect(Unit) {
         user?.id?.let {

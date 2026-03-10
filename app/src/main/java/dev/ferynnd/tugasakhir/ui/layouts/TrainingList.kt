@@ -47,13 +47,13 @@ fun TrainingList(navController: NavController) {
             Column {
                 Text(
                     text = "Pilih Latihan",
-                    fontSize = 32.sp,
+                    fontSize = 24.sp,
                     fontWeight = FontWeight.ExtraBold,
                     color = TextMain
                 )
                 Text(
                     text = "Untuk Kamu",
-                    fontSize = 32.sp,
+                    fontSize = 24.sp,
                     fontWeight = FontWeight.ExtraBold,
                     color = Primary
                 )

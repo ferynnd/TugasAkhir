@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import dev.ferynnd.tugasakhir.ui.theme.*
 import dev.ferynnd.tugasakhir.R
@@ -34,9 +35,13 @@ import io.github.jan.supabase.auth.auth
 import kotlinx.coroutines.launch
 
 @Composable
-fun BMIProfileScreen(navController: NavController, userViewModel: UserViewModel) {
+fun BMIProfileScreen(
+    navController: NavController,
+    userViewModel: UserViewModel = hiltViewModel(),
+    supabaseClient: SupabaseClient
+) {
 
-    val user = remember { SupabaseClient.client.auth.currentUserOrNull() }
+    val user = remember { supabaseClient.auth.currentUserOrNull() }
     val scope = rememberCoroutineScope()
 
     var gender by remember { mutableStateOf(Gender.MALE) }

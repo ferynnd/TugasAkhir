@@ -10,19 +10,22 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.ferynnd.tugasakhir.data.helper.SharedPreferenceHelper
-import dev.ferynnd.tugasakhir.data.model.Profile
+import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ferynnd.tugasakhir.data.remote.supabase.SupabaseClient
-import dev.ferynnd.tugasakhir.data.repository.AuthRepository
 import dev.ferynnd.tugasakhir.ui.components.DialogState
 import dev.ferynnd.tugasakhir.ui.theme.colError
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email
-import io.github.jan.supabase.postgrest.postgrest
-import io.github.jan.supabase.storage.storage
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonObject
+import javax.inject.Inject
 
-class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
+
+@HiltViewModel
+class AuthViewModel @Inject constructor (
+    private val supabaseClient: SupabaseClient
+): ViewModel() {
 
     var isLoading by mutableStateOf(false)
         private set
@@ -96,7 +99,13 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
         viewModelScope.launch {
             try {
                 isLoading = true
-                repository.signUp(email, pass, username)
+                supabaseClient.auth.signUpWith(Email) {
+                    this.email = email
+                    this.password = pass
+                    data = buildJsonObject {
+                         put("full_name", JsonPrimitive(username))
+                    }
+                }
                 isSuccess = true
                 Log.d("AuthViewModel", "Registrasi berhasil")
             } catch (e: Exception) {
@@ -134,7 +143,10 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
             Log.d("AuthViewModel", "Login dimulai")
 
             try {
-                repository.signIn(email, password)
+                supabaseClient.auth.signInWith(Email) {
+                    this.email = email
+                    this.password = password
+                }
                 isSuccess = true
                 Log.d("AuthViewModel", "Login berhasil")
             } catch (e: Exception) {
@@ -157,16 +169,17 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
 
     fun onGoogleLoginSuccess() {
         isSuccess = true
+        Log.d("GOOGLE", "isSucces = ${isSuccess}")
     }
 
      fun logout() {
         viewModelScope.launch {
-            SupabaseClient.client.auth.signOut() // logout Supabase
+            supabaseClient.auth.signOut() // logout Supabase
         }
     }
 
      fun isUserLoggedIn(): Boolean {
-        return SupabaseClient.client.auth.currentSessionOrNull() != null
+        return supabaseClient.auth.currentSessionOrNull() != null
     }
 
     fun changePassword(email: String, oldPassword: String, newPassword: String) {
@@ -176,12 +189,12 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
                 isSuccess = false
                 textMessage = ""
                 Log.d("AuthViewModel", "Email : ${email} dan Password : ${oldPassword}")
-                SupabaseClient.client.auth.signInWith(Email) {
+                supabaseClient.auth.signInWith(Email) {
                     this.email = email
                     this.password = oldPassword
                 }
                 // 2. EKSEKUSI: Jika login berhasil, baru update password
-                SupabaseClient.client.auth.updateUser {
+                supabaseClient.auth.updateUser {
                     password = newPassword
                 }
                 isSuccess = true

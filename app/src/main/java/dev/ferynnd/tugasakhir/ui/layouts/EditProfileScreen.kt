@@ -40,6 +40,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.size.Size
@@ -60,9 +61,14 @@ import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
 
 @Composable
-fun EditProfileScreen(navController: NavController, authViewModel: AuthViewModel, userViewModel: UserViewModel) {
+fun EditProfileScreen(
+    navController: NavController,
+    authViewModel: AuthViewModel,
+    userViewModel: UserViewModel = hiltViewModel(),
+    supabaseClient: SupabaseClient
+) {
 
-    val user = remember { SupabaseClient.client.auth.currentUserOrNull() }
+    val user = remember { supabaseClient.auth.currentUserOrNull() }
     val isGoogleUser = user?.appMetadata?.get("provider")?.jsonPrimitive?.contentOrNull == "google"
     val context = LocalContext.current
 

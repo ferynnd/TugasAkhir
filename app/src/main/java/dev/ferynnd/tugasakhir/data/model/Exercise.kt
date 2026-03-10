@@ -38,20 +38,30 @@ enum class ExerciseCode {
 }
 
 @Serializable
-data class HistoryExercise(
-    val id: Int,
+data class HistoryExerciseInsert(
     @SerialName("user_id")
     val userId: String,
     @SerialName("code_exercise")
     val codeExercise: String,
-    val reps: Int?,
-    val duration: String?,     // "00:15:00"
+    val reps: Int,
+    val duration: String,
     @SerialName("total_calorie")
     val totalCalorie: Int,
-    @SerialName("form_correct")
-    val formCorrect: Double,
+)
+
+@Serializable
+data class HistoryExercise(
+    val id: Int,
+    @SerialName("user_id")
+    val userId: String?,
+    @SerialName("code_exercise")
+    val codeExercise: String?,
+    val reps: Int?,
+    val duration: String?, // interval -> "00:15:00"
+    @SerialName("total_calorie")
+    val totalCalorie: Int?,
     @SerialName("created_at")
-    val createdAt: String
+    val createdAt: String?   // ISO STRING dari Supabase
 )
 
 sealed class MediaComp {
@@ -101,7 +111,7 @@ val dummyExercises = listOf(
         cal = "6–8",
         duration = "10–15",
         reps = "3 x 15",
-        met = 6.0f,
+        met = 8.0f,
         description = "Latihan untuk memperkuat otot perut dan core.",
         howUse = listOf(
             Additional(1, "Posisi Awal", "Berbaring dengan lutut ditekuk."),
@@ -133,7 +143,7 @@ val dummyExercises = listOf(
         cal = "7–9",
         duration = "10–15",
         reps = "3 x 12",
-        met = 7.0f,
+        met = 8.0f,
         description = "Latihan untuk memperkuat otot kaki dan glutes.",
         howUse = listOf(
             Additional(1, "Posisi Berdiri", "Berdiri dengan kaki selebar bahu."),

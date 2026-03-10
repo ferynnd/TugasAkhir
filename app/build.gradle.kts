@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     kotlin("plugin.serialization") version "2.0.21"
+    id("com.google.dagger.hilt.android")
+    id("kotlin-kapt")
 }
 
 android {
@@ -68,7 +70,9 @@ dependencies {
     implementation("androidx.camera:camera-camera2:1.5.1")
     implementation("androidx.camera:camera-lifecycle:1.5.1")
     implementation("androidx.camera:camera-view:1.5.1")
-    implementation("com.google.mediapipe:tasks-vision:0.20230731")
+    implementation("com.google.mediapipe:tasks-vision:0.10.32")
+//    implementation("com.google.mediapipe:tasks-vision:0.20230731")
+
 
      // Supabase BOM
     implementation(platform("io.github.jan-tennert.supabase:bom:3.0.0"))
@@ -99,5 +103,11 @@ dependencies {
     // Optional: ExoPlayer Compose untuk video
     implementation ("com.google.android.exoplayer:exoplayer:2.19.1")
     implementation ("com.google.android.exoplayer:exoplayer-ui:2.19.1")
+
+    implementation("com.google.dagger:hilt-android:2.57.1")
+    kapt("com.google.dagger:hilt-compiler:2.57.1")
+
+    // Untuk Compose
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
 }

@@ -45,9 +45,11 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
 import dev.ferynnd.tugasakhir.ui.theme.Black
 import dev.ferynnd.tugasakhir.ui.theme.Card
+import dev.ferynnd.tugasakhir.ui.theme.Geist
 import dev.ferynnd.tugasakhir.ui.theme.Primary
 import dev.ferynnd.tugasakhir.ui.theme.TextMain
 import dev.ferynnd.tugasakhir.ui.theme.TextSub
+import dev.ferynnd.tugasakhir.ui.theme.Typography
 import dev.ferynnd.tugasakhir.ui.theme.White
 import kotlinx.coroutines.delay
 
@@ -132,21 +134,23 @@ fun LottieDialog(
                         }
 
                         Text(
+                            style = Typography.titleLarge,
                             text = title,
-                            style = MaterialTheme.typography.titleLarge,
+                            fontFamily = Geist,
                             color = TextMain,
                             textAlign = TextAlign.Center,
-                            fontSize = 18.sp
+                            fontSize = 16.sp
                         )
 
                         Spacer(Modifier.height(8.dp))
 
                         Text(
                             text = message,
-                            style = MaterialTheme.typography.bodyMedium,
+                            fontFamily = Geist,
+                            style = Typography.bodyMedium,
                             color = TextSub,
                             textAlign = TextAlign.Center,
-                            fontSize = 14.sp
+                            fontSize = 13.sp
                         )
 
                         Spacer(Modifier.height(28.dp))

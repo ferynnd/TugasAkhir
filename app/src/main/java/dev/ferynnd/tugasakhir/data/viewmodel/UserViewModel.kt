@@ -11,6 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ferynnd.tugasakhir.data.model.CategoryBmi
 import dev.ferynnd.tugasakhir.data.model.Gender
 import dev.ferynnd.tugasakhir.data.model.Profile
@@ -23,8 +24,13 @@ import io.github.jan.supabase.storage.storage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class UserViewModel(private val supabaseClient: SupabaseClient) : ViewModel() {
+@HiltViewModel
+class UserViewModel
+    @Inject constructor(
+        private val supabaseClient: SupabaseClient
+    ) : ViewModel() {
 
     var isLoading by mutableStateOf(false)
         private set
@@ -84,7 +90,7 @@ class UserViewModel(private val supabaseClient: SupabaseClient) : ViewModel() {
         viewModelScope.launch {
             try {
                 isLoading = true
-                val profile = supabaseClient.client.postgrest
+                val profile = supabaseClient.postgrest
                     .from("profiles")
                     .select { filter { eq("id", userId) } }
                     .decodeSingle<Profile>()
@@ -116,7 +122,7 @@ class UserViewModel(private val supabaseClient: SupabaseClient) : ViewModel() {
                     inputStream?.use { stream -> // Menggunakan .use agar otomatis ditutup
                         val bytes = stream.readBytes()
                         val fileName = "$userId/avatar.jpg"
-                        val bucket = SupabaseClient.client.storage.from("avatars")
+                        val bucket = supabaseClient.storage.from("avatars")
 
                         bucket.upload(fileName, bytes) {
                             upsert = true
@@ -125,7 +131,7 @@ class UserViewModel(private val supabaseClient: SupabaseClient) : ViewModel() {
                     }
                 }
 
-                supabaseClient.client.postgrest.from("profiles").update(
+                supabaseClient.postgrest.from("profiles").update(
                     {
                         set("full_name", name)
                         set("avatar_url", finalImageUrl)
@@ -153,7 +159,7 @@ class UserViewModel(private val supabaseClient: SupabaseClient) : ViewModel() {
         viewModelScope.launch {
             try {
                 isLoading = true
-                val response = SupabaseClient.client.postgrest
+                val response = supabaseClient.postgrest
                     .from("user_bmi")
                     .select {
                         filter {
@@ -206,7 +212,7 @@ class UserViewModel(private val supabaseClient: SupabaseClient) : ViewModel() {
             viewModelScope.launch {
                 try {
                     // OnConflict menentukan kolom mana yang jadi acuan (biasanya user_id)
-                    supabaseClient.client.postgrest["user_bmi"].upsert(data) {
+                    supabaseClient.postgrest["user_bmi"].upsert(data) {
                         onConflict = "user_id"
                     }
                     isSuccess = true
