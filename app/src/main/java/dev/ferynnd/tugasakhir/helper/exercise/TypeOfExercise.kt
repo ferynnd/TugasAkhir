@@ -85,84 +85,94 @@ class TypeOfExercise(landmarks: List<NormalizedLandmark>) : BodyPartAngle(landma
     fun evaluateSitUp(
         counter: Int,
         currentState: ExerciseState,
-        calibration: BodyCalibration = BodyCalibration()
+        calibration: BodyCalibration = BodyCalibration(),
+        postureGate: PostureGate
     ): ExerciseEvaluation {
 
-        val knee = angleKnee()
+        val validator  = PostureValidator(landmarks, calibration)
+        val repCounter = RepCounter(landmarks, calibration)
+        val correction = FormCorrection(landmarks, calibration)
+
+        val isValidPosture = validator.isSitUpPosture()
+
+        val knee  = angleKnee()
         val spine = angleSpine()
         val torso = angleTorso()
 
-        var reps = counter
-        var state = currentState
-        var feedback: String? = null
-
+        val kneeOffset  = if (calibration.isCalibrated) calibration.kneeOffset else 0.0
         val spineOffset = if (calibration.isCalibrated) calibration.spineOffset else 0.0
-        val kneeOffset  = if (calibration.isCalibrated) calibration.kneeOffset  else 0.0
 
-        val spineMin = 160.0 + spineOffset
-        val spineMax = 190.0 + spineOffset
-        val kneeMin  = 70.0  + kneeOffset
-        val kneeMax  = 110.0 + kneeOffset
+        Log.d("SITUP_RAW", """
+        |=== SIT-UP DEBUG ===
+        |State       : $currentState
+        |Knee        : ${"%.1f".format(knee)}°
+        |Torso       : ${"%.1f".format(torso)}°
+        |Spine       : ${"%.1f".format(spine)}°
+        |KneeOffset  : ${"%.1f".format(kneeOffset)}°
+        |SpineOffset : ${"%.1f".format(spineOffset)}°
+        |isValidPost : $isValidPosture
+        |Counter     : $counter
+    """.trimMargin())
 
-        val postureValid =
-            knee in kneeMin..kneeMax &&
-                    spine in spineMin..spineMax
+        if (currentState == ExerciseState.WAITING_START) {
+            postureGate.reset()
+            Log.d("SITUP_STATE", "WAITING_START → isValid=$isValidPosture")
 
-        val depthValid = torso in 55.0..85.0
-
-        if (state == ExerciseState.WAITING_START) {
-            if (postureValid) {
-                state = ExerciseState.BOTTOM
-                feedback = "Posisi siap, mulai sit-up"
+            return if (isValidPosture) {
+                ExerciseEvaluation(
+                    counter,
+                    ExerciseState.BOTTOM,
+                    true,
+                    false,
+                    "Posisi siap, mulai sit-up",
+                    isCorrect = true
+                )
             } else {
-                feedback = "Berbaring telentang, tekuk lutut ~90°"
-            }
-            return ExerciseEvaluation(reps, state, postureValid, false, feedback)
-        }
-
-        if (knee !in (kneeMin - 5)..(kneeMax + 5)) {
-            feedback = "Jaga lutut tetap ~90°"
-        }
-
-        when (state) {
-
-            ExerciseState.WAITING_START -> {
-                if (postureValid) state = ExerciseState.BOTTOM
-            }
-
-            ExerciseState.BOTTOM -> {
-                if (torso < 150) {
-                    state = ExerciseState.ASCENDING
-                }
-            }
-
-            ExerciseState.ASCENDING -> {
-                if (torso in 55.0..85.0) {
-                    state = ExerciseState.TOP
-                }
-            }
-
-            ExerciseState.TOP -> {
-                if (torso > 90) {
-                    state = ExerciseState.DESCENDING
-                }
-            }
-
-            ExerciseState.DESCENDING -> {
-                if (spine >= spineMin) {
-                    reps++ // Rep dihitung murni dari state machine
-                    state = ExerciseState.BOTTOM
-                    if (!depthValid) feedback = "Angkat torso lebih tinggi lain kali (60–75°)"
-                }
+                ExerciseEvaluation(
+                    counter,
+                    ExerciseState.WAITING_START,
+                    false,
+                    false,
+                    "Berbaring telentang, lutut ~90°",
+                    isCorrect = false
+                )
             }
         }
 
-        Log.d(
-            "TypeOfExercise",
-            "SitUp | Knee=$knee | Spine=$spine | Torso=$torso | State=$state | Reps=$reps | Feedback=$feedback"
+        // ✅ PERBAIKAN UTAMA: Jangan reset saat state sedang ASCENDING / TOP / DESCENDING
+        // PostureGate hanya relevan saat di BOTTOM (istirahat antar rep)
+        val isActiveMovement = currentState in listOf(
+            ExerciseState.ASCENDING,
+            ExerciseState.TOP,
+            ExerciseState.DESCENDING
         )
 
-        return ExerciseEvaluation(reps, state, postureValid, depthValid, feedback)
+        if (!isActiveMovement) {
+            val shouldReset = postureGate.update(isValidPosture)
+            Log.d("SITUP_GATE", "isValid=$isValidPosture | shouldReset=$shouldReset")
+
+            if (shouldReset) {
+                postureGate.reset()
+                Log.d("SITUP_STATE", "GATE RESET → kembali WAITING_START")
+
+                return ExerciseEvaluation(
+                    counter,
+                    ExerciseState.WAITING_START,
+                    false,
+                    false,
+                    "Kembali ke posisi sit-up",
+                    isCorrect = false
+                )
+            }
+        }
+
+        val correctionResult = correction.analyzeSitUp(currentState)
+        val result = repCounter.countSitUp(counter, currentState)
+
+        return result.copy(
+            feedback = correctionResult.feedback,
+            isCorrect = correctionResult.isCorrect
+        )
     }
 
 
@@ -175,95 +185,108 @@ class TypeOfExercise(landmarks: List<NormalizedLandmark>) : BodyPartAngle(landma
     fun evaluateSquat(
         counter: Int,
         currentState: ExerciseState,
-        calibration: BodyCalibration = BodyCalibration()
+        calibration: BodyCalibration = BodyCalibration(),
+        postureGate: PostureGate
     ): ExerciseEvaluation {
 
-        var reps = counter
-        var state = currentState
-        var feedback: String? = null
+        val validator  = PostureValidator(landmarks, calibration)
+        val repCounter = RepCounter(landmarks, calibration)
+        val correction = FormCorrection(landmarks, calibration)
 
-        val knee = angleKnee()
-        val hip = angleLeftLeg()
+        val isValidPosture = validator.isSquatPosture()
+
+        val knee  = angleKnee()
+        val hip   = angleLeftLeg()
         val torso = angleTorso()
         val spine = angleSpine()
 
-        val kneeOffset  = if (calibration.isCalibrated) calibration.kneeOffset  else 0.0
-        val hipOffset   = if (calibration.isCalibrated) calibration.hipOffset   else 0.0
+        val kneeOffset  = if (calibration.isCalibrated) calibration.kneeOffset else 0.0
+        val hipOffset   = if (calibration.isCalibrated) calibration.hipOffset else 0.0
         val spineOffset = if (calibration.isCalibrated) calibration.spineOffset else 0.0
 
-        // Threshold berdiri tegak — disesuaikan offset tubuh
-        val standKneeMin = 155.0 + kneeOffset
-        val standKneeMax = 185.0 + kneeOffset
-        val standHipMin  = 155.0 + hipOffset
-        val standHipMax  = 185.0 + hipOffset
+        Log.d("SQUAT_RAW", """
+        |=== SQUAT DEBUG ===
+        |State       : $currentState
+        |Knee        : ${"%.1f".format(knee)}°
+        |Hip         : ${"%.1f".format(hip)}°
+        |Torso       : ${"%.1f".format(torso)}°
+        |Spine       : ${"%.1f".format(spine)}°
+        |KneeOffset  : ${"%.1f".format(kneeOffset)}°
+        |HipOffset   : ${"%.1f".format(hipOffset)}°
+        |SpineOffset : ${"%.1f".format(spineOffset)}°
+        |isValidPost : $isValidPosture
+        |Counter     : $counter
+    """.trimMargin())
 
-        val postureValid =
-            knee in standKneeMin..standKneeMax &&
-                    hip  in standHipMin..standHipMax  &&
-                    torso in 75.0..105.0
+        if (currentState == ExerciseState.WAITING_START) {
 
+            postureGate.reset()
 
-        val depthValid =
-            knee in 80.0..105.0 &&
-                    hip in 80.0..105.0
+            Log.d("SQUAT_STATE", "WAITING_START → isValid=$isValidPosture")
 
-        if (state == ExerciseState.WAITING_START) {
-            if (postureValid) {
-                state = ExerciseState.TOP
-                feedback = "Posisi siap, mulai squat"
+            return if (isValidPosture) {
+                ExerciseEvaluation(
+                    counter,
+                    ExerciseState.TOP,
+                    true,
+                    false,
+                    "Posisi siap, mulai squat",
+                    isCorrect = true
+                )
             } else {
-                feedback = "Berdiri tegak, kaki selebar bahu"
-            }
-            return ExerciseEvaluation(reps, state, postureValid, false, feedback)
-        }
-
-        if (spine < 155.0 + spineOffset && spine > 10) {
-            feedback = "Jaga punggung tetap lurus"
-        }
-
-        if (state == ExerciseState.DESCENDING && knee > 120.0 + kneeOffset) {
-            feedback = "Turun lebih dalam, dorong pinggul ke belakang"
-        }
-
-
-        when (state) {
-
-            ExerciseState.WAITING_START -> {
-                if (postureValid) state = ExerciseState.TOP
-            }
-
-            ExerciseState.TOP -> {
-                if (knee < 150 + kneeOffset) {
-                    state = ExerciseState.DESCENDING
-                }
-            }
-
-            ExerciseState.DESCENDING -> {
-                if (knee <= 105 + kneeOffset) {
-                    state = ExerciseState.BOTTOM
-                }
-            }
-
-            ExerciseState.BOTTOM -> {
-                if (knee > 105 + kneeOffset) {
-                    state = ExerciseState.ASCENDING
-                }
-            }
-
-            ExerciseState.ASCENDING -> {
-                if (knee >= standKneeMin) {
-                    reps++ // Rep dihitung murni dari state machine
-                    state = ExerciseState.TOP
-                    if (!depthValid) feedback = "Squat lebih dalam lain kali (lutut ~90°)"
-                }
+                ExerciseEvaluation(
+                    counter,
+                    ExerciseState.WAITING_START,
+                    false,
+                    false,
+                    "Berdiri tegak, kaki selebar bahu",
+                    isCorrect = false
+                )
             }
         }
+
+        val shouldReset = if (currentState == ExerciseState.TOP) {
+            postureGate.update(isValidPosture)
+        } else {
+            false
+        }
+
+        Log.d("SQUAT_GATE", "isValid=$isValidPosture | shouldReset=$shouldReset")
+
+        if (shouldReset) {
+
+            postureGate.reset()
+
+            Log.d("SQUAT_STATE", "GATE RESET → kembali WAITING_START")
+
+            return ExerciseEvaluation(
+                counter,
+                ExerciseState.WAITING_START,
+                false,
+                false,
+                "Kembali ke posisi squat",
+                isCorrect = false
+            )
+        }
+
+        val correctionResult = correction.analyzeSquat(currentState)
 
         Log.d(
-            "TypeOfExercise",
-            "Squat | Knee=$knee | Hip=$hip | Torso=$torso | Spine=$spine | State=$state | Reps=$reps | Feedback=$feedback"
+            "SQUAT_CORRECTION",
+            "feedback=${correctionResult.feedback} | isCorrect=${correctionResult.isCorrect} | type=${correctionResult.correctionType}"
         )
 
-        return ExerciseEvaluation(reps, state, postureValid, depthValid, feedback)
+        val result = repCounter.countSquat(counter, currentState)
+
+        Log.d(
+            "SQUAT_REP",
+            "reps=${result.reps} | newState=${result.state}"
+        )
+
+
+        return result.copy(
+            feedback = correctionResult.feedback,
+            isCorrect = correctionResult.isCorrect
+        )
     }
 }

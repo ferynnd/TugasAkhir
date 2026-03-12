@@ -44,47 +44,105 @@ class RepCounter(
     }
 
     fun countSquat(counter: Int, state: ExerciseState): ExerciseEvaluation {
+
         val knee = angleKnee()
         val kneeOffset = if (calibration.isCalibrated) calibration.kneeOffset else 0.0
-        // Dari gambar: TOP ~160-180°, BOTTOM ~90°
-        val standMin = 155.0 + kneeOffset
-        val bottomMax = 100.0 + kneeOffset  // ~90° toleransi
+
+        val kneeAdjusted = knee + kneeOffset
+
+        // Threshold squat
+        val topThreshold = 170.0
+        val descendThreshold = 160.0
+        val bottomThreshold = 80.0
+        val ascendThreshold = 110.0
 
         var reps = counter
         var newState = state
 
         when (state) {
-            ExerciseState.TOP        -> if (knee < 145.0 + kneeOffset) newState = ExerciseState.DESCENDING
-            ExerciseState.DESCENDING -> if (knee <= bottomMax)          newState = ExerciseState.BOTTOM
-            ExerciseState.BOTTOM     -> if (knee > bottomMax)           newState = ExerciseState.ASCENDING
-            ExerciseState.ASCENDING  -> if (knee >= standMin) { reps++; newState = ExerciseState.TOP }
+
+            ExerciseState.TOP -> {
+                if (kneeAdjusted < descendThreshold) {
+                    newState = ExerciseState.DESCENDING
+                }
+            }
+
+            ExerciseState.DESCENDING -> {
+                if (kneeAdjusted <= bottomThreshold) {
+                    newState = ExerciseState.BOTTOM
+                }
+            }
+
+            ExerciseState.BOTTOM -> {
+                if (kneeAdjusted > ascendThreshold) {
+                    newState = ExerciseState.ASCENDING
+                }
+            }
+
+            ExerciseState.ASCENDING -> {
+                if (kneeAdjusted >= topThreshold) {
+                    reps++
+                    newState = ExerciseState.TOP
+                }
+            }
+
             else -> {}
         }
 
-        Log.d("REP_SQUAT", "knee=${"%.1f".format(knee)} | state=$state→$newState | reps=$reps")
-        return ExerciseEvaluation(reps, newState, true, knee in 80.0..105.0 + kneeOffset, null)
+        val depthOk = kneeAdjusted in 50.0..100.0
+
+        Log.d(
+            "REP_SQUAT",
+            """
+        knee=${"%.1f".format(kneeAdjusted)}
+        state=$state -> $newState
+        reps=$reps
+        depthOk=$depthOk
+        """.trimIndent()
+        )
+
+        return ExerciseEvaluation(
+            reps,
+            newState,
+            true,
+            depthOk,
+            null
+        )
     }
 
 
     fun countSitUp(counter: Int, state: ExerciseState): ExerciseEvaluation {
-        val spine       = angleSpine()
-        val torso       = angleTorso()
-        val spineOffset = if (calibration.isCalibrated) calibration.spineOffset else 0.0
-        val spineMin    = 155.0  // berbaring — tidak pakai offset
+        val spine = angleSpine()
+        val torso = angleTorso()
+        val knee  = angleKnee()
+
+        val spineMin = 155.0
 
         var reps     = counter
         var newState = state
 
-        // Dari gambar: BOTTOM=berbaring (spine~160-180°), TOP=torso 60-75°
         when (state) {
-            ExerciseState.BOTTOM     -> if (torso < 150.0)         newState = ExerciseState.ASCENDING
-            ExerciseState.ASCENDING  -> if (torso in 55.0..80.0)   newState = ExerciseState.TOP
-            ExerciseState.TOP        -> if (torso > 85.0)          newState = ExerciseState.DESCENDING
-            ExerciseState.DESCENDING -> if (spine >= spineMin) { reps++; newState = ExerciseState.BOTTOM }
+            // BOTTOM: torso ~94–116°, transisi ke ASCENDING saat turun ke < 95°
+            ExerciseState.BOTTOM     -> if (torso < 95.0) newState = ExerciseState.ASCENDING
+
+            // ASCENDING: torso turun dari ~90° ke ~66–73°
+            // Dari log: transisi ke TOP saat torso ≤ 75°
+            ExerciseState.ASCENDING  -> if (torso <= 75.0) newState = ExerciseState.TOP
+
+            // TOP: tunggu torso mulai naik lagi
+            // Dari log: torso di TOP ~58–75°, mulai naik lagi ke ~75–85°
+            ExerciseState.TOP        -> if (torso > 82.0) newState = ExerciseState.DESCENDING
+
+            // DESCENDING: turun sampai spine rebah >= 155°
+            ExerciseState.DESCENDING -> if (spine >= spineMin) {
+                reps++
+                newState = ExerciseState.BOTTOM
+            }
+
             else -> {}
         }
 
-        Log.d("REP_SITUP", "torso=${"%.1f".format(torso)} | spine=${"%.1f".format(spine)} | state=$state→$newState | reps=$reps")
-        return ExerciseEvaluation(reps, newState, true, torso in 55.0..80.0, null)
+        Log.d("REP_SITUP", "torso=${"%.1f".format(torso)} | spine=${"%.1f".format(spine)} | knee=${"%.1f".format(knee)} | state=$state→$newState | reps=$reps")
+        return ExerciseEvaluation(reps, newState, true, torso <= 75.0, null)
     }
 }

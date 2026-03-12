@@ -234,9 +234,9 @@ fun CameraScreen(
                                 ExerciseCode.PUSH_UP ->
                                     exerciseLogic.evaluatePushUp(counter, currentState, calibration, postureGate)
                                 ExerciseCode.SQUAT ->
-                                    exerciseLogic.evaluateSquat(counter, currentState, calibration)
+                                    exerciseLogic.evaluateSquat(counter, currentState, calibration, postureGate)
                                 ExerciseCode.SIT_UP ->
-                                    exerciseLogic.evaluateSitUp(counter, currentState, calibration)
+                                    exerciseLogic.evaluateSitUp(counter, currentState, calibration, postureGate)
                             }
 
                             poseResult = result

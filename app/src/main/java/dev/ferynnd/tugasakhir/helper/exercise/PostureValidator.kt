@@ -40,30 +40,43 @@ class PostureValidator(
 
     // ── Squat: posisi berdiri tegak ─────────────────────
     fun isSquatPosture(): Boolean {
+
         if (!isBodyVisible()) return false
+
         val knee = angleKnee()
-        val hip  = angleLeftLeg()
+        val hipLeft  = angleLeftLeg()
+        val hipRight  = angleRightLeg()
+
+        val hip = (hipLeft + hipRight) / 2
+
         val kneeOffset = if (calibration.isCalibrated) calibration.kneeOffset else 0.0
-        val hipOffset  = if (calibration.isCalibrated) calibration.hipOffset  else 0.0
+        val hipOffset  = if (calibration.isCalibrated) calibration.hipOffset else 0.0
 
-        // Posisi berdiri tegak sebelum squat
-        val kneeOk = knee in (145.0 + kneeOffset)..(190.0 + kneeOffset)
-        val hipOk  = hip  in (145.0 + hipOffset)..(190.0 + hipOffset)
+        val kneeAdjusted = knee + kneeOffset
+        val hipAdjusted  = hip + hipOffset
 
-        Log.d("VALIDATOR", "isSquatPosture: knee=${"%.1f".format(knee)} ok=$kneeOk | hip=${"%.1f".format(hip)} ok=$hipOk → ${kneeOk && hipOk}")
+        // squat posture (sekitar 90°)
+        val kneeOk = kneeAdjusted > 145.0
+        val hipOk  = hipAdjusted > 145.0
+
+        Log.d(
+            "VALIDATOR",
+            "knee=${"%.1f".format(knee)} ok=$kneeOk | hip=${"%.1f".format(hip)} ok=$hipOk "
+        )
         return kneeOk && hipOk
     }
 
-    // ── Sit-up: posisi berbaring ────────────────────────
+    // ── Sit-up: posisi berbaring (WAITING_START) ─────────────
     fun isSitUpPosture(): Boolean {
         if (!isBodyVisible()) return false
-        val spine      = angleSpine()
-        val knee       = angleKnee()
-        val kneeOffset = if (calibration.isCalibrated) calibration.kneeOffset else 0.0
 
-        // Posisi berbaring: spine ~160-180°, lutut ~90°
+        val spine = angleSpine()
+        val knee  = angleKnee()
+        // ✅ JANGAN pakai kneeOffset — offset dari kalibrasi berdiri
+        //    tidak relevan untuk posisi berbaring
+        // Dari log: knee raw ~47–65°, spine raw ~165–178°
         val spineOk = spine in 155.0..195.0
-        val kneeOk  = knee in (70.0 + kneeOffset)..(110.0 + kneeOffset)
+        val kneeOk  = knee in 40.0..90.0   // sesuai data log posisi berbaring
 
         Log.d("VALIDATOR", "isSitUpPosture: spine=${"%.1f".format(spine)} ok=$spineOk | knee=${"%.1f".format(knee)} ok=$kneeOk → ${spineOk && kneeOk}")
         return spineOk && kneeOk
