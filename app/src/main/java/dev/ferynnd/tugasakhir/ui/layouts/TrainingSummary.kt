@@ -1,6 +1,10 @@
 package dev.ferynnd.tugasakhir.ui.layouts
 
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,23 +15,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -41,214 +42,255 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.ferynnd.tugasakhir.R
-import dev.ferynnd.tugasakhir.ui.theme.Black
-import androidx.compose.material3.TopAppBarDefaults.centerAlignedTopAppBarColors
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.res.painterResource
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import dev.ferynnd.tugasakhir.data.viewmodel.ExerciseViewModel
+import dev.ferynnd.tugasakhir.ui.components.CustomIcon
+import dev.ferynnd.tugasakhir.ui.theme.Background
+import dev.ferynnd.tugasakhir.ui.theme.Card
+import dev.ferynnd.tugasakhir.ui.theme.Primary
+import dev.ferynnd.tugasakhir.ui.theme.White
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun TrainingSummary() {
+fun TrainingSummary(
+    historyId: Int,
+    viewModel: ExerciseViewModel = hiltViewModel(),
+    navController: NavController,
+    onClose: () -> Unit
+) {
+    // Load data saat screen dibuka
+    LaunchedEffect(historyId) {
+        viewModel.getSummaryData(historyId)
+    }
+
+    val current = viewModel.currentHistory
+    val last = viewModel.lastHistory
+
     Scaffold(
-        bottomBar = {
-            Button(
-                onClick = { /* Finish action */ },
+        topBar = {
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp)
-                    .height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF3333)),
-                shape = RoundedCornerShape(12.dp)
+                    .statusBarsPadding()
+                    .padding(24.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(text = "Finish", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Text(
+                    text = "RINGKASAN LATIHAN",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = White
+                )
+
+                Surface(
+                    color = Primary.copy(0.3f),
+                    border = BorderStroke(1.5.dp, Primary),
+                    shape = RoundedCornerShape(100),
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        CustomIcon(
+                            R.drawable.icoclock,
+                            contentDescription = null,
+                            tint = White,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        val date = current?.createdAt?.substring(0, 10) ?: "-"
+                        Text(
+                            text = date,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = White
+                        )
+
+                    }
+                }
+            }
+        },
+        containerColor = Background,
+        bottomBar = {
+            Column(modifier = Modifier.padding(20.dp)) {
+                // Tombol Share (Outline)
+//                OutlinedButton(
+//                    onClick = { /* Share Logic */ },
+//                    modifier = Modifier.fillMaxWidth().height(56.dp),
+//                    shape = RoundedCornerShape(28.dp),
+//                    border = BorderStroke(2.dp, Primary)
+//                ) {
+//                    Text("SHARE", color = Color.White, fontWeight = FontWeight.Black)
+//                }
+//                Spacer(Modifier.height(12.dp))
+                Button(
+                    onClick = onClose,
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
+                    shape = RoundedCornerShape(28.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Primary)
+                ) {
+                    Text("CLOSE", color = Color.Black, fontWeight = FontWeight.Black)
+                }
             }
         }
     ) { innerPadding ->
-        Column (
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
                 .padding(innerPadding)
                 .padding(horizontal = 20.dp)
+                .verticalScroll(rememberScrollState())
         ) {
-            // Header
-            SummaryHeader()
 
-            // Summary Cards (Reuse previous component)
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(7.dp),
+            StatsRow(
+                calories = "${current?.totalCalorie ?: 0}",
+                duration = "${current?.duration?.split(":")?.get(1) ?: 0}",
+                reps = "${current?.reps ?: 0}"
+            )
 
-            ) {
-                SummaryCard(R.drawable.icfire, Color(0xFFFF6B6B),"1400", "Kal", modifier = Modifier.weight(1f))
-                SummaryCard(R.drawable.icoclock,Color(0xFF4169E1), "120", "Min", modifier = Modifier.weight(1f))
-                SummaryCard(R.drawable.jump,Color(0xFF00C853), "300", "Reps", modifier = Modifier.weight(1f))
-            }
+            Text(
+                text = "VS SESI TERAKHIR",
+                style = TextStyle(color = Color.White, fontWeight = FontWeight.Black, fontSize = 16.sp, letterSpacing = 1.sp)
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
-            CorrectionFormCard()
 
-            Spacer(modifier = Modifier.height(24.dp))
-            LastSessionSection()
-
-            Spacer(modifier = Modifier.height(24.dp))
-        }
-    }
-}
-
-@Composable
-fun CorrectionFormCard() {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(2.dp)
-    ) {
-        Column(modifier = Modifier.padding(20.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Card, RoundedCornerShape(12.dp))
+                    .padding(20.dp)
             ) {
-                Text(
-                    text = "Correction Form",
-                    style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                )
-                Surface(
-                    color = Color(0xFFC8E6C9),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text(
-                        text = "Completed",
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-                        style = TextStyle(color = Color(0xFF2E7D32), fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                    ComparisonRow(
+                        label = "Reps",
+                        currentVal = "${current?.reps ?: 0} reps",
+                        lastVal = "${last?.reps ?: 0} reps",
+                        icon = R.drawable.jump,
+                        currentRaw = current?.reps ?: 0,
+                        lastRaw = last?.reps ?: 0
+                    )
+                    ComparisonRow(
+                        label = "Durasi",
+                        currentVal = "${current?.duration?.split(":")?.get(1) ?: 0} min",
+                        lastVal = "${last?.duration?.split(":")?.get(1) ?: 0} min",
+                        icon = R.drawable.icoclock,
+                        currentRaw = current?.duration?.split(":")?.get(1)?.toInt() ?: 0,
+                        lastRaw = last?.duration?.split(":")?.get(1)?.toInt() ?: 0
+                    )
+                    ComparisonRow(
+                        label = "Kalori Terbakar",
+                        currentVal = "${current?.totalCalorie ?: 0} kcal",
+                        lastVal = "${last?.totalCalorie ?: 0} kcal",
+                        icon = R.drawable.icfire,
+                        currentRaw = current?.totalCalorie ?: 0,
+                        lastRaw = last?.totalCalorie ?: 0
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Video/Image Placeholder
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(180.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color(0xFFE0E0E0))
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Info Box
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color(0xFFF2F2F2), RoundedCornerShape(12.dp))
-                    .padding(12.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Star, // Ganti dengan icon clipboard merah
-                    contentDescription = null,
-                    tint = Color(0xFFD32F2F),
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                Text(
-                    text = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text...",
-                    style = TextStyle(fontSize = 11.sp, color = Color.DarkGray, lineHeight = 16.sp)
-                )
-            }
+            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }
 
-
 @Composable
-fun LastSessionSection() {
-    Column(
+fun ComparisonRow(
+    label: String,
+    currentVal: String,
+    lastVal: String,
+    currentRaw: Int, // Kirim nilai angka untuk logika perbandingan
+    lastRaw: Int,    // Kirim nilai angka untuk logika perbandingan
+    icon: Int
+) {
+    // Logika UX: Hitung selisih untuk indikator performa
+    val diff = currentRaw - lastRaw
+    val isImproved = diff > 0
+
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xFFE0E0E0), RoundedCornerShape(24.dp))
-            .padding(20.dp)
+            .padding(vertical = 8.dp), // Beri ruang antar baris
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = "Vs. Last Session (Des 24)",
-            style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 18.sp),
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-
-        // Item List
-        repeat(3) {
-            ComparisonItem()
-            if (it < 2) Spacer(modifier = Modifier.height(12.dp))
-        }
-    }
-}
-
-@Composable
-fun ComparisonItem() {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
-    ) {
-        Row(
-            modifier = Modifier.padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(50.dp)
-                    .background(Color(0xFFF2F2F2), RoundedCornerShape(8.dp))
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(text = "Avg. Tempo", fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                Text(text = "Second per rep", color = Color.Gray, fontSize = 12.sp)
-            }
-            Column(horizontalAlignment = Alignment.End) {
-                Text(text = "+5%", color = Color(0xFF2E7D32), fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                Text(text = "Improved", color = Color.Gray, fontSize = 10.sp)
-            }
-        }
-    }
-}
-
-
-@Composable
-fun SummaryHeader() {
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color.White)
-            .padding(horizontal = 16.dp, vertical = 12.dp)
-    ) {
-
-        // Tombol Back di kiri
-        IconButton(
-            onClick = { /* Back */ },
-            modifier = Modifier.align(Alignment.CenterStart)
+        // 1. Icon dengan Glassmorphism style
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .background(Color.White.copy(alpha = 0.07f), RoundedCornerShape(12.dp)),
+            contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Back"
+                painter = painterResource(icon),
+                contentDescription = null,
+                tint = Primary,
+                modifier = Modifier.size(22.dp)
             )
         }
 
-        // Title di tengah
-        Column(
-            modifier = Modifier.align(Alignment.Center),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        Spacer(modifier = Modifier.width(16.dp))
+
+        // 2. Info Utama
+        Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "Push Up",
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
+                text = label.uppercase(),
+                style = TextStyle(
+                    color = Color.Gray,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    letterSpacing = 1.sp
+                )
             )
 
-            Text(
-                text = "18:42 • 10 Des 2025",
-                fontSize = 13.sp,
-                color = Color.Gray
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = currentVal,
+                    style = TextStyle(
+                        color = Color.White,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+                Text(
+                    text = " vs $lastVal",
+                    style = TextStyle(
+                        color = Color.Gray.copy(alpha = 0.6f),
+                        fontSize = 13.sp
+                    ),
+                    modifier = Modifier.padding(start = 4.dp)
+                )
+            }
+        }
+
+        // 3. Status Badge (UX Indicator)
+        if (diff != 0) {
+            Column(horizontalAlignment = Alignment.End) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = if (isImproved) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                        contentDescription = null,
+                        tint = if (isImproved) Primary else Color(0xFFFF2D55),
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Text(
+                        text = if (isImproved) "+${diff}" else "$diff",
+                        color = if (isImproved) Primary else Color(0xFFFF2D55),
+                        fontWeight = FontWeight.Black,
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(start = 4.dp)
+                    )
+                }
+                Text(
+                    text = if (isImproved) "IMPROVED" else "LOWER",
+                    color = if (isImproved) Primary.copy(alpha = 0.5f) else Color(0xFFFF2D55).copy(alpha = 0.5f),
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 }

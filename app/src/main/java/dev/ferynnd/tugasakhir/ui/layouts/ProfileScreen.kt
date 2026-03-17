@@ -1,5 +1,7 @@
 package dev.ferynnd.tugasakhir.ui.layouts
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -42,14 +44,17 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import dev.ferynnd.tugasakhir.data.model.CategoryBmi
+import dev.ferynnd.tugasakhir.data.viewmodel.ExerciseViewModel
 import dev.ferynnd.tugasakhir.data.viewmodel.UserViewModel
 import dev.ferynnd.tugasakhir.ui.components.CustomIcon
 import dev.ferynnd.tugasakhir.ui.components.SmallFab
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ProfileScreen(
     navController: NavController,
     userViewModel: UserViewModel = hiltViewModel(),
+    exerciseViewModel: ExerciseViewModel = hiltViewModel(),
     supabaseClient: SupabaseClient
 ) {
     val user = remember { supabaseClient.auth.currentUserOrNull() }
@@ -57,18 +62,29 @@ fun ProfileScreen(
     LaunchedEffect(Unit) {
         user?.id?.let {
             userViewModel.loadProfileIfNeeded(it)
+            exerciseViewModel.getHistoryProfile(it)
         }
     }
 
     // state ViewModel (Observe)
-    val displayUsername = userViewModel.fullName.uppercase()
-    val avatar = userViewModel.avatar
-    val weightValue = userViewModel.weightValue.toString()
-    val ageValue = userViewModel.ageValue
-    val heightValue = userViewModel.heightValue
+    val displayUsername by remember {
+        derivedStateOf { userViewModel.fullName.uppercase() }
+    }
+    val avatar by remember {
+        derivedStateOf { userViewModel.avatar }
+    }
+    val weightValue by remember {
+        derivedStateOf { userViewModel.weightValue.toString() }
+    }
+    val ageValue by remember {
+        derivedStateOf { userViewModel.ageValue}
+    }
+    val heightValue by remember {
+        derivedStateOf { userViewModel.heightValue }
+    }
 
     Scaffold(
-        containerColor = White,
+        containerColor = Background,
         topBar = {
             Row(
                 modifier = Modifier
@@ -78,7 +94,7 @@ fun ProfileScreen(
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Profil",  fontSize = 20.sp, fontWeight = FontWeight.Black, color = TextMain)
+                Text("PROFIL",  fontSize = 20.sp, fontWeight = FontWeight.Black, color = White)
             }
         }
     ) { paddingValues ->
@@ -106,7 +122,12 @@ fun ProfileScreen(
                 )
            }
            item {
-                SummarySection()
+                SummarySection(
+                    calories = exerciseViewModel.totalCalories,
+                    exercises = exerciseViewModel.totalExercises,
+                    duration = exerciseViewModel.totalDurationFormatted,
+                    streak = exerciseViewModel.currentStreak
+                )
            }
         }
          ExpandableFab(
@@ -145,21 +166,13 @@ fun HeaderProfile(
                 modifier = Modifier
                     .size(120.dp)
                     .clip(CircleShape)
-                    .border(2.dp, Input.copy(0.7f), CircleShape),
+                    .border(3.dp, Primary, CircleShape),
                 contentScale = ContentScale.Fit,
                 placeholder = painterResource(R.drawable.placeholder), error = painterResource(R.drawable.placeholder)
             )
-            Box(
-                modifier = Modifier
-                    .size(24.dp)
-                    .background(Color(0xFF22C55E), CircleShape)
-                    .border(4.dp, White, CircleShape)
-                    .align(Alignment.BottomEnd)
-                    .offset(x = (-8).dp, y = (-8).dp)
-            )
         }
         Spacer(modifier = Modifier.height(16.dp))
-        Text( displayUsername, fontSize = 24.sp, fontWeight = FontWeight.Black, color = TextMain)
+        Text( displayUsername, fontSize = 24.sp, fontWeight = FontWeight.Black, color = White)
     }
 
 }
@@ -171,7 +184,7 @@ fun Biometric(
     ageValue : String
 ) {
     Column {
-        Text("Biometrik", fontSize = 18.sp, fontWeight = FontWeight.Black, color = TextMain)
+        Text("BIOMETRIK", fontSize = 18.sp, fontWeight = FontWeight.Black, color = White)
         Spacer(modifier = Modifier.height(12.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -193,17 +206,19 @@ fun BiometricCard(
 ) {
     Card(
         modifier = modifier,
-        colors = CardDefaults.cardColors(containerColor = Input.copy(alpha = 0.7f)),
-        shape = RoundedCornerShape(16.dp)
+        colors = CardDefaults.cardColors(containerColor = Card),
+        shape = RoundedCornerShape(12.dp)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp).fillMaxWidth(),
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(verticalAlignment = Alignment.Bottom) {
-                Text(value, fontSize = 20.sp, fontWeight = FontWeight.Black, color = TextMain)
+                Text(value, fontSize = 20.sp, fontWeight = FontWeight.Black, color = White)
                 if (unit.isNotEmpty()) {
-                    Text(unit, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TextSub, modifier = Modifier.padding(bottom = 2.dp, start = 2.dp))
+                    Text(unit.uppercase(), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TextSub, modifier = Modifier.padding(bottom = 2.dp, start = 2.dp))
                 }
             }
             Text(label, fontSize = 10.sp, color = Primary, fontWeight = FontWeight.Bold)
@@ -219,8 +234,8 @@ fun BMICard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Input.copy(alpha = 0.7f)),
-        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = Card),
+        shape = RoundedCornerShape(12.dp),
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Row(
@@ -230,7 +245,7 @@ fun BMICard(
             ) {
                 Column {
                     Text(
-                        "Indeks Massa Tubuh",
+                        "INDEKS MASSA TUBUH",
                         fontSize = 14.sp,
                         color = TextSub,
                         fontWeight = FontWeight.Bold
@@ -238,40 +253,20 @@ fun BMICard(
                     // Menampilkan 1 angka di belakang koma
                     Text(
                         text = String.format("%.1f", bmiValue),
-                        fontSize = 28.sp,
+                        fontSize = 32.sp,
                         fontWeight = FontWeight.Black,
-                        color = TextMain
+                        color = White
                     )
                 }
 
-                // Status Badge (Warna berubah sesuai kategori)
                 Surface(
-                    color = if (categoryName == CategoryBmi.NORMAL) Color(0xFFDCFCE7) else Color(
-                        0xFFFFEBEE
-                    ),
-                    shape = RoundedCornerShape(50)
+                    color = Primary,
+                    shape = RoundedCornerShape(100)
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
-                    ) {
-                        if (categoryName == CategoryBmi.NORMAL) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.iccheck),
-                                contentDescription = null,
-                                tint = Color(0xFF166534),
-                                modifier = Modifier.size(14.dp)
-                            )
-                            Spacer(Modifier.width(4.dp))
-                        }
-                        Text(
-                            text = categoryName.name,
-                            color = if (categoryName == CategoryBmi.NORMAL) Color(0xFF166534) else Color(
-                                0xFFC62828
-                            ),
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                    Row(modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(painterResource(R.drawable.iccheck), null, tint = Black, modifier = Modifier.size(14.dp))
+                        Spacer(Modifier.width(4.dp))
+                        Text("BERAT ${categoryName.toString()}" , fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Black)
                     }
                 }
             }
@@ -308,10 +303,8 @@ fun BMICard(
                         .background(
                             Brush.horizontalGradient(
                                 listOf(
-                                    Color(0xFF2196F3), // Blue
-                                    Color(0xFF00C853), // Green
-                                    Color(0xFFFFC107), // Yellow/Orange
-                                    Color(0xFFF44336)  // Red
+                                    Primary.copy(alpha = 0.3f),
+                                    Primary
                                 )
                             )
                         )
@@ -324,7 +317,7 @@ fun BMICard(
                         .width(6.dp)
                         .height(18.dp)
                         .align(Alignment.CenterStart)
-                        .background(Color.Black.copy(alpha = 0.8f), RoundedCornerShape(2.dp))
+                        .background(White.copy(alpha = 0.6f), RoundedCornerShape(2.dp))
                         .zIndex(1f)
                 )
             }
@@ -334,18 +327,23 @@ fun BMICard(
 
 
 @Composable
-fun SummarySection() {
+fun SummarySection(
+    calories: Int,
+    exercises: Int,
+    duration: String,
+    streak: Int
+) {
     Column {
-        Text("Ringkasan Aktivitas", fontSize = 18.sp, fontWeight = FontWeight.Black, color = TextMain)
+        Text("RINGKASAN AKTIFITAS", fontSize = 18.sp, fontWeight = FontWeight.Black, color = White)
         Spacer(modifier = Modifier.height(12.dp))
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                SummaryCard(Modifier.weight(1f), "Calories", "1,450", "Kcal burned total", Color(0xFFEA580C).copy(alpha = 0.1f), Color(0xFFEA580C), R.drawable.icfire)
-                SummaryCard(Modifier.weight(1f), "Exercise", "10", "Sessions completed", Color(0xFF2563EB).copy(alpha = 0.1f), Color(0xFF2563EB), R.drawable.icheartrate)
+                SummaryCard(Modifier.weight(1f), "Kalori", calories.toString(), " Total Kalori Terbakar", colFire.copy(alpha = 0.1f), colFire, R.drawable.icfire)
+                SummaryCard(Modifier.weight(1f), "Latihan", exercises.toString(), " Latihan Terselesaikan ", colEmail.copy(alpha = 0.1f), colEmail, R.drawable.icheartrate)
             }
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                SummaryCard(Modifier.weight(1f), "Streak", "5 Days", "Keep it up!", Color(0xFFFFC700).copy(alpha = 0.1f), Color(0xFFFFC700), R.drawable.lightning)
-                SummaryCard(Modifier.weight(1f), "Form Score", "92%", "Avg. Accuracy", Color(0xFF7C3AED).copy(alpha = 0.1f), Color(0xFF7C3AED), R.drawable.jump)
+                SummaryCard(Modifier.weight(1f), "Streak", "${streak} Days", " Hari Berlatih Beruntun ", colLightning.copy(alpha = 0.1f), colLightning, R.drawable.lightning)
+                SummaryCard(Modifier.weight(1f), "Durasi", "${duration}", " Waktu Berlatih  ", colHeart.copy(alpha = 0.1f), colHeart, R.drawable.icoclock)
             }
         }
         Spacer(modifier = Modifier.height(32.dp))
@@ -364,23 +362,25 @@ fun SummaryCard(
 ) {
     Card(
         modifier = modifier,
-        colors = CardDefaults.cardColors(containerColor = Input.copy(alpha = 0.7f)),
-        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = Card),
+        shape = RoundedCornerShape(12.dp),
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
-                    modifier = Modifier.size(32.dp).background(bgColor, CircleShape),
+                    modifier = Modifier
+                        .size(32.dp)
+                        .background(bgColor, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(painterResource(iconRes), null, tint = iconColor, modifier = Modifier.size(16.dp))
                 }
                 Spacer(Modifier.width(8.dp))
-                Text(label, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = TextMain)
+                Text(label.uppercase(), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = TextSub)
             }
             Spacer(Modifier.height(12.dp))
-            Text(value, fontSize = 22.sp, fontWeight = FontWeight.Black, color = TextMain)
-            Text(desc, fontSize = 11.sp, color = TextSub)
+            Text(value, fontSize = 24.sp, fontWeight = FontWeight.Black, color = White)
+            Text(desc, fontSize = 11.sp, color = TextSub, modifier = Modifier.padding( top = 5.dp))
         }
     }
 }
@@ -432,14 +432,14 @@ fun ExpandableFab(
             FloatingActionButton(
                 onClick = { expanded = !expanded },
                 containerColor = Primary,
-                shape = CircleShape,
+                shape = RoundedCornerShape(14),
                 elevation = FloatingActionButtonDefaults.elevation(0.dp),
-                modifier = Modifier.size(70.dp)
+                modifier = Modifier.size(60.dp)
             ) {
                 CustomIcon(
                     iconRes = if (expanded) R.drawable.cancel else R.drawable.ed,
                     contentDescription = null,
-                    tint = White
+                    tint = Black
                 )
             }
         }

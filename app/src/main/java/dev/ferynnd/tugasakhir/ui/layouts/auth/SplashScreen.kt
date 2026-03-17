@@ -32,10 +32,14 @@ import androidx.compose.ui.unit.sp
 import dev.ferynnd.tugasakhir.ui.components.CustomIcon
 import dev.ferynnd.tugasakhir.ui.theme.Primary // Warna Red Sporty
 import dev.ferynnd.tugasakhir.R
+import dev.ferynnd.tugasakhir.ui.theme.Background
 import dev.ferynnd.tugasakhir.ui.theme.Black
+import dev.ferynnd.tugasakhir.ui.theme.Card
 import dev.ferynnd.tugasakhir.ui.theme.TextMain
+import dev.ferynnd.tugasakhir.ui.theme.TextSub
+import dev.ferynnd.tugasakhir.ui.theme.White
 
- @Composable
+@Composable
 fun SplashScreenNavigation(onNavigationComplete: () -> Unit) {
     LaunchedEffect(Unit) {
         kotlinx.coroutines.delay(3000) // Tampilkan selama 3 detik
@@ -58,9 +62,9 @@ fun SplashScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF8F9FA)) // Background sedikit keabu-abuan halus
+            .background(Background) // Background sedikit keabu-abuan halus
             .drawBehind {
-                val dotColor = Color.LightGray.copy(alpha = 0.3f)
+                val dotColor = Card.copy(alpha = 0.3f)
                 val spacing = 25.dp.toPx()
                 for (x in 0..size.width.toInt() step spacing.toInt()) {
                     for (y in 0..size.height.toInt() step spacing.toInt()) {
@@ -84,7 +88,7 @@ fun SplashScreen() {
                     modifier = Modifier
                         .size(120.dp)
                         .background(
-                            brush = Brush.verticalGradient(listOf(Primary, Color(0xFFB0161D))),
+                            brush = Brush.verticalGradient(listOf(Primary, Primary.copy(alpha = 0.5f))),
                             shape = CircleShape
                         ),
                     contentAlignment = Alignment.Center
@@ -111,7 +115,7 @@ fun SplashScreen() {
 //                    }
 //                },
                 text = "NAMEAPP",
-                color = Black,
+                color = White,
                 fontWeight = FontWeight.Black,
                 fontSize = 42.sp,
                 letterSpacing = (-1).sp
@@ -121,7 +125,7 @@ fun SplashScreen() {
                 text = "E V A L U A T I O N   E N G I N E",
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.Gray.copy(alpha = 0.6f),
+                color = TextSub,
                 modifier = Modifier.padding(top = 8.dp)
             )
 
@@ -137,7 +141,7 @@ fun SplashScreen() {
                         text = "LOADING RESOURCES",
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Gray
+                        color = TextSub
                     )
                     Text(
                         text = "${(animatedProgress.value * 100).toInt()}%",
@@ -161,9 +165,9 @@ fun SplashScreen() {
                 )
 
                 Text(
-                    text = "Initializing MediaPipe BlazePose...",
+                    text = "Mempersiapkan AI Pose Detector...",
                     fontSize = 11.sp,
-                    color = Color.Gray,
+                    color = TextSub,
                     modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 12.dp)
                 )
             }
@@ -173,14 +177,14 @@ fun SplashScreen() {
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 32.dp)
-                .background(Color(0xFFF1F3F5), RoundedCornerShape(20.dp))
+                .background(Card, RoundedCornerShape(20.dp))
                 .padding(horizontal = 16.dp, vertical = 6.dp)
         ) {
             Text(
                 text = "V 1.0.0 • RESEARCH EDITION",
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.Gray
+                color = TextSub
             )
         }
     }

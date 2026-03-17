@@ -40,10 +40,15 @@ import dev.ferynnd.tugasakhir.data.model.dummyExercises
 import dev.ferynnd.tugasakhir.ui.components.*
 import dev.ferynnd.tugasakhir.ui.theme.Background
 import dev.ferynnd.tugasakhir.ui.theme.Black
+import dev.ferynnd.tugasakhir.ui.theme.Card
 import dev.ferynnd.tugasakhir.ui.theme.Primary
 import dev.ferynnd.tugasakhir.ui.theme.TextSub
 import dev.ferynnd.tugasakhir.ui.theme.White
 import dev.ferynnd.tugasakhir.ui.theme.colEmail
+import dev.ferynnd.tugasakhir.ui.theme.colFire
+import dev.ferynnd.tugasakhir.ui.theme.colHeart
+import dev.ferynnd.tugasakhir.ui.theme.colLightning
+import dev.ferynnd.tugasakhir.ui.theme.colTime
 
 @Composable
 fun TrainingDetail(navController: NavController, exerciseId: Int?) {
@@ -72,13 +77,13 @@ fun TrainingDetail(navController: NavController, exerciseId: Int?) {
                     modifier = Modifier
                         .size(36.dp)
                         .clip(CircleShape)
-                       .background(Color(0xFFE5E5E5))
+                       .background(Primary)
 
                 ) {
                     CustomIcon(
                         R.drawable.icarrowr,
                         contentDescription = null,
-                        tint = TextSub,
+                        tint = Black,
                         modifier = Modifier
                             .size(24.dp)
                             .graphicsLayer(scaleX = -1f) // Flip horizontal
@@ -89,10 +94,10 @@ fun TrainingDetail(navController: NavController, exerciseId: Int?) {
                 Spacer(modifier = Modifier.weight(1f))
 
                 Text(
-                    text = "Detail Latihan",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color.Black
+                    text = "DETAIL LATIHAN",
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = White
                 )
 
             }
@@ -128,14 +133,14 @@ fun TrainingDetail(navController: NavController, exerciseId: Int?) {
                              )
                          )
                  ) {
-                     Spacer(modifier = Modifier.height(16.dp))
+                     Spacer(modifier = Modifier.height(12.dp))
 
                      // Title
                      Text(
-                         text = exercise.name,
+                         text = exercise.name.uppercase(),
                          fontSize = 28.sp,
                          fontWeight = FontWeight.Bold,
-                         color = Color.Black
+                         color = Primary
                      )
 
                      Spacer(modifier = Modifier.height(8.dp))
@@ -175,7 +180,7 @@ fun TrainingDetail(navController: NavController, exerciseId: Int?) {
                          benefits = exercise.benefits
                      )
 
-                     Spacer(modifier = Modifier.height(100.dp)) // Space for button
+                     Spacer(modifier = Modifier.height(120.dp)) // Space for button
                  }
              }
 
@@ -183,8 +188,8 @@ fun TrainingDetail(navController: NavController, exerciseId: Int?) {
              Box(
                  modifier = Modifier
                      .align(Alignment.BottomCenter)
-                     .background(White)
                      .fillMaxWidth()
+                     .background(Black)
                      .drawBehind {
                          drawLine(
                              color = TextSub.copy(0.1f),
@@ -210,14 +215,14 @@ fun TrainingDetail(navController: NavController, exerciseId: Int?) {
                              painter = painterResource(id = R.drawable.icplay),
                              contentDescription = null,
                              modifier = Modifier.size(24.dp),
-                             tint = White
+                             tint = Black
                          )
                          Spacer(Modifier.width(10.dp))
                          Text(
                              "MULAI LATIHAN",
                              fontWeight = FontWeight.Bold,
                              fontSize = 16.sp,
-                             color = White
+                             color = Black
                          )
                      }
                  }
@@ -270,7 +275,7 @@ fun StatsRow(
             icon = R.drawable.icfire,
             value = calories,
             label = "KCAL",
-            iconTint = Color(0xFFFF6B6B)
+            iconTint = colFire
         )
 
         StatItem(
@@ -278,7 +283,7 @@ fun StatsRow(
             icon = R.drawable.icoclock,
             value = duration,
             label = "MINS",
-            iconTint = Color(0xFF4169E1)
+            iconTint = colHeart
         )
 
         StatItem(
@@ -286,7 +291,7 @@ fun StatsRow(
             icon = R.drawable.jump,
             value = reps,
             label = "REPS",
-            iconTint = Color(0xFF00C853)
+            iconTint = colLightning
         )
     }
 }
@@ -303,8 +308,8 @@ fun StatItem(
     Column(
         modifier = modifier
             .height(120.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .background(Color.Black.copy(alpha = 0.03f))
+            .clip(RoundedCornerShape(12.dp))
+            .background(Card)
             .padding(vertical = 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -332,14 +337,14 @@ fun StatItem(
             text = value,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.Black
+            color = White
         )
 
         if (label.isNotEmpty()) {
             Text(
                 text = label,
                 fontSize = 12.sp,
-                color = Color.Black.copy(alpha = 0.6f)
+                color = TextSub
             )
         }
     }
@@ -365,14 +370,13 @@ fun SectionTitle(
                     shape = RoundedCornerShape(2.dp)
                 )
         )
-
         Spacer(modifier = Modifier.width(12.dp))
 
         Text(
             text = title,
             fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black
+            fontWeight = FontWeight.SemiBold,
+            color = White
         )
     }
 }
@@ -391,7 +395,7 @@ fun DescriptionSection(
         Text(
             text = description,
             fontSize = 14.sp,
-            color = Color.Black.copy(alpha = 0.8f),
+            color = TextSub,
             lineHeight = 20.sp
         )
     }
@@ -431,13 +435,15 @@ fun StepItem(
 ) {
     Row(
         modifier = Modifier.fillMaxWidth()
-         .padding(vertical = 10.dp),
+            .border(1.5.dp, Primary.copy(0.2f), shape = RoundedCornerShape(6.dp))
+            .background(Primary.copy(0.1f), shape = RoundedCornerShape(6.dp))
+            .padding(10.dp)
     ) {
         Box(
             modifier = Modifier
                 .size(40.dp)
                 .background(
-                    Primary.copy(0.8f),
+                    Primary.copy(0.6f),
                     shape = CircleShape
                 ),
             contentAlignment = Alignment.Center
@@ -446,7 +452,7 @@ fun StepItem(
                 text = stepNumber.toString(),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = White
             )
         }
 
@@ -457,7 +463,7 @@ fun StepItem(
                 text = title,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color.Black
+                color = White
             )
 
             Spacer(modifier = Modifier.height(6.dp))
@@ -465,7 +471,7 @@ fun StepItem(
             Text(
                 text = description,
                 fontSize = 14.sp,
-                color = Color.Black.copy(alpha = 0.7f),
+                color = TextSub,
                 lineHeight = 20.sp
             )
         }
@@ -501,12 +507,12 @@ fun MistakeItem(title: String, mistake: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .border( 1.dp, Primary.copy(0.2f), shape = RoundedCornerShape(8.dp) )
+            .border( 1.5.dp, colFire.copy(0.2f), shape = RoundedCornerShape(6.dp) )
             .background(
-                Primary.copy(alpha = 0.1f),
-                shape = RoundedCornerShape(8.dp)
+                colFire.copy(alpha = 0.1f),
+                shape = RoundedCornerShape(6.dp)
             )
-            .padding(14.dp),
+            .padding(10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
@@ -514,7 +520,7 @@ fun MistakeItem(title: String, mistake: String) {
                 .padding(horizontal = 8.dp)
                 .size(28.dp)
                 .background(
-                    Primary.copy(0.8f),
+                    colFire.copy(0.8f),
                     shape = CircleShape
                 ),
             contentAlignment = Alignment.Center
@@ -534,16 +540,16 @@ fun MistakeItem(title: String, mistake: String) {
                 text = title,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Primary
+                color = White
             )
 
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
                 text = mistake,
-                fontSize = 12.sp,
-                color = Color.Black.copy(alpha = 0.7f),
-                lineHeight = 16.sp
+                fontSize = 14.sp,
+                color = TextSub,
+                lineHeight = 20.sp
             )
         }
     }
@@ -560,9 +566,15 @@ fun BenefitsSection(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        benefits.forEach { (id, title, description) ->
-            BenefitItem(title, description.toString())
-            Spacer(modifier = Modifier.height(12.dp))
+        benefits.forEachIndexed { index, (id, title , description )->
+            BenefitItem(
+                title = title,
+                description = description.toString()
+            )
+
+            if (index < benefits.size - 1) {
+                Spacer(modifier = Modifier.height(12.dp))
+            }
         }
     }
 }
@@ -575,19 +587,19 @@ fun BenefitItem(
     Row(
          modifier = Modifier
             .fillMaxWidth()
-            .border( 1.dp, TextSub.copy(0.1f), shape = RoundedCornerShape(8.dp) )
+            .border( 1.5.dp, colHeart.copy(0.1f), shape = RoundedCornerShape(8.dp) )
             .background(
-                TextSub.copy(alpha = 0.1f),
+                colHeart.copy(alpha = 0.1f),
                 shape = RoundedCornerShape(8.dp)
             )
-            .padding(14.dp),
+            .padding(10.dp),
         verticalAlignment = Alignment.CenterVertically
 
     ) {
         Icon(
             imageVector = ImageVector.vectorResource(id = R.drawable.icplay),
             contentDescription = null,
-            tint = Color(0xFF00C853),
+            tint = colHeart,
             modifier = Modifier
                 .padding(horizontal = 6.dp)
                 .size(30.dp)
@@ -599,7 +611,7 @@ fun BenefitItem(
             text = title,
             fontSize = 16.sp,
             fontWeight = FontWeight.SemiBold,
-            color = Color.Black
+            color = White
         )
 
     }

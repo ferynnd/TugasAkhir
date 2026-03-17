@@ -81,7 +81,7 @@ fun BackButton(
     Button(
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(
-            containerColor = Black.copy(alpha = 0.4f)
+            containerColor = Primary
         ),
         shape = RoundedCornerShape(100),
         contentPadding = PaddingValues(3.dp),
@@ -90,7 +90,7 @@ fun BackButton(
         Icon(
             imageVector = icon,
             contentDescription = "Back",
-            tint = Color.White,
+            tint = Black,
             modifier = Modifier.size(24.dp)
         )
     }
@@ -106,15 +106,15 @@ fun SmallFab(
         modifier = Modifier
             .size(56.dp)
             .background(
-                color = Primary.copy(alpha = 0.8f),
-                shape = CircleShape
+                color = Primary.copy(alpha = 0.9f),
+                shape = RoundedCornerShape(12)
             )
             .clickable(onClick = onClick)
     ) {
         CustomIcon(
             iconRes = icon,
             contentDescription = null,
-            tint = White,
+            tint = Black,
             modifier = Modifier.size(22.dp)
         )
     }

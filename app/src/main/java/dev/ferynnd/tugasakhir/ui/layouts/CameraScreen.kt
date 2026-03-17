@@ -14,6 +14,7 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -76,6 +77,7 @@ import kotlin.coroutines.resume
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import dev.ferynnd.tugasakhir.helper.exercise.PostureGate
+import dev.ferynnd.tugasakhir.ui.theme.Background
 
 @Composable
 fun CameraScreen(
@@ -361,7 +363,7 @@ fun CameraScreen(
     LaunchedEffect(counter) {
         if (counter > lastRepsSpoken) {
             tts?.stop()
-            speakAndWait("Repetisi $counter")
+            speakAndWait("$counter")
             lastRepsSpoken = counter
             lastFeedbackSpoken = null
         }
@@ -442,15 +444,12 @@ fun CameraScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundDark)
+            .background(Background)
             .statusBarsPadding() // Padding untuk area notch/status bar
     ) {
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .padding(10.dp)
-                .clip(RoundedCornerShape(12.dp))
+                .fillMaxSize()
         ) {
             if (hasCameraPermission) {
                 CameraPreviewContent(
@@ -512,17 +511,22 @@ fun CameraScreen(
             if (screenPhase == ScreenPhase.COUNTDOWN) {
                 CountdownOverlay(countdownValue)
             }
+
+            if ( screenPhase == ScreenPhase.EXERCISE ) {
+                BottomInfoPanel(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.BottomCenter) // INI KUNCINYA
+                        .padding(24.dp),
+                    onEndSessionClick = {
+                        finishDialog = true
+                    },
+                    feedback = feedback ?: "",
+                    elapsedTime = runningSeconds
+                )
+            }
         }
 
-
-        BottomInfoPanel(
-            modifier = Modifier
-                .fillMaxWidth()
-                .navigationBarsPadding(),
-            onEndSessionClick = { finishDialog = true },
-            feedback = feedback ?: "-",
-            isCountdownActive = if (screenPhase == ScreenPhase.EXERCISE) false else true
-        )
     }
 
     if (quitDialog) {
@@ -557,6 +561,16 @@ fun CameraScreen(
                 finishDialog = false
             }
         )
+    }
+
+    LaunchedEffect(viewModel.lastInsertedId) {
+        viewModel.lastInsertedId?.let { newId ->
+            // Navigasi ke summary dengan ID asli dari DB
+            navController.navigate("trainingSummary/$newId") {
+                // Bersihkan CameraScreen dari history agar tidak bisa "Back" ke kamera
+                popUpTo("cameraScreen") { inclusive = true }
+            }
+        }
     }
 
 }

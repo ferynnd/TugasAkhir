@@ -30,16 +30,16 @@ import androidx.compose.ui.platform.LocalContext
 
 private val LightColorScheme = lightColorScheme(
     primary = Primary,
-    onPrimary = TextMain,
-    secondary = Secondary,
+    onPrimary = TextSub,
+    secondary = colHeart,
     onSecondary = White,
     tertiary = Card,
     onTertiary = White,
-    background = White,
+    background = Background,
     onBackground = Black,
     surface = White,
     onSurface = Black,
-    outline = Border,
+    outline = TextSub,
     surfaceVariant = Input,
     onSurfaceVariant = Black
 )
@@ -47,20 +47,8 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun TugasAkhirTheme(
-//    darkTheme: Boolean = isSystemInDarkTheme(),
-//    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-//    val colorScheme = when {
-//        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-//            val context = LocalContext.current
-//            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-//        }
-//
-//        darkTheme -> DarkColorScheme
-//        else -> LightColorScheme
-//    }
-
     MaterialTheme(
         colorScheme = LightColorScheme,
         typography = Typography,

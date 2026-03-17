@@ -2,7 +2,9 @@ package dev.ferynnd.tugasakhir.ui.components
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,12 +20,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -37,226 +42,157 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.ferynnd.tugasakhir.R
 import dev.ferynnd.tugasakhir.ui.theme.Black
+import dev.ferynnd.tugasakhir.ui.theme.Card
 import dev.ferynnd.tugasakhir.ui.theme.Primary
 import dev.ferynnd.tugasakhir.ui.theme.TextSub
 import dev.ferynnd.tugasakhir.ui.theme.White
+import dev.ferynnd.tugasakhir.ui.theme.colFire
+import dev.ferynnd.tugasakhir.ui.theme.colTime
 import dev.ferynnd.tugasakhir.ui.theme.colWarning
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 
 
 @Composable
-fun RepsBadge(count: Int, modifier: Modifier = Modifier)
-{
-    Column(
+fun RepsBadge(count: Int, modifier: Modifier) {
+    Box(
         modifier = modifier
-            .size(64.dp)
-            .clip(RectangleShape)
-            .background(Brush.verticalGradient(listOf(Primary, Color(0xFF991B1B))), RoundedCornerShape(10.dp))
-            .padding(5.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+            .size(100.dp, 80.dp)
+            .background(Color.White, RoundedCornerShape(24.dp)), // Putih bersih sesuai Gambar 4
+        contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = "REPS",
-            color = White,
-            fontSize = 10.sp,
-            fontWeight = FontWeight.SemiBold
-        )
-        Text(
-            text = count.toString(),
-            color = Color(0xFFF3F10A), // Warna merah sesuai desain
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Black
-        )
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text("REPS", fontSize = 12.sp, fontWeight = FontWeight.Black, color = Color(0xFF1C1C1E))
+            Text(count.toString(), fontSize = 36.sp, fontWeight = FontWeight.Black, color = Color.Black)
+        }
     }
 }
 
 @Composable
-fun BottomInfoPanel(
-    modifier: Modifier = Modifier,
-    onEndSessionClick: () -> Unit,
-    feedback: String? = null,
-    isCountdownActive: Boolean = false
-) {
+fun BottomInfoPanel(onEndSessionClick: () -> Unit, feedback: String, elapsedTime: Int, modifier: Modifier) {
 
-    val elapsedSeconds = rememberElapsedSeconds(isRunning = !isCountdownActive)
+    val minutes = elapsedTime / 60
+    val seconds = elapsedTime % 60
 
     Column(
-        modifier = modifier
-            .padding(10.dp)
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp, bottomStart = 16.dp, bottomEnd = 16.dp))
-            .background(Color.White)
-            .navigationBarsPadding()
-            .padding(horizontal = 24.dp, vertical = 20.dp)
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
-        // Judul dengan Icon Bulat Pink
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier
-                    .size(36.dp)
-                    .clip(CircleShape)
-                    .background(Color(0xFFFFEBEB)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Warning,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp),
-                    tint = Color(0xFFE12524)
-                )
+        // Kotak Feedback (Glassmorphism)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Black.copy(alpha = 0.7f), RoundedCornerShape(12.dp))
+                .border(1.5.dp, Primary.copy(alpha = 0.6f), RoundedCornerShape(12.dp))
+                .padding(16.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                // Ikon bulat hijau
+                Box(modifier = Modifier.size(40.dp).background(Primary.copy(alpha = 0.2f), CircleShape), contentAlignment = Alignment.Center) {
+                    Icon(Icons.Default.Info, null, tint = Primary)
+                }
+                Spacer(Modifier.width(16.dp))
+                Column {
+                    Text("KOREKSI GERAKAN", color = Primary, fontWeight = FontWeight.Black, fontSize = 16.sp)
+                    Text(feedback, color = Color.White, fontSize = 14.sp)
+                }
             }
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text = "Koreksi Gerakan",
-                color = Color(0xFF1A1C1E),
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
-            )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(Modifier.height(12.dp))
 
-        Text(
-            text = feedback.toString(),
-            fontWeight = FontWeight.Medium,
-            color = TextSub,
-            fontSize = 18.sp,
-            lineHeight = 22.sp
-        )
+        OutlinedButton(
+            onClick = onEndSessionClick,
+            modifier = Modifier.fillMaxWidth().height(56.dp),
+            shape = RoundedCornerShape(12.dp),
+            border = BorderStroke(1.5.dp, colFire.copy(alpha = 0.8f)),
+            colors = ButtonDefaults.outlinedButtonColors(containerColor = Black.copy(alpha = 0.7f))
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(modifier = Modifier.size(12.dp).background(colFire, RectangleShape))
+                Spacer(Modifier.width(10.dp))
+                Text("AKHIRI LATIHAN", color = colFire, fontWeight = FontWeight.Black)
+            }
+        }
 
-        Spacer(modifier = Modifier.height(30.dp))
+        Spacer(Modifier.height(12.dp))
 
-        SessionRunningCard(
-            elapsedTime = elapsedSeconds,
-            onEndSessionClick = onEndSessionClick
-        )
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Surface(
+                color = Card.copy(0.7f),
+                border = BorderStroke(1.5.dp, Card.copy(alpha = 0.8f)),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Row(modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Icon(painterResource(R.drawable.icbodyscan), null, tint = colFire, modifier = Modifier.size(14.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text("LIVE DETECTION" , fontSize = 12.sp, fontWeight = FontWeight.Bold, color = White)
+                }
+            }
+
+            Surface(
+                color = Card.copy(0.7f),
+                border = BorderStroke(1.5.dp, Card.copy(alpha = 0.8f)),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Row(modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Icon(painterResource(R.drawable.icoclock), null, tint = colTime, modifier = Modifier.size(14.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text( String.format("%02d:%02d", minutes, seconds) , fontSize = 12.sp, fontWeight = FontWeight.Bold, color = White)
+                }
+            }
+        }
     }
 }
 
 @Composable
-fun CountdownOverlay(count: Int)
-{
-
-    val animatedScale by animateFloatAsState(
-        targetValue = 1.2f,
-        animationSpec = tween(600),
-        label = ""
-    )
-
-    val animatedAlpha by animateFloatAsState(
-        targetValue = 1f,
-        animationSpec = tween(600),
-        label = ""
-    )
-
+fun CountdownOverlay(count: Int) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.75f)),
+            .background(Black.copy(alpha = 0.8f)), // Latar belakang gelap pekat
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = if (count > 0) count.toString() else "Mulai",
-            fontSize = 90.sp,
-            fontWeight = FontWeight.Black,
-            color = Color.White,
-            modifier = Modifier
-                .graphicsLayer(
-                    scaleX = animatedScale,
-                    scaleY = animatedScale,
-                    alpha = animatedAlpha
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = if (count > 0) count.toString() else "MULAI",
+                style = TextStyle(
+                    fontSize = 120.sp,
+                    fontWeight = FontWeight.Black,
+                    color = Primary, // Warna Lime Green
+                    // Memberikan efek Glow pada angka
+                    shadow = Shadow(
+                        color = Primary.copy(alpha = 0.8f),
+                        blurRadius = 50f
+                    )
                 )
-        )
-    }
-}
-
-@Composable
-fun SessionRunningCard(
-    elapsedTime: Int,
-    onEndSessionClick: () -> Unit
-) {
-    Card(
-        shape = RoundedCornerShape(16.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(90.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = TextSub.copy(alpha = 0.15f) // seperti textSub.copy(0.15f)
-        )
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 14.dp, vertical = 10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-
-            val minutes = elapsedTime / 60
-            val seconds = elapsedTime % 60
-
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column {
-                    Text(
-                        text = "TIME ELAPSED",
-                        fontSize = 12.sp,
-                        color = Black.copy(alpha = 0.8f)
-                    )
-
-                    Text(
-                        text = String.format("%02d:%02d", minutes, seconds),
-                        fontSize = 26.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = TextSub
-                    )
-                }
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                Button(
-                    onClick = onEndSessionClick,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Primary
-                    ),
-                    shape = RoundedCornerShape(16.dp),
-                    modifier = Modifier
-                        .height(56.dp)
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-
-                        CustomIcon(
-                            iconRes = R.drawable.cancel,
-                            contentDescription = "berhenti",
-                            tint = Color.White,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        Text(
-                            text = "AKHIRI LATIHAN",
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp
-                        )
-                    }
-                }
-            }
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "BERSIAP DALAM...",
+                style = TextStyle(
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    letterSpacing = 4.sp
+                )
+            )
         }
     }
 }
-
 
 @Composable
 fun rememberElapsedSeconds(isRunning: Boolean): Int {

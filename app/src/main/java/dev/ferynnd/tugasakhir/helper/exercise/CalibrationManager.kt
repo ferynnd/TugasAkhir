@@ -22,9 +22,9 @@ class CalibrationManager(val exerciseType: ExerciseCode) {
 
     // Instruksi yang ditampilkan ke user sesuai exercise
     val instruction: String get() = when (exerciseType) {
-        ExerciseCode.SQUAT   -> "Berdiri tegak, pandangan ke depan, diam sebentar..."
-        ExerciseCode.PUSH_UP -> "Ambil posisi plank lurus, diam sebentar..."
-        ExerciseCode.SIT_UP  -> "Berbaring telentang, lutut ditekuk ~90°, diam sebentar..."
+        ExerciseCode.SQUAT   -> "Pastikan seluruh tubuh terlihat dari kepala hingga kaki.."
+        ExerciseCode.PUSH_UP -> "Pastikan seluruh tubuh terlihat dari kepala hingga kaki.."
+        ExerciseCode.SIT_UP  -> "Pastikan seluruh tubuh terlihat dari kepala hingga kaki.."
     }
 
     fun addSample(landmarks: List<NormalizedLandmark>) {

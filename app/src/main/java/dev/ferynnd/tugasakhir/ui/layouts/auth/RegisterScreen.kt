@@ -12,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -28,6 +29,8 @@ import dev.ferynnd.tugasakhir.ui.theme.TextMain
 import dev.ferynnd.tugasakhir.ui.theme.TextSub
 import dev.ferynnd.tugasakhir.R // Pastikan import R untuk icon google
 import dev.ferynnd.tugasakhir.ui.components.LottieDialog
+import dev.ferynnd.tugasakhir.ui.layouts.ProfileInput
+import dev.ferynnd.tugasakhir.ui.theme.Background
 import dev.ferynnd.tugasakhir.ui.theme.Border
 import dev.ferynnd.tugasakhir.ui.theme.Primary
 import dev.ferynnd.tugasakhir.ui.theme.colEmail
@@ -47,195 +50,171 @@ fun RegisterScreen(
     var isChecked by remember { mutableStateOf(false) }
     val dialogState = viewModel.dialogState
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .statusBarsPadding()
-            .padding(horizontal = 24.dp)
-            .verticalScroll(rememberScrollState())
-    ) {
-
-        dialogState?.let { state ->
-            LottieDialog(
-                lottieRes = state.lottieRes,
-                title = state.title,
-                message = state.message,
-                colorBg = state.colorBg,
-                autoDismiss = state.autoDismiss,
-                onConfirm = { viewModel.dismissDialog() },
-                onDismiss = { viewModel.dismissDialog() }
-            )
-        }
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Text(
-            text = buildAnnotatedString {
-                withStyle(style = SpanStyle(color = TextMain, fontWeight = FontWeight.Bold)) {
-                    append("Create\n")
-                }
-                withStyle(style = SpanStyle(color = Primary, fontWeight = FontWeight.Bold)) {
-                    append("Account")
-                }
-            },
-            fontSize = 32.sp,
-            lineHeight = 36.sp
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-        Text(
-            text = "Create a new account to get started and enjoy.",
-            fontSize = 16.sp,
-            color = TextSub,
-            lineHeight = 24.sp
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Text("Fullname", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = TextSub,  modifier = Modifier.padding(bottom = 8.dp))
-            OutlinedTextField(
-                value = fullname,
-                onValueChange = { fullname = it },
-                placeholder = { Text("student", color = Color.LightGray) },
-                leadingIcon = { CustomIcon(iconRes = R.drawable.icuser, null, tint = Color.LightGray) },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Border)
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Text("Email",  fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = TextSub,  modifier = Modifier.padding(bottom = 8.dp))
-            OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
-                placeholder = { Text("students@pnm.ac.id", color = Color.LightGray) },
-                leadingIcon = { CustomIcon(R.drawable.icmail, null, tint = Color.LightGray) },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Border)
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Text("Password",  fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = TextSub,  modifier = Modifier.padding(bottom = 8.dp))
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                placeholder = { Text("••••••••", color = Color.LightGray) },
-                leadingIcon = { Icon(Icons.Default.Lock, null, tint = Color.LightGray) },
-                trailingIcon = {
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        CustomIcon(
-                            iconRes = if (passwordVisible) R.drawable.iceyeon else R.drawable.iceyeoff,
-                            contentDescription = if (passwordVisible) "Sembunyikan password" else "Tampilkan password",
-                            tint = Color.LightGray
-                        )
-                    }
-                },
-                visualTransformation = if (passwordVisible) PasswordVisualTransformation() else VisualTransformation.None,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Border)
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Text("Confirm Password",  fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = TextSub,  modifier = Modifier.padding(bottom = 8.dp))
-            OutlinedTextField(
-                value = confirmPassword,
-                onValueChange = { confirmPassword = it },
-                placeholder = { Text("••••••••", color = Color.LightGray) },
-                leadingIcon = { Icon(Icons.Default.Lock, null, tint = Color.LightGray) },
-                trailingIcon = {
-                    IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
-                        CustomIcon(
-                            iconRes = if (confirmPasswordVisible) R.drawable.iceyeon else R.drawable.iceyeoff,
-                            contentDescription = if (confirmPasswordVisible) "Sembunyikan password" else "Tampilkan password",
-                            tint = Color.LightGray
-                        )
-                    }
-                },
-                visualTransformation = if (confirmPasswordVisible) PasswordVisualTransformation() else VisualTransformation.None,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Border)
-            )
-        }
-
-        Row(
+    Scaffold(
+        // Mengatur warna background utama aplikasi
+        containerColor = Background
+    ) { paddingValues ->
+        // Gunakan Box sebagai container utama di dalam Scaffold
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp),
-            verticalAlignment = Alignment.Top
+                .fillMaxSize()
+                .padding(paddingValues) // Penting agar konten tidak tertutup elemen sistem
         ) {
-            Checkbox(
-                checked = isChecked,
-                onCheckedChange = { isChecked = it },
-                colors = CheckboxDefaults.colors(checkedColor = Primary),
+            // Efek Dekorasi Background (Glow)
+            Box(
+                modifier = Modifier
+                    .size(250.dp)
+                    .align(Alignment.TopEnd)
+                    .offset(x = 100.dp, y = (-50).dp)
+                    .background(
+                        Brush.radialGradient(
+                            colors = listOf(Primary.copy(alpha = 0.12f), Color.Transparent)
+                        )
+                    )
             )
-            val annotatedString = buildAnnotatedString {
-                append("I agree to the ")
-                withStyle(style = SpanStyle(color = Primary, fontWeight = FontWeight.Bold)) {
-                    append("Terms of Service")
-                }
-                append(" and consent to data collection for research purposes.")
-            }
-            Text(
-                text = annotatedString,
-                fontSize = 14.sp,
-                color = TextSub,
-                modifier = Modifier.padding(top = 12.dp)
-            )
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            // Konten Utama yang bisa di-scroll
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .statusBarsPadding()
+                    .padding(horizontal = 24.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                Spacer(modifier = Modifier.height(40.dp))
 
-        Button(
-            onClick = { viewModel.validateInputRegister(
-                email =email,
-                pass =password,
-                confirmPass =confirmPassword,
-                fullname = fullname,
-                isChecked = isChecked)
-                      },
-            enabled = !viewModel.isLoading,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Primary)
-        ) {
-            if (viewModel.isLoading) {
-                CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
-            } else {
+                // Header Section
                 Text(
-                    text = "Create Account",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color.White
+                    text = buildAnnotatedString {
+                        withStyle(style = SpanStyle(color = Color.White, fontWeight = FontWeight.Black)) {
+                            append("BUAT ")
+                        }
+                        withStyle(style = SpanStyle(color = Primary, fontWeight = FontWeight.Black)) {
+                            append("AKUN BARU")
+                        }
+                    },
+                    fontSize = 32.sp,
+                    lineHeight = 36.sp,
+                    letterSpacing = (-1).sp
                 )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text(
+                    text = "Daftar sekarang untuk mulai memantau latihan Anda dengan presisi AI.",
+                    fontSize = 15.sp,
+                    color = Color.Gray,
+                    lineHeight = 22.sp
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                // Form Input menggunakan komponen ProfileInput yang sudah kita buat
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    ProfileInput(
+                        label = "Nama Lengkap",
+                        value = fullname,
+                        onValueChange = { fullname = it },
+                        placeholder = "Nama mahasiswa"
+                    )
+
+                    ProfileInput(
+                        label = "Email Mahasiswa",
+                        value = email,
+                        onValueChange = { email = it },
+                        placeholder = "nim@pnm.ac.id"
+                    )
+
+                    ProfileInput(
+                        label = "Kata Sandi",
+                        value = password,
+                        onValueChange = { password = it },
+                        placeholder = "••••••••",
+                        isPassword = true
+                    )
+
+                    ProfileInput(
+                        label = "Konfirmasi Kata Sandi",
+                        value = confirmPassword,
+                        onValueChange = { confirmPassword = it },
+                        placeholder = "••••••••",
+                        isPassword = true
+                    )
+                }
+
+                // Persetujuan Layanan
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked = isChecked,
+                        onCheckedChange = { isChecked = it },
+                        colors = CheckboxDefaults.colors(
+                            checkedColor = Primary,
+                            uncheckedColor = Color.DarkGray,
+                            checkmarkColor = Color.Black
+                        )
+                    )
+                    Text(
+                        text = buildAnnotatedString {
+                            append("Saya setuju dengan ")
+                            withStyle(style = SpanStyle(color = Primary, fontWeight = FontWeight.Bold)) {
+                                append("Ketentuan Layanan")
+                            }
+                        },
+                        fontSize = 13.sp,
+                        color = Color.LightGray,
+                        modifier = Modifier.padding(start = 4.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Tombol Daftar Utama
+                Button(
+                    onClick = {
+                        viewModel.validateInputRegister(email, password, confirmPassword, fullname, isChecked)
+                    },
+                    enabled = !viewModel.isLoading,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Primary,
+                        contentColor = Color.Black,
+                        disabledContainerColor = Primary.copy(alpha = 0.3f)
+                    )
+                ) {
+                    if (viewModel.isLoading) {
+                        CircularProgressIndicator(color = Color.Black, modifier = Modifier.size(24.dp))
+                    } else {
+                        Text("DAFTAR SEKARANG", fontWeight = FontWeight.Black, fontSize = 16.sp)
+                    }
+                }
+
+                // Link ke Login
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 40.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Text("Sudah punya akun? ", color = Color.Gray, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                    Text(
+                        text = "Masuk di sini",
+                        color = Primary,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.clickable { onNavToLogin() }
+                    )
+                }
             }
         }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 40.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text("Already have an account? ", color = TextSub)
-            Text(
-                text = "Sign in here",
-                color = Primary,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.clickable { onNavToLogin() }
-            )
-
-        }
-
     }
 
 }

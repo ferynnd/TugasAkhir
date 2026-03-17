@@ -1,8 +1,10 @@
 package dev.ferynnd.tugasakhir
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.navigation.compose.NavHost
@@ -40,6 +42,7 @@ import dev.ferynnd.tugasakhir.ui.theme.colEmail
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -138,7 +141,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                             composable("home") {
-                                HomeScreen(navController, userViewModel,  supabaseClient = supabaseClient)
+                                HomeScreen(navController, exerciseViewModel,userViewModel,  supabaseClient = supabaseClient)
                             }
                             composable("trainingList") {
                                 TrainingList(navController)
@@ -158,11 +161,11 @@ class MainActivity : ComponentActivity() {
                             }
 
                             composable("trainingHistory") {
-                                ExerciseHistory( exerciseViewModel , supabaseClient = supabaseClient)
+                                ExerciseHistory( exerciseViewModel , supabaseClient = supabaseClient, navController)
                             }
 
                             composable("profile") {
-                                ProfileScreen(navController, userViewModel,  supabaseClient = supabaseClient)
+                                ProfileScreen(navController, userViewModel, exerciseViewModel,  supabaseClient = supabaseClient)
                             }
 
                             composable("editProfile") {
@@ -194,8 +197,18 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
 
-                            composable("trainingSummary") {
-                                TrainingSummary()
+                            composable("trainingSummary/{historyId}",
+                                arguments = listOf(
+                                    navArgument("historyId") { type = NavType.IntType }
+                                )
+                            ) {
+                                val historyId = it.arguments?.getInt("historyId") ?: 0
+                                TrainingSummary(
+                                    historyId = historyId,
+                                    viewModel = exerciseViewModel,
+                                    navController = navController,
+                                    onClose = { navController.popBackStack() }
+                                )
                             }
 
 

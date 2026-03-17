@@ -1,6 +1,7 @@
 package dev.ferynnd.tugasakhir.ui.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -27,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -38,7 +41,9 @@ import dev.ferynnd.tugasakhir.ui.theme.TextSub
 import dev.ferynnd.tugasakhir.ui.theme.White
 import dev.ferynnd.tugasakhir.R
 import dev.ferynnd.tugasakhir.ui.theme.Black
+import dev.ferynnd.tugasakhir.ui.theme.Card
 import dev.ferynnd.tugasakhir.ui.theme.TextMain
+import dev.ferynnd.tugasakhir.ui.theme.colFire
 
 
 @Composable
@@ -53,127 +58,150 @@ fun ExerciseCard(
     Card(
         modifier = Modifier
             .fillMaxWidth(),
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.5.dp)
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Card)
     ) {
-        Row(
+        Box(
             modifier = Modifier
-                .padding(14.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxSize()
         ) {
-            Card(
-                shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.size(120.dp)
+            Box(
+                modifier = Modifier
+                    .size(120.dp)
+                    .align(Alignment.BottomEnd)
+                    .offset(x = 40.dp, y = (20).dp)
+                    .background(
+                        Brush.radialGradient(
+                            colors = listOf(
+                                Primary.copy(alpha = 0.08f),
+                                Color.Transparent
+                            )
+                        )
+                    )
+            )
+            Row(
+                modifier = Modifier
+                    .padding(14.dp)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Image(
-                    painter = painterResource(id = imageRes),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize().padding(16.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Top
+                Box(
+                    modifier = Modifier
+                        .size(120.dp)
+                        .background(Color.White.copy(alpha = 0.05f), RoundedCornerShape(12.dp)),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = title,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = TextMain
-                        )
-                        Text(
-                            text = muscle,
-                            fontSize = 14.sp,
-                            color = TextSub
-                        )
-                    }
-
-                    // Badge Kalori
-                    Surface(
-                        color = Primary.copy(alpha = 0.08f),
-                        shape = RoundedCornerShape(50.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.icfire),
-                                contentDescription = null,
-                                tint = Primary,
-                                modifier = Modifier.size(14.dp)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = kcal + "Kal" ,
-                                color = Primary,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.ExtraBold
-                            )
-                        }
-                    }
+                    Icon(
+                        painter = painterResource(id = imageRes),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize().padding(20.dp),
+                        tint = Primary // Gunakan warna Lime Green agar konsisten
+                    )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.width(16.dp))
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                Column(
+                    modifier = Modifier.weight(1f)
                 ) {
-                    Button(
-                        onClick = onStart,
-                        modifier = Modifier.weight(1f).height(45.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Primary),
-                        shape = RoundedCornerShape(12.dp),
-                        contentPadding = PaddingValues(0.dp)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.Top
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.icplay),
-                                contentDescription = null,
-                                modifier = Modifier.size(18.dp),
-                                tint = White
-                            )
-                            Spacer(Modifier.width(8.dp))
+                        Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                "MULAI",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 14.sp,
-                                color = White
+                                text = title.uppercase(),
+                                fontSize = 22.sp,
+                                fontWeight = FontWeight.Black,
+                                color = White,
                             )
+                            Text(
+                                text = muscle.uppercase(),
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TextSub,
+                                letterSpacing = 1.sp,
+                            )
+                        }
+
+                        // Badge Kalori
+                        Surface(
+                            color = colFire.copy(alpha = 0.08f),
+                            shape = RoundedCornerShape(50.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.icfire),
+                                    contentDescription = null,
+                                    tint = colFire,
+                                    modifier = Modifier.size(14.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = "$kcal Kal",
+                                    color = colFire,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.ExtraBold
+                                )
+                            }
                         }
                     }
 
-                    Surface(
-                        modifier = Modifier
-                            .size(45.dp)
-                            .clickable { onDetail() },
-                        color = Color(0xFFF0F2F5), // Warna abu muda sesuai gambar
-                        shape = RoundedCornerShape(12.dp)
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(
-                                imageVector = Icons.Default.Info, // Atau R.drawable.ic_info
-                                contentDescription = null,
-                                modifier = Modifier.size(20.dp),
-                                tint = Color(0xFF4B5563)
-                            )
+                        Button(
+                            onClick = onStart,
+                            modifier = Modifier.weight(1f).height(45.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Primary),
+                            shape = RoundedCornerShape(12.dp),
+                            contentPadding = PaddingValues(0.dp)
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.icplay),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp),
+                                    tint = Black
+                                )
+                                Spacer(Modifier.width(8.dp))
+                                Text(
+                                    "MULAI LATIHAN",
+                                    fontWeight = FontWeight.Black,
+                                    fontSize = 14.sp,
+                                    color = Black
+                                )
+                            }
+                        }
+
+                        Surface(
+                            modifier = Modifier
+                                .size(45.dp)
+                                .clickable { onDetail() },
+                            color = Primary.copy(0.2f), // Warna abu muda sesuai gambar
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    imageVector = Icons.Default.Info, // Atau R.drawable.ic_info
+                                    contentDescription = null,
+                                    modifier = Modifier.size(20.dp),
+                                    tint = White
+                                )
+                            }
                         }
                     }
                 }
             }
         }
+
     }
 }

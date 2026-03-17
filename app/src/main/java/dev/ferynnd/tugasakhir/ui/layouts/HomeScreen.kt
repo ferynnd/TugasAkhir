@@ -18,11 +18,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageShader
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.TileMode
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,6 +42,7 @@ import dev.ferynnd.tugasakhir.data.model.CategoryBmi
 import dev.ferynnd.tugasakhir.data.model.dummyExercises
 import dev.ferynnd.tugasakhir.data.remote.supabase.SupabaseClient
 import dev.ferynnd.tugasakhir.data.viewmodel.AuthViewModel
+import dev.ferynnd.tugasakhir.data.viewmodel.ExerciseViewModel
 import dev.ferynnd.tugasakhir.data.viewmodel.UserViewModel
 import dev.ferynnd.tugasakhir.ui.components.CustomIcon
 import dev.ferynnd.tugasakhir.ui.components.ExerciseListDialog
@@ -46,6 +54,7 @@ import io.github.jan.supabase.auth.auth
 @Composable
 fun HomeScreen(
     navController: NavController,
+    exerciseViewModel: ExerciseViewModel = hiltViewModel(),
     userViewModel: UserViewModel = hiltViewModel(),
     supabaseClient: SupabaseClient
 ) {
@@ -54,6 +63,8 @@ fun HomeScreen(
         if (user != null) {
             userViewModel.getProfile(user.id)
             userViewModel.getUserBMI(user.id)
+            exerciseViewModel.getHistoryHome(user.id)
+
         }
     }
 
@@ -62,14 +73,16 @@ fun HomeScreen(
     val displayBMIValue by remember { derivedStateOf { userViewModel.bmiResult } }
     val displayBMICategory by remember { derivedStateOf { userViewModel.bmiCategory } }
     Log.d("HomeScreen", "displayBMICat: $displayBMICategory")
-//    val timestamp = remember(displayAvatar) { System.currentTimeMillis() }
 
     var showExerciseDialog by remember { mutableStateOf(false) }
 
+    val todayCalories by remember { derivedStateOf { exerciseViewModel.totalCaloriesToday } }
+    val todayExercise by remember { derivedStateOf { exerciseViewModel.totalExerciseToday } }
+
+
     Scaffold(
-        containerColor = White,
-        topBar = { TopBarSection( fullname = displayUsername, avatar = displayAvatar) },
-        modifier = Modifier.padding(bottom = 20.dp)
+        containerColor = Background,
+        topBar = { TopBarSection( fullname = displayUsername, avatar = displayAvatar) }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -81,7 +94,10 @@ fun HomeScreen(
         ) {
 
             BMIStatusCard( displayBMIValue = displayBMIValue, displayBMICategory = CategoryBmi.valueOf(displayBMICategory) )
-            ProgressSection()
+            ProgressSection(
+                todayCalories = todayCalories,
+                todayExercise = todayExercise
+            )
             QuickAction(onActionClick = { showExerciseDialog = true })
         }
     }
@@ -144,22 +160,15 @@ fun TopBarSection(
                     modifier = Modifier
                         .size(48.dp)
                         .clip(CircleShape)
-                        .border(2.dp, Primary.copy(alpha = 0.2f), CircleShape),
+                        .border(2.dp, Primary, CircleShape),
                     contentScale = ContentScale.Fit,
                     placeholder = painterResource(R.drawable.placeholder), error = painterResource(R.drawable.placeholder)
-                )
-                Box(
-                    modifier = Modifier
-                        .size(12.dp)
-                        .background(Color(0xFF22C55E), CircleShape)
-                        .border(2.dp, White, CircleShape)
-                        .align(Alignment.BottomEnd)
                 )
             }
             Spacer(modifier = Modifier.width(12.dp))
             Column {
-                Text("SELAMAT DATANG", fontSize = 12.sp, color = TextSub, fontWeight = FontWeight.Bold)
-                Text(fullname.uppercase(), fontSize = 18.sp, color = TextMain, fontWeight = FontWeight.Black)
+                Text("SELAMAT DATANG", fontSize = 14.sp, color = TextSub, fontWeight = FontWeight.Bold)
+                Text(fullname.uppercase(), fontSize = 22.sp, color = White, fontWeight = FontWeight.Black)
             }
         }
     }
@@ -174,69 +183,101 @@ fun TopBarSection(
 fun BMIStatusCard( displayBMIValue: Double = 0.0, displayBMICategory: CategoryBmi ) {
     Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .shadow(10.dp, RoundedCornerShape(24.dp), spotColor = Background),
-        shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(containerColor = White)
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Card)
     ) {
-        Row(
-            modifier = Modifier.padding(24.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
         ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    CustomIcon(iconRes = R.drawable.icheartrate, contentDescription = null, tint = Primary, backgroundColor = Primary.copy(alpha = 0.1f), cornerRadius = 8.dp, padding = 4.dp)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("STATUS TUBUH", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TextSub)
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-                Row(verticalAlignment = Alignment.Bottom) {
-                    Text(String.format("%.1f", displayBMIValue), fontSize = 38.sp, fontWeight = FontWeight.Black, color = TextMain)
-                    Text("BMI", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = TextSub, modifier = Modifier.padding(bottom = 6.dp))
-                }
-                Spacer(modifier = Modifier.height(10.dp))
-                // Normal Weight Chip
-                Surface(
-                    color = Color(0xFFDCFCE7),
-                    shape = RoundedCornerShape(50)
-                ) {
-                    Row(modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(painterResource(R.drawable.iccheck), null, tint = Color(0xFF166534), modifier = Modifier.size(14.dp))
-                        Spacer(Modifier.width(4.dp))
-                        Text(displayBMICategory.toString(), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF166534))
+            Box(
+                modifier = Modifier
+                    .size(150.dp)
+                    .align(Alignment.BottomEnd)
+                    .offset(x = 40.dp, y = (40).dp)
+                    .background(
+                        Brush.radialGradient(
+                            colors = listOf(
+                                Primary.copy(alpha = 0.15f),
+                                Color.Transparent
+                            )
+                        )
+                    )
+            )
+            Row(
+                modifier = Modifier.padding(24.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        CustomIcon(iconRes = R.drawable.icheartrate, contentDescription = null, tint = Primary, backgroundColor = Primary.copy(alpha = 0.1f), cornerRadius = 8.dp, padding = 4.dp)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("STATUS TUBUH", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = TextSub)
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Row(verticalAlignment = Alignment.Bottom) {
+                        Text(String.format("%.1f", displayBMIValue), fontSize = 42.sp, fontWeight = FontWeight.Bold, color = White)
+                        Text("BMI", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextSub, modifier = Modifier.padding(bottom = 3.dp, start = 5.dp))
+                    }
+                    Spacer(modifier = Modifier.height(14.dp))
+                    // Normal Weight Chip
+                    Surface(
+                        color = Primary,
+                        shape = RoundedCornerShape(100)
+                    ) {
+                        Row(modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Icon(painterResource(R.drawable.iccheck), null, tint = Black, modifier = Modifier.size(14.dp))
+                            Spacer(Modifier.width(4.dp))
+                            Text("BERAT ${displayBMICategory.toString()}" , fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Black)
+                        }
                     }
                 }
-            }
 
-            Card(modifier = Modifier.size(100.dp), RoundedCornerShape(18.dp)) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color(0xFFE8D9C4))
+                Card(
+                    modifier = Modifier.size(110.dp), // Ukuran sedikit lebih proporsional
+                    shape = RoundedCornerShape(24.dp), // Lebih rounded agar modern
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF2C2C2E)) // Background card gelap
                 ) {
-                    Column(
-                        modifier = Modifier.align(Alignment.Center),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        CustomIcon(
-                            iconRes = R.drawable.jump,
-                            contentDescription = null,
-                            tint = White,
-                            modifier = Modifier.size(56.dp)
-                        )
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        // Efek Pattern titik-titik atau glow di background card
+                        Canvas(modifier = Modifier.fillMaxSize()) {
+                            drawCircle(
+                                color = Primary.copy(alpha = 0.1f),
+                                radius = size.minDimension / 1.5f,
+                                center = Offset(size.width, 0f) // Glow di pojok
+                            )
+                        }
+
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            CustomIcon(
+                                iconRes = R.drawable.jump,
+                                contentDescription = null,
+                                tint = Primary, // Icon warna lime
+                                modifier = Modifier.size(100.dp)
+                            )
+                        }
                     }
                 }
             }
         }
+
     }
 }
 
 @Composable
-fun ProgressSection() {
+fun ProgressSection(
+    todayCalories : Int,
+    todayExercise : Int
+) {
     Column {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("PROGRES HARIAN", fontWeight = FontWeight.Black, color = TextMain)
+            Text("PROGRES HARIAN", fontWeight = FontWeight.Black, color = White)
         }
         Spacer(modifier = Modifier.height(16.dp))
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -244,27 +285,58 @@ fun ProgressSection() {
                 modifier = Modifier
                     .weight(1f)
                     .height(140.dp)
-                    .background(Brush.verticalGradient(listOf(Primary, Color(0xFF991B1B))), RoundedCornerShape(18.dp))
+                    .background(Card, RoundedCornerShape(12.dp))
                     .padding(16.dp)
             ) {
-                Icon(painterResource(R.drawable.icfire), null, tint = White.copy(0.3f), modifier = Modifier.size(60.dp).align(Alignment.BottomEnd))
+                Box(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .align(Alignment.BottomEnd)
+                        .offset(x = 20.dp, y = (30).dp)
+                        .background(
+                            Brush.radialGradient(
+                                colors = listOf(
+                                    colFire.copy(alpha = 0.07f),
+                                    Color.Transparent
+                                )
+                            )
+                        )
+                )
+                Icon(painterResource(R.drawable.icfire), null, tint = colFire.copy(0.1f), modifier = Modifier.size(50.dp).align(Alignment.BottomEnd))
                 Column {
-                    CustomIcon(R.drawable.icfire, null, tint = Primary, backgroundColor = White, cornerRadius = 50.dp, padding = 6.dp)
+                    CustomIcon(R.drawable.icfire, null, tint = colFire, backgroundColor = colFire.copy(0.3f), cornerRadius = 50.dp, padding = 6.dp)
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text("KALORI TERBAKAR", fontSize = 10.sp, color = White.copy(0.8f), fontWeight = FontWeight.Bold)
-                    Text("450 Kal", fontSize = 20.sp, color = White, fontWeight = FontWeight.Black)
+                    Text("KALORI TERBAKAR", fontSize = 12.sp, color = TextSub, fontWeight = FontWeight.Bold)
+                    Text("${todayCalories} Kal", fontSize = 24.sp, color = White, fontWeight = FontWeight.Black)
                 }
             }
-            Card(
-                modifier = Modifier.weight(1f).height(140.dp),
-                shape = RoundedCornerShape(18.dp),
-                colors = CardDefaults.cardColors(containerColor = Background)
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(140.dp)
+                    .background(Card, RoundedCornerShape(12.dp))
+                    .padding(16.dp)
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    CustomIcon(R.drawable.icheartrate, null, tint = Color(0xFF3B82F6), backgroundColor = Color(0xFFDBEAFE), cornerRadius = 50.dp, padding = 6.dp)
+                Box(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .align(Alignment.BottomEnd)
+                        .offset(x = 20.dp, y = (30).dp)
+                        .background(
+                            Brush.radialGradient(
+                                colors = listOf(
+                                    colHeart.copy(alpha = 0.07f),
+                                    Color.Transparent
+                                )
+                            )
+                        )
+                )
+                Icon(painterResource(R.drawable.icheartrate), null, tint = colHeart.copy( alpha = 0.1f), modifier = Modifier.size(50.dp).align(Alignment.BottomEnd))
+                Column {
+                    CustomIcon(R.drawable.icheartrate, null, tint = colHeart, backgroundColor = colHeart.copy(0.3f), cornerRadius = 50.dp, padding = 6.dp)
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text("LATIHAN", fontSize = 10.sp, color = TextSub, fontWeight = FontWeight.Bold)
-                    Text("3", fontSize = 24.sp, color = TextMain, fontWeight = FontWeight.Black)
+                    Text("LATIHAN", fontSize = 12.sp, color = TextSub, fontWeight = FontWeight.Bold)
+                    Text(todayExercise.toString(), fontSize = 24.sp, color = White, fontWeight = FontWeight.Black)
                 }
             }
         }
@@ -276,14 +348,14 @@ fun QuickAction(
     onActionClick : () -> Unit
 ) {
     Column {
-        Text("AKSI CEPAT", fontWeight = FontWeight.Black, color = TextMain)
+        Text("AKSI CEPAT", fontWeight = FontWeight.Black, color = White)
         Spacer(modifier = Modifier.height(16.dp))
         Card(
             onClick = { onActionClick() },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(180.dp),
-            shape = RoundedCornerShape(18.dp)
+            shape = RoundedCornerShape(12.dp)
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
 
@@ -291,7 +363,7 @@ fun QuickAction(
                     painter = painterResource(R.drawable.bgta),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
                 )
                 Box(
                     modifier = Modifier
@@ -301,7 +373,7 @@ fun QuickAction(
 
                 Column(
                     modifier = Modifier
-                        .align(Alignment.BottomStart) // ⬅️ INI KUNCINYA
+                        .align(Alignment.BottomStart)
                         .padding(20.dp)
                 ) {
 
@@ -312,7 +384,7 @@ fun QuickAction(
                         Text(
                             "REKOMENDASI",
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp),
-                            color = White,
+                            color = Black,
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -330,25 +402,37 @@ fun QuickAction(
 
                     Spacer(Modifier.height(12.dp))
 
-                    Button(
-                        onClick = {
-                            onActionClick()
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = White),
-                        shape = RoundedCornerShape(50),
-                        contentPadding = PaddingValues(horizontal = 16.dp)
+                    Surface(
+                        onClick = { onActionClick() },
+                        color = Primary, // Putih agar kontras di atas hitam
+                        shape = RoundedCornerShape(50.dp)
                     ) {
-                        Text("Klik Sekarang", color = TextMain, fontWeight = FontWeight.Bold)
-                        Spacer(Modifier.width(8.dp))
-                        CustomIcon(
-                            R.drawable.icarrowr,
-                            null,
-                            tint = White,
-                            backgroundColor = Primary,
-                            cornerRadius = 50.dp,
-                            padding = 2.dp,
-                            modifier = Modifier.size(18.dp)
-                        )
+                        Row(
+                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "MULAI SEKARANG",
+                                color = Color.Black,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            // Ikon lingkaran hitam kecil
+                            Box(
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .background(Color.Black, CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.icarrowr),
+                                    contentDescription = null,
+                                    tint = Primary,
+                                    modifier = Modifier.size(12.dp)
+                                )
+                            }
+                        }
                     }
             }
             }

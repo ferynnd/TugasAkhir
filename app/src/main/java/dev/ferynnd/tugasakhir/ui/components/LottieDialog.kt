@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -77,7 +78,7 @@ fun LottieDialog(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.45f)),
+                .background(Card.copy(alpha = 0.45f)),
             contentAlignment = Alignment.Center
         ) {
 
@@ -92,9 +93,9 @@ fun LottieDialog(
                         .padding(horizontal = 24.dp)
                         .fillMaxWidth()
                         .wrapContentHeight(),
-                    shape = RoundedCornerShape(28.dp),
+                    shape = RoundedCornerShape(12.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = White
+                        containerColor = Card
                     ),
                     elevation = CardDefaults.cardElevation(
                         defaultElevation = 12.dp
@@ -116,7 +117,7 @@ fun LottieDialog(
                                 .fillMaxWidth()
                                 .padding(bottom = 20.dp)
                                 .height(140.dp),
-                            shape = RoundedCornerShape(20.dp),
+                            shape = RoundedCornerShape(12.dp),
                             colors = CardDefaults.cardColors(
                                 containerColor = colorBg
                             ),
@@ -137,9 +138,9 @@ fun LottieDialog(
                             style = Typography.titleLarge,
                             text = title,
                             fontFamily = Geist,
-                            color = TextMain,
+                            color = White,
                             textAlign = TextAlign.Center,
-                            fontSize = 16.sp
+                            fontSize = 20.sp
                         )
 
                         Spacer(Modifier.height(8.dp))
@@ -150,7 +151,7 @@ fun LottieDialog(
                             style = Typography.bodyMedium,
                             color = TextSub,
                             textAlign = TextAlign.Center,
-                            fontSize = 13.sp
+                            fontSize = 14.sp
                         )
 
                         Spacer(Modifier.height(28.dp))
@@ -164,9 +165,9 @@ fun LottieDialog(
                                 OutlinedButton(
                                     onClick = onDismiss,
                                     shape = RoundedCornerShape(12.dp),
-                                    modifier = Modifier.height(44.dp)
+                                    modifier = Modifier.height(50.dp)
                                 ) {
-                                    Text(it)
+                                    Text(it, color = White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                                 }
 
                                 Spacer(Modifier.width(12.dp))
@@ -175,9 +176,9 @@ fun LottieDialog(
                             Button(
                                 onClick = onConfirm,
                                 shape = RoundedCornerShape(12.dp),
-                                modifier = Modifier.height(44.dp)
+                                modifier = Modifier.height(50.dp)
                             ) {
-                                Text(confirmText, color = White)
+                                Text(confirmText, color = Black, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                             }
                         }
                     }

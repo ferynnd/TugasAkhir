@@ -14,6 +14,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.ferynnd.tugasakhir.ui.theme.Primary // Warna merah Anda
 import dev.ferynnd.tugasakhir.R
+import dev.ferynnd.tugasakhir.ui.theme.Background
+import dev.ferynnd.tugasakhir.ui.theme.Card
 import dev.ferynnd.tugasakhir.ui.theme.White
 
 @Composable
@@ -21,12 +23,10 @@ fun MainBottomNav (
     currentRoute: String?,
     onNavigate: (String) -> Unit
 ) {
-    val context = LocalContext.current
-
     Box(contentAlignment = Alignment.BottomCenter) {
      NavigationBar(
-            containerColor = White,
-            tonalElevation = 0.dp,
+            containerColor = Card,
+            tonalElevation = 1.dp,
         ) {
             NavigationBarItem(
                 selected = currentRoute == "home",

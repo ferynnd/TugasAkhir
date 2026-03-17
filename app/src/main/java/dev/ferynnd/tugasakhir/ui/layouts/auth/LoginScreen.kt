@@ -2,11 +2,14 @@ package dev.ferynnd.tugasakhir.ui.layouts.auth
 
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
@@ -34,6 +37,8 @@ import dev.ferynnd.tugasakhir.data.remote.supabase.SupabaseClient
 import dev.ferynnd.tugasakhir.data.viewmodel.AuthViewModel
 import dev.ferynnd.tugasakhir.ui.components.CustomIcon
 import dev.ferynnd.tugasakhir.ui.components.LottieDialog
+import dev.ferynnd.tugasakhir.ui.layouts.ProfileInput
+import dev.ferynnd.tugasakhir.ui.theme.Background
 import dev.ferynnd.tugasakhir.ui.theme.Border
 import dev.ferynnd.tugasakhir.ui.theme.Primary
 import dev.ferynnd.tugasakhir.ui.theme.TextMain
@@ -90,13 +95,11 @@ fun LoginScreen(
         }
     )
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .padding(horizontal = 24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    Scaffold(
+        containerColor = Background // Pastikan ini warna hitam pekat/dark
+    ) { paddingValues ->
+
+        // Dialog Lottie tetap di luar scroll agar selalu di tengah layar
         dialogState?.let { state ->
             LottieDialog(
                 lottieRes = state.lottieRes,
@@ -109,154 +112,157 @@ fun LoginScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(60.dp))
-        Box(
-            modifier = Modifier
-                .size(120.dp)
-                .background(
-                    brush = Brush.verticalGradient(listOf(Primary, Color(0xFFB0161D))),
-                    shape = CircleShape
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-//            CustomIcon(
-//                iconRes = R.drawable.jump,
-//                contentDescription = null,
-//                tint = Color.White,
-//                modifier = Modifier.size(100.dp)
-//            )
-              Text("LOGO", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.White)
-        }
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Text(
-            text = "Login",
-            fontSize = 32.sp,
-            fontWeight = FontWeight.Bold,
-            color = TextMain
-        )
-        Text(
-            text = "Enter your email and password to login",
-            fontSize = 16.sp,
-            color = TextSub,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(top = 8.dp)
-        )
-
-        Spacer(modifier = Modifier.height(40.dp))
-
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Text("Email", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = TextSub, modifier = Modifier.padding(bottom = 8.dp))
-            OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
-                placeholder = { Text("students@pnm.ac.id", color = Color.LightGray) },
-                leadingIcon = { CustomIcon(R.drawable.icmail, null, tint = Color.LightGray) },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Border)
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Text("Password", fontWeight = FontWeight.SemiBold, fontSize = 14.sp,  color = TextSub, modifier = Modifier.padding(bottom = 8.dp))
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                placeholder = { Text("••••••••", color = Color.LightGray) },
-                leadingIcon = { Icon(Icons.Default.Lock, null, tint = Color.LightGray) },
-                trailingIcon = {
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        CustomIcon(
-                            iconRes = if (passwordVisible) R.drawable.iceyeon else R.drawable.iceyeoff,
-                            contentDescription = if (passwordVisible) "Sembunyikan password" else "Tampilkan password",
-                            tint = Color.LightGray
+        // Gunakan Box untuk menaruh efek background glow di belakang
+        Box(modifier = Modifier.fillMaxSize()) {
+            // Efek Cahaya Glow di pojok kiri atas
+            Box(
+                modifier = Modifier
+                    .size(300.dp)
+                    .offset(x = (-150).dp, y = (-100).dp)
+                    .background(
+                        Brush.radialGradient(
+                            colors = listOf(Primary.copy(alpha = 0.15f), Color.Transparent)
                         )
-                    }
-                },
-                visualTransformation = if (passwordVisible) PasswordVisualTransformation() else VisualTransformation.None,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Border)
+                    )
             )
-        }
 
-        TextButton(
-            onClick = {
-                Toast.makeText(context, "Coming soon...", Toast.LENGTH_SHORT).show()
-            },
-            modifier = Modifier.align(Alignment.End)
-        ) {
-            Text("Forgot password?", color = TextSub, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-        }
+            // Konten utama yang bisa di-scroll
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .verticalScroll(rememberScrollState()) // INI AGAR BISA DI-SCROLL
+                    .padding(horizontal = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(60.dp))
 
-        Spacer(modifier = Modifier.height(24.dp))
+                // Logo dengan tema baru
+                Box(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .background(
+                            brush = Brush.verticalGradient(listOf(Primary, Color(0xFF9DBB2D))),
+                            shape = CircleShape
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("B", fontSize = 40.sp, fontWeight = FontWeight.Black, color = Color.Black)
+                }
 
-        Button(
-            onClick = { viewModel.validateInputLogin(email, password) },
-            enabled = !viewModel.isLoading,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Primary)
-        ) {
-            if (viewModel.isLoading) CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
-            else Text("Sign In", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
-        }
+                Spacer(modifier = Modifier.height(32.dp))
 
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            HorizontalDivider(modifier = Modifier.weight(1f), color = Border)
-            Text(" Or continue with ", color = Color.Gray, fontSize = 14.sp, modifier = Modifier.padding(horizontal = 8.dp))
-            HorizontalDivider(modifier = Modifier.weight(1f), color = Border)
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        OutlinedButton(
-            onClick = { googleLoginAction.startFlow() },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Black),
-            border = androidx.compose.foundation.BorderStroke(1.dp, Border)
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    painter = painterResource(id = R.drawable.icgoogle), // Ganti dengan R.drawable.ic_google jika ada
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp),
-                    tint = Color.Unspecified
+                Text(
+                    text = "MASUK",
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Black,
+                    color = Color.White,
+                    letterSpacing = (-1).sp
                 )
-                Spacer(modifier = Modifier.width(12.dp))
-                Text("Sign in with Google", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                Text(
+                    text = "Gunakan akun mahasiswa PNM Anda untuk melanjutkan",
+                    fontSize = 14.sp,
+                    color = Color.Gray,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(10.dp),
+                    lineHeight = 20.sp
+                )
+
+                Spacer(modifier = Modifier.height(40.dp))
+
+                // Form Input
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    ProfileInput(
+                        label = "Email",
+                        placeholder = "Masukkan email Anda",
+                        value = email,
+                        onValueChange = { email = it }
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    ProfileInput(
+                        label = "Password",
+                        placeholder = "Masukkan kata sandi Anda",
+                        value = password,
+                        onValueChange = { password = it },
+                        isPassword = true
+                    )
+
+                }
+
+                TextButton(
+                    onClick = { /* Lupa Password */ },
+                    modifier = Modifier.align(Alignment.End)
+                ) {
+                    Text("Lupa kata sandi?", color = Primary, fontWeight = FontWeight.Medium, fontSize = 14.sp)
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Tombol Sign In (Lime Green)
+                Button(
+                    onClick = { viewModel.validateInputLogin(email, password) },
+                    enabled = !viewModel.isLoading,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Primary)
+                ) {
+                    if (viewModel.isLoading) CircularProgressIndicator(color = Color.Black, modifier = Modifier.size(24.dp))
+                    else Text("MASUK SEKARANG", fontSize = 16.sp, fontWeight = FontWeight.Black, color = Color.Black)
+                }
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                // Divider
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    HorizontalDivider(modifier = Modifier.weight(1f), color = Color.DarkGray)
+                    Text(" ATAU ", color = Color.Gray, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 8.dp))
+                    HorizontalDivider(modifier = Modifier.weight(1f), color = Color.DarkGray)
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Google Login
+                OutlinedButton(
+                    onClick = { googleLoginAction.startFlow() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .background(Primary.copy(0.2f)),
+                    shape = RoundedCornerShape(12.dp),
+                    border = BorderStroke(1.5.dp, Primary)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.icgoogle),
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                            tint = Color.Unspecified
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text("Masuk dengan Google", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(48.dp))
+
+                // Footer
+                Row(modifier = Modifier.padding(bottom = 32.dp)) {
+                    Text("Belum punya akun? ", color = Color.Gray, fontSize = 14.sp , fontWeight = FontWeight.Medium)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "Daftar",
+                        color = Primary,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.clickable { onNavToRegister() }
+                    )
+                }
             }
         }
-
-        Spacer(modifier = Modifier.weight(1f))
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Row(modifier = Modifier.padding(bottom = 32.dp)) {
-            Text("Don't have an account? ", color = Color.Gray)
-            Text(
-                text = "Sign up",
-                color = Primary,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.clickable {
-                        try {
-                            onNavToRegister()
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
-                    }
-            )
-        }
     }
-
     if (viewModel.isSuccess) {
         LottieDialog(
             lottieRes = R.raw.success,

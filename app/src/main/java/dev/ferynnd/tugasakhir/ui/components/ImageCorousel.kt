@@ -1,6 +1,7 @@
 package dev.ferynnd.tugasakhir.ui.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.pager.HorizontalPager
@@ -17,6 +18,7 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.ui.PlayerView
 import dev.ferynnd.tugasakhir.data.model.MediaComp
+import dev.ferynnd.tugasakhir.ui.theme.Primary
 
 @Composable
 fun MediaCarousel(
@@ -32,7 +34,9 @@ fun MediaCarousel(
             .fillMaxWidth()
             .padding(10.dp)
             .height(250.dp)
-            .clip(RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(12.dp))
+            .aspectRatio(16 / 9f)
+
     ) {
         HorizontalPager(
             state = pagerState,

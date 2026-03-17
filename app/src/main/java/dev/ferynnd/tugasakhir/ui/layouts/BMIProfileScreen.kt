@@ -1,6 +1,8 @@
 package dev.ferynnd.tugasakhir.ui.layouts
 
 import androidx.compose.foundation.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -80,13 +83,13 @@ fun BMIProfileScreen(
                     modifier = Modifier
                         .size(36.dp)
                         .clip(CircleShape)
-                       .background(Color(0xFFE5E5E5))
+                       .background(Primary)
 
                 ) {
                     CustomIcon(
                         R.drawable.icarrowr,
                         contentDescription = null,
-                        tint = TextSub,
+                        tint = Black,
                         modifier = Modifier
                             .size(24.dp)
                             .graphicsLayer(scaleX = -1f) // Flip horizontal
@@ -128,25 +131,40 @@ fun BMIProfileScreen(
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             // Header Text
-            Column {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
                 Text(
-                    text = "Let's customize",
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Black,
-                    color = TextMain
+                    text = "SESUAIKAN",
+                    style = TextStyle(
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Black,
+                        color = TextSub,
+                        letterSpacing = (-1).sp
+                    )
                 )
+
                 Text(
-                    text = "your metrics",
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Black,
-                    color = Primary
+                    text = "PROFIL TUBUH",
+                    style = TextStyle(
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Primary, // Warna Lime Green andalan
+                        letterSpacing = (-1).sp
+                    )
                 )
-                Spacer(Modifier.height(16.dp))
+
+                Spacer(Modifier.height(10.dp))
+
                 Text(
-                    text = "Accurate body data helps our AI analyze your movements with precision.",
-                    fontSize = 14.sp,
-                    color = TextSub,
-                    lineHeight = 20.sp
+                    text = "Data tubuh yang akurat membantu AI kami menganalisis setiap gerakan Anda dengan presisi tinggi.",
+                    style = TextStyle(
+                        fontSize = 15.sp,
+                        color = TextSub,
+                        lineHeight = 24.sp,
+                        fontWeight = FontWeight.Medium
+                    )
                 )
             }
 
@@ -192,27 +210,27 @@ fun BMIProfileScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Card, RoundedCornerShape(16.dp))
-                        .border(1.dp, Border, RoundedCornerShape(16.dp))
-                        .padding(8.dp),
+                        .background(Black, RoundedCornerShape(16.dp))
+                        .border(1.5.dp, TextSub, RoundedCornerShape(12.dp))
+                        .padding(12.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     IconButton(
                         onClick = { if (weightValue > 0) weightValue-- },
-                        modifier = Modifier.background(Input, RoundedCornerShape(12.dp))
+                        modifier = Modifier.background(Primary, RoundedCornerShape(12.dp))
                     ) {
-                        Text("-", fontSize = 24.sp, color = Primary, fontWeight = FontWeight.Bold)
+                        Text("-", fontSize = 24.sp, color = Black, fontWeight = FontWeight.Bold)
                     }
                     Row(verticalAlignment = Alignment.Bottom) {
-                        Text(weightValue.toString(), fontSize = 28.sp, fontWeight = FontWeight.Black, color = TextMain)
+                        Text(weightValue.toString(), fontSize = 28.sp, fontWeight = FontWeight.Black, color = TextSub)
                         Text(" kg", fontSize = 14.sp, color = TextSub, modifier = Modifier.padding(bottom = 6.dp))
                     }
                     IconButton(
                         onClick = { weightValue++ },
-                        modifier = Modifier.background(Input, RoundedCornerShape(12.dp))
+                        modifier = Modifier.background(Primary, RoundedCornerShape(12.dp))
                     ) {
-                        Text("+", fontSize = 24.sp, color = Primary, fontWeight = FontWeight.Bold)
+                        Text("+", fontSize = 24.sp, color = Black, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -244,10 +262,10 @@ fun BMIProfileScreen(
                 },
                 modifier = Modifier.fillMaxWidth().height(54.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Primary),
-                shape = RoundedCornerShape(14.dp)
+                shape = RoundedCornerShape(12.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Save Profile", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = White)
+                    Text("SIMPAN PROFIL", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = Black)
                 }
             }
             Spacer(modifier = Modifier.height(24.dp))
@@ -273,9 +291,9 @@ fun BMIProfileScreen(
 fun GenderCard(modifier: Modifier, label: String, isSelected: Boolean, onClick: () -> Unit) {
     Surface(
         modifier = modifier.height(60.dp).clickable { onClick() },
-        shape = RoundedCornerShape(16.dp),
-        color = if (isSelected) Primary.copy(alpha = 0.05f) else Card,
-        border = BorderStroke(1.5.dp, if (isSelected) Primary else Border)
+        shape = RoundedCornerShape(12.dp),
+        color = if (isSelected) Primary.copy(alpha = 0.1f) else Black,
+        border = BorderStroke(1.5.dp, if (isSelected) Primary else TextSub)
     ) {
         Box(
             modifier = Modifier.fillMaxSize() // Mengisi seluruh area Surface/Card
@@ -294,7 +312,7 @@ fun GenderCard(modifier: Modifier, label: String, isSelected: Boolean, onClick: 
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = label,
-                        color = if (isSelected) Primary else TextMain,
+                        color = if (isSelected) Primary else TextSub,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -310,6 +328,14 @@ fun InputMetricField(
     onValueChange: (String) -> Unit, // Callback untuk update state
     unit: String
 ) {
+    // Menambahkan deteksi fokus (apakah sedang diketik)
+    val interactionSource = remember { MutableInteractionSource() }
+    val isFocused by interactionSource.collectIsFocusedAsState()
+
+    // Tentukan warna border berdasarkan kondisi fokus atau isi
+    val borderColor = if (isFocused ) Primary else TextSub
+    val textColor = if (isFocused ) Color.White else TextSub
+
     Column(modifier = modifier) {
         Text(
             text = label,
@@ -322,8 +348,8 @@ fun InputMetricField(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Card, RoundedCornerShape(16.dp))
-                .border(1.dp, Border, RoundedCornerShape(16.dp))
+                .background(Black, RoundedCornerShape(12.dp))
+                .border(1.5.dp, borderColor, RoundedCornerShape(12.dp))
                 .padding(16.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.Bottom
@@ -335,7 +361,7 @@ fun InputMetricField(
                 textStyle = LocalTextStyle.current.copy(
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Black,
-                    color = TextMain,
+                    color = textColor,
                     textAlign = TextAlign.Center
                 ),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -363,9 +389,10 @@ fun InputMetricField(
             )
 
             Text(
-                text = " $unit",
-                fontSize = 12.sp,
-                color = TextSub,
+                text = unit.uppercase(),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = if (isFocused) Primary else TextSub,
                 modifier = Modifier.padding(bottom = 4.dp)
             )
         }
@@ -399,9 +426,9 @@ fun BMICardEdit(height: Int, weight: Int) {
     val (bmiResult, categoryName, bmiProgress) = bmiData
 
     Card(
-        modifier = Modifier.fillMaxWidth().border(1.dp, Border, RoundedCornerShape(24.dp)),
-        colors = CardDefaults.cardColors(containerColor = White),
-        shape = RoundedCornerShape(24.dp),
+        modifier = Modifier.fillMaxWidth().border(1.5.dp, TextSub, RoundedCornerShape(12.dp)),
+        colors = CardDefaults.cardColors(containerColor = Black),
+        shape = RoundedCornerShape(12.dp),
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Row(
@@ -410,42 +437,27 @@ fun BMICardEdit(height: Int, weight: Int) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    Text("Body Mass Index", fontSize = 14.sp, color = TextSub, fontWeight = FontWeight.Bold)
+                    Text("INDEKS MASSA TUBUH", fontSize = 14.sp, color = TextSub, fontWeight = FontWeight.Bold)
                     // Menampilkan 1 angka di belakang koma
                     Text(
                         text = String.format("%.1f", bmiResult),
-                        fontSize = 28.sp,
+                        fontSize = 32.sp,
                         fontWeight = FontWeight.Black,
-                        color = TextMain
+                        color = Primary
                     )
                 }
 
-                // Status Badge (Warna berubah sesuai kategori)
                 Surface(
-                    color = if (categoryName == "Normal") Color(0xFFDCFCE7) else Color(0xFFFFEBEE),
-                    shape = RoundedCornerShape(50)
+                    color = Primary,
+                    shape = RoundedCornerShape(100)
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
-                    ) {
-                        if (categoryName == "Normal") {
-                            Icon(
-                                painter = painterResource(id = R.drawable.iccheck),
-                                contentDescription = null,
-                                tint = Color(0xFF166534),
-                                modifier = Modifier.size(14.dp)
-                            )
-                            Spacer(Modifier.width(4.dp))
-                        }
-                        Text(
-                            text = categoryName,
-                            color = if (categoryName == "Normal") Color(0xFF166534) else Color(0xFFC62828),
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                    Row(modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(painterResource(R.drawable.iccheck), null, tint = Black, modifier = Modifier.size(14.dp))
+                        Spacer(Modifier.width(4.dp))
+                        Text("BERAT ${categoryName.uppercase()}" , fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Black)
                     }
                 }
+
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -471,10 +483,8 @@ fun BMICardEdit(height: Int, weight: Int) {
                         .background(
                             Brush.horizontalGradient(
                                 listOf(
-                                    Color(0xFF2196F3), // Blue
-                                    Color(0xFF00C853), // Green
-                                    Color(0xFFFFC107), // Yellow/Orange
-                                    Color(0xFFF44336)  // Red
+                                    Primary.copy(alpha = 0.3f),
+                                    Primary
                                 )
                             )
                         )

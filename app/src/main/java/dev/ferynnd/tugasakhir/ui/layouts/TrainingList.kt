@@ -37,7 +37,6 @@ fun TrainingList(navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
                 .padding(paddingValues)
                 .padding(horizontal = 20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -46,15 +45,15 @@ fun TrainingList(navController: NavController) {
 
             Column {
                 Text(
-                    text = "Pilih Latihan",
+                    text = "PILIH LATIHAN",
                     fontSize = 24.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = TextMain
+                    fontWeight = FontWeight.Bold,
+                    color = TextSub
                 )
                 Text(
-                    text = "Untuk Kamu",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.ExtraBold,
+                    text = "FAVORIT KAMU",
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold,
                     color = Primary
                 )
             }

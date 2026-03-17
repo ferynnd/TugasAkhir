@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -48,11 +49,15 @@ import dev.ferynnd.tugasakhir.data.remote.supabase.SupabaseClient
 import dev.ferynnd.tugasakhir.data.viewmodel.AuthViewModel
 import dev.ferynnd.tugasakhir.data.viewmodel.UserViewModel
 import dev.ferynnd.tugasakhir.ui.components.LottieDialog
+import dev.ferynnd.tugasakhir.ui.theme.Background
+import dev.ferynnd.tugasakhir.ui.theme.Black
 import dev.ferynnd.tugasakhir.ui.theme.Border
+import dev.ferynnd.tugasakhir.ui.theme.Card
 import dev.ferynnd.tugasakhir.ui.theme.Primary
 import dev.ferynnd.tugasakhir.ui.theme.TextSub
 import dev.ferynnd.tugasakhir.ui.theme.White
 import dev.ferynnd.tugasakhir.ui.theme.colError
+import dev.ferynnd.tugasakhir.ui.theme.colFire
 import dev.ferynnd.tugasakhir.ui.theme.colSuccess
 import dev.ferynnd.tugasakhir.ui.theme.colWarning
 import io.github.jan.supabase.auth.auth
@@ -116,7 +121,6 @@ fun EditProfileScreen(
     }
 
     Scaffold(
-        containerColor = Color.White,
         topBar = {
             Row(
                 modifier = Modifier
@@ -130,13 +134,13 @@ fun EditProfileScreen(
                     modifier = Modifier
                         .size(36.dp)
                         .clip(CircleShape)
-                       .background(Color(0xFFE5E5E5))
+                       .background(Primary)
 
                 ) {
                     CustomIcon(
                         R.drawable.icarrowr,
                         contentDescription = null,
-                        tint = TextSub,
+                        tint = Black,
                         modifier = Modifier
                             .size(24.dp)
                             .graphicsLayer(scaleX = -1f) // Flip horizontal
@@ -147,14 +151,15 @@ fun EditProfileScreen(
                 Spacer(modifier = Modifier.weight(1f))
 
                 Text(
-                    text = "Edit Profile",
+                    text = "UBAH PROFIL",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color.Black
+                    color = White
                 )
 
             }
         },
+        containerColor = Background,
     ) { padding ->
 
          dialogState?.let { state ->
@@ -180,34 +185,36 @@ fun EditProfileScreen(
             Spacer(Modifier.height(24.dp))
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Box(
-                    modifier = Modifier
-                        .size(120.dp)
-                        .background(Color(0xFFE0E0E0), CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
+                Box {
                     AsyncImage(
-                       model = ImageRequest.Builder(LocalContext.current)
-                                .data( avatar)
-                                .crossfade(true)
-                                .size(Size(300, 300)) // Batasi resolusi yang di-render di memori
-                                .build(),
-                        contentDescription = null,
-                        modifier = Modifier.size(120.dp).clip(CircleShape),
-                        contentScale = ContentScale.Crop,
-                        placeholder = painterResource(R.drawable.placeholder),
-                        error = painterResource(R.drawable.placeholder)
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(avatar)
+                            .size(128) // sesuai UI
+                            .crossfade(false)
+                            .build(),
+                        contentDescription = "Image Profil User",
+                        modifier = Modifier
+                            .size(120.dp)
+                            .clip(CircleShape)
+                            .border(3.dp, Primary, CircleShape),
+                        contentScale = ContentScale.Fit,
+                        placeholder = painterResource(R.drawable.placeholder), error = painterResource(R.drawable.placeholder)
                     )
                 }
 
-                Text(
-                    "Change Photo",
-                    modifier = Modifier
-                        .padding(top = 8.dp)
-                        .clickable { launcher.launch("image/*") }, // Buka galeri
-                    color = Color.Red,
-                    fontSize = 14.sp
-                )
+                Surface(
+                    color = Primary,
+                    shape = RoundedCornerShape(100),
+                    onClick = { launcher.launch("image/*") }, // Buka galeri
+                ) {
+                    Text(
+                        "UBAH GAMBAR",
+                        fontWeight = FontWeight.SemiBold,
+                        color = Black,
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                    )
+                }
             }
 
             Spacer(Modifier.height(32.dp))
@@ -278,9 +285,9 @@ fun EditProfileScreen(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(52.dp),
-                    shape = RoundedCornerShape(14.dp),
-                    border = BorderStroke(1.dp, TextSub),
+                        .height(56.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    border = BorderStroke(1.5.dp, TextSub),
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = TextSub.copy(alpha = 0.15f), // Pindahkan background ke sini agar rapi
                         contentColor = TextSub
@@ -300,7 +307,7 @@ fun EditProfileScreen(
                         )
                         Spacer(Modifier.width(12.dp)) // Jarak antara icon dan teks
                         Text(
-                            text = "Change Password",
+                            text = "UBAH PASSWORD",
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 16.sp,
                             color = TextSub
@@ -318,12 +325,12 @@ fun EditProfileScreen(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(52.dp),
-                shape = RoundedCornerShape(14.dp),
-                border = BorderStroke(1.dp, Primary),
+                    .height(56.dp),
+                shape = RoundedCornerShape(12.dp),
+                border = BorderStroke(1.5.dp, colFire),
                 colors = ButtonDefaults.outlinedButtonColors(
-                    containerColor = Primary.copy(alpha = 0.15f),
-                    contentColor = Primary
+                    containerColor = colFire.copy(alpha = 0.15f),
+                    contentColor = colFire
                 ),
                 contentPadding = PaddingValues(horizontal = 20.dp)
             ) {
@@ -335,15 +342,15 @@ fun EditProfileScreen(
                     Icon(
                         painter = painterResource(R.drawable.logoout),
                         contentDescription = null,
-                        tint = Primary,
+                        tint = colFire,
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(Modifier.width(12.dp))
                     Text(
-                        text = "Log Out",
+                        text = "KELUAR  AKUN",
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp,
-                        color = Primary
+                        color = colFire
                     )
                 }
             }
@@ -397,39 +404,62 @@ fun ProfileInput(
     label: String,
     value: String,
     onValueChange: (String) -> Unit,
+    placeholder: String? = null,
     enabled: Boolean = true,
     isPassword: Boolean = false
 ) {
+    var passwordVisible by remember { mutableStateOf(false) }
     Column {
         Text(
-            text = label,
-            fontWeight = FontWeight.Medium,
-            color = TextSub
+            text = label.uppercase(),
+            fontWeight = FontWeight.Bold,
+            color = TextSub,
+            fontSize = 12.sp
+
         )
 
         Spacer(Modifier.height(6.dp))
 
         OutlinedTextField(
             value = value,
+            placeholder = {
+                if (placeholder != null) Text(text = placeholder.toString(), color = Color.LightGray) else Text(text = "")
+            },
             onValueChange = onValueChange,
             enabled = enabled,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(52.dp),
-            shape = RoundedCornerShape(14.dp),
+                .height(56.dp),
+            shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 // Warna background saat aktif/mati
-                focusedContainerColor = Color(0xFFF0F0F0),
-                unfocusedContainerColor = Color(0xFFF0F0F0),
-                disabledContainerColor = Color(0xFFF0F0F0),
+                focusedContainerColor = Primary.copy(alpha = 0.2f),
+                unfocusedContainerColor = Card,
+                disabledContainerColor = Black,
 
                 focusedBorderColor = Primary,
                 unfocusedBorderColor = TextSub,
                 disabledBorderColor = TextSub.copy(alpha = 0.3f)
             ),
-            visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
-            keyboardOptions = if (isPassword) KeyboardOptions(keyboardType = KeyboardType.Password) else KeyboardOptions.Default,
-
+            textStyle = TextStyle(fontSize = 16.sp, color = White),
+            visualTransformation = if (isPassword && !passwordVisible) PasswordVisualTransformation() else VisualTransformation.None,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = if (isPassword) KeyboardType.Password else KeyboardType.Text
+            ),
+            trailingIcon = {
+                if (isPassword) {
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(
+                            painter = painterResource(
+                                id = if (passwordVisible) R.drawable.iceyeon else R.drawable.iceyeoff
+                            ),
+                            contentDescription = null,
+                            tint = if (passwordVisible) Primary else Color.Gray,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+            }
         )
     }
 }
