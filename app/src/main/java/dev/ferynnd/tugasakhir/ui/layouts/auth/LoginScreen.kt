@@ -40,6 +40,7 @@ import dev.ferynnd.tugasakhir.ui.components.LottieDialog
 import dev.ferynnd.tugasakhir.ui.layouts.ProfileInput
 import dev.ferynnd.tugasakhir.ui.theme.Background
 import dev.ferynnd.tugasakhir.ui.theme.Border
+import dev.ferynnd.tugasakhir.ui.theme.Geist
 import dev.ferynnd.tugasakhir.ui.theme.Primary
 import dev.ferynnd.tugasakhir.ui.theme.TextMain
 import dev.ferynnd.tugasakhir.ui.theme.TextSub
@@ -135,20 +136,13 @@ fun LoginScreen(
                     .padding(horizontal = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(60.dp))
-
                 // Logo dengan tema baru
-                Box(
-                    modifier = Modifier
-                        .size(100.dp)
-                        .background(
-                            brush = Brush.verticalGradient(listOf(Primary, Color(0xFF9DBB2D))),
-                            shape = CircleShape
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("B", fontSize = 40.sp, fontWeight = FontWeight.Black, color = Color.Black)
-                }
+                Icon(
+                    painter = painterResource(id = R.drawable.fitlenlogo),
+                    contentDescription = "Logo",
+                    tint = Primary,
+                    modifier = Modifier.size(180.dp)
+                )
 
                 Spacer(modifier = Modifier.height(32.dp))
 
@@ -160,7 +154,7 @@ fun LoginScreen(
                     letterSpacing = (-1).sp
                 )
                 Text(
-                    text = "Gunakan akun mahasiswa PNM Anda untuk melanjutkan",
+                    text = "Gunakan akun yang terdaftar untuk melanjutkan",
                     fontSize = 14.sp,
                     color = Color.Gray,
                     textAlign = TextAlign.Center,
@@ -243,7 +237,7 @@ fun LoginScreen(
                             tint = Color.Unspecified
                         )
                         Spacer(modifier = Modifier.width(12.dp))
-                        Text("Masuk dengan Google", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                        Text("MASUK DENGAN GOOGLE", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, fontFamily = Geist)
                     }
                 }
 

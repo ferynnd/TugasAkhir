@@ -87,7 +87,7 @@ fun ExerciseCard(
             ) {
                 Box(
                     modifier = Modifier
-                        .size(120.dp)
+                        .size(100.dp)
                         .background(Color.White.copy(alpha = 0.05f), RoundedCornerShape(12.dp)),
                     contentAlignment = Alignment.Center
                 ) {
@@ -174,7 +174,7 @@ fun ExerciseCard(
                                 )
                                 Spacer(Modifier.width(8.dp))
                                 Text(
-                                    "MULAI LATIHAN",
+                                    "MULAI",
                                     fontWeight = FontWeight.Black,
                                     fontSize = 14.sp,
                                     color = Black

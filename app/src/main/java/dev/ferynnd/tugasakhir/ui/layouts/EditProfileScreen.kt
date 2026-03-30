@@ -53,6 +53,7 @@ import dev.ferynnd.tugasakhir.ui.theme.Background
 import dev.ferynnd.tugasakhir.ui.theme.Black
 import dev.ferynnd.tugasakhir.ui.theme.Border
 import dev.ferynnd.tugasakhir.ui.theme.Card
+import dev.ferynnd.tugasakhir.ui.theme.Geist
 import dev.ferynnd.tugasakhir.ui.theme.Primary
 import dev.ferynnd.tugasakhir.ui.theme.TextSub
 import dev.ferynnd.tugasakhir.ui.theme.White
@@ -125,7 +126,6 @@ fun EditProfileScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .statusBarsPadding()
                     .padding(24.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -154,7 +154,8 @@ fun EditProfileScreen(
                     text = "UBAH PROFIL",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = White
+                    color = White,
+                    fontFamily = Geist
                 )
 
             }

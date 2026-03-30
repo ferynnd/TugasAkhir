@@ -12,6 +12,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavDestination
+import androidx.navigation.NavDestination.Companion.hierarchy
 import dev.ferynnd.tugasakhir.ui.theme.Primary // Warna merah Anda
 import dev.ferynnd.tugasakhir.R
 import dev.ferynnd.tugasakhir.ui.theme.Background
@@ -20,7 +22,7 @@ import dev.ferynnd.tugasakhir.ui.theme.White
 
 @Composable
 fun MainBottomNav (
-    currentRoute: String?,
+    currentDestination: NavDestination?,
     onNavigate: (String) -> Unit
 ) {
     Box(contentAlignment = Alignment.BottomCenter) {
@@ -29,7 +31,7 @@ fun MainBottomNav (
             tonalElevation = 1.dp,
         ) {
             NavigationBarItem(
-                selected = currentRoute == "home",
+                selected = currentDestination?.hierarchy?.any { it.route == "home" } == true,
                 onClick = { onNavigate("home") },
                 icon = {
                     Icon(
@@ -43,7 +45,7 @@ fun MainBottomNav (
             )
 
             NavigationBarItem(
-                selected = currentRoute == "trainingList",
+                selected = currentDestination?.hierarchy?.any { it.route == "trainingList" } == true,
                 onClick = { onNavigate("trainingList") },
                 icon = {
                     Icon(
@@ -57,7 +59,7 @@ fun MainBottomNav (
             )
 
             NavigationBarItem(
-                selected = currentRoute == "trainingHistory",
+                selected = currentDestination?.hierarchy?.any { it.route == "trainingHistory" } == true,
                 onClick = { onNavigate("trainingHistory") },
                 icon = {
                     Icon(
@@ -71,7 +73,7 @@ fun MainBottomNav (
             )
 
             NavigationBarItem(
-                selected = currentRoute == "profile",
+                selected = currentDestination?.hierarchy?.any { it.route == "profile" } == true,
                 onClick = { onNavigate("profile") },
                 icon = {
                     Icon(

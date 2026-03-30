@@ -45,6 +45,7 @@ import androidx.navigation.NavController
 import dev.ferynnd.tugasakhir.ui.components.BackButton
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.LifecycleOwner
+import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
 import dev.ferynnd.tugasakhir.data.model.ExerciseCode
 import dev.ferynnd.tugasakhir.data.remote.supabase.SupabaseClient
@@ -78,6 +79,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import dev.ferynnd.tugasakhir.helper.exercise.PostureGate
 import dev.ferynnd.tugasakhir.ui.theme.Background
+import java.util.Optional
 
 @Composable
 fun CameraScreen(
@@ -182,6 +184,9 @@ fun CameraScreen(
     val postureGate = remember { PostureGate(invalidFramesRequired = 10) }
     var isFormCorrect by remember { mutableStateOf(true) }
 
+    val landmarkBuffer = remember { ArrayDeque<List<NormalizedLandmark>>() }
+    val BUFFER_SIZE = 5
+
     val poseHelper = remember {
         PoseLandmarkerHelper(
             context,
@@ -230,7 +235,38 @@ fun CameraScreen(
                             if (now - lastUpdateTime.value < 60) return
                             lastUpdateTime.value = now
 
-                            val exerciseLogic = TypeOfExercise(firstPerson)
+                            // ✅ Kumpulkan landmark ke buffer
+                            landmarkBuffer.addLast(firstPerson)
+                            if (landmarkBuffer.size > BUFFER_SIZE) landmarkBuffer.removeFirst()
+
+                            // ✅ Belum cukup frame, skip evaluate dulu
+                            if (landmarkBuffer.isEmpty()) return
+
+                            // ✅ Rata-rata tiap titik landmark dari semua frame di buffer
+                            val landmarkCount = firstPerson.size
+                            val averaged = (0 until landmarkCount).map { i ->
+                                val avgX = landmarkBuffer.map { it[i].x() }.average().toFloat()
+                                val avgY = landmarkBuffer.map { it[i].y() }.average().toFloat()
+                                val avgZ = landmarkBuffer.map { it[i].z() }.average().toFloat()
+                                val avgVis = landmarkBuffer.map {
+                                    it[i].visibility().orElse(0f).toDouble()
+                                }.average().toFloat()
+                                val avgPres = landmarkBuffer.map {
+                                    it[i].presence().orElse(0f).toDouble()
+                                }.average().toFloat()
+
+                                // Buat NormalizedLandmark baru dari nilai rata-rata
+                                NormalizedLandmark.create(
+                                    avgX,
+                                    avgY,
+                                    avgZ,
+                                    Optional.of(avgVis),
+                                    Optional.of(avgPres)
+                                )
+                            }
+
+                            // ✅ Kirim landmark yang sudah di-average ke evaluate
+                            val exerciseLogic = TypeOfExercise(averaged)
 
                             val evaluation = when (exerciseCode) {
                                 ExerciseCode.PUSH_UP ->
@@ -445,7 +481,6 @@ fun CameraScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Background)
-            .statusBarsPadding() // Padding untuk area notch/status bar
     ) {
         Box(
             modifier = Modifier
@@ -522,7 +557,8 @@ fun CameraScreen(
                         finishDialog = true
                     },
                     feedback = feedback ?: "",
-                    elapsedTime = runningSeconds
+                    elapsedTime = runningSeconds,
+                    exerciseName = exerciseCode.name
                 )
             }
         }
@@ -533,6 +569,7 @@ fun CameraScreen(
         QuitDialog(
             onDismissRequest = { quitDialog = false },
             onConfirmQuit = {
+                landmarkBuffer.clear()
                 quitDialog = false // Tutup dialog dulu
                 navController.popBackStack() // Kembali ke route sebelumnya
             }
@@ -544,13 +581,10 @@ fun CameraScreen(
         FinishDialog(
             onDismissRequest = { finishDialog = false },
             onConfirm = {
+                landmarkBuffer.clear()
 
-                val durationMinutes = elapsedSeconds / 60
                 val durationSeconds = elapsedSeconds % 60
 
-                Log.d("HS", "Duration Second: $elapsedSeconds")
-                Log.d("HS", "Duration: $durationMinutes")
-                Log.d("HS","Duration: $durationSeconds")
                 viewModel.storeHistoryExercise(
                     userId = user?.id ?: "",
                     reps = counter,

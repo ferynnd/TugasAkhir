@@ -70,11 +70,10 @@ fun BMIProfileScreen(
 
     Scaffold(
         containerColor = Background,
-          topBar = {
+        topBar = {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .statusBarsPadding()
                     .padding(24.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -83,7 +82,7 @@ fun BMIProfileScreen(
                     modifier = Modifier
                         .size(36.dp)
                         .clip(CircleShape)
-                       .background(Primary)
+                        .background(Primary)
 
                 ) {
                     CustomIcon(
@@ -100,10 +99,10 @@ fun BMIProfileScreen(
                 Spacer(modifier = Modifier.weight(1f))
 
                 Text(
-                    text = "Edit BMI",
+                    text = "UBAH BMI",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color.Black
+                    color = White
                 )
 
             }
@@ -155,32 +154,21 @@ fun BMIProfileScreen(
                     )
                 )
 
-                Spacer(Modifier.height(10.dp))
-
-                Text(
-                    text = "Data tubuh yang akurat membantu AI kami menganalisis setiap gerakan Anda dengan presisi tinggi.",
-                    style = TextStyle(
-                        fontSize = 15.sp,
-                        color = TextSub,
-                        lineHeight = 24.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                )
             }
 
             Column {
-                Text("GENDER", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TextSub)
+                Text("JENIS KELAMIN", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TextSub)
                 Spacer(Modifier.height(8.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     GenderCard(
                         modifier = Modifier.weight(1f),
-                        label = "Male",
+                        label = "Laki - Laki",
                         isSelected = gender == Gender.MALE,
                         onClick = { gender = Gender.MALE }
                     )
                     GenderCard(
                         modifier = Modifier.weight(1f),
-                        label = "Female",
+                        label = "Perempuan",
                         isSelected = gender == Gender.FEMALE,
                         onClick = { gender = Gender.FEMALE }
                     )
@@ -190,14 +178,14 @@ fun BMIProfileScreen(
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 InputMetricField(
                     modifier = Modifier.weight(1f),
-                    label = "AGE",
+                    label = "UMUR",
                     value = ageValue,
                     onValueChange = { if (it.length <= 3) ageValue = it },
-                    unit = "yrs"
+                    unit = "Thn"
                 )
                 InputMetricField(
                     modifier = Modifier.weight(1f),
-                    label = "HEIGHT",
+                    label = "TINGGI",
                     value = heightValue,
                     onValueChange = { if (it.length <= 3) heightValue = it },
                     unit = "cm"
@@ -205,7 +193,7 @@ fun BMIProfileScreen(
             }
 
             Column {
-                Text("WEIGHT", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TextSub)
+                Text("BERAT", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TextSub)
                 Spacer(Modifier.height(8.dp))
                 Row(
                     modifier = Modifier
@@ -262,10 +250,10 @@ fun BMIProfileScreen(
                 },
                 modifier = Modifier.fillMaxWidth().height(54.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Primary),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(28.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("SIMPAN PROFIL", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = Black)
+                    Text("SIMPAN PROFIL", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Black, fontFamily = Geist)
                 }
             }
             Spacer(modifier = Modifier.height(24.dp))

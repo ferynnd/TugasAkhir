@@ -5,7 +5,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material3.Scaffold
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -57,6 +59,7 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
 
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
+                val currentDestination = navBackStackEntry?.destination
                 val currentRoute = navBackStackEntry?.destination?.route
 
                 val showBottomBar = currentRoute in listOf("home", "profile", "trainingList", "trainingHistory")
@@ -65,7 +68,7 @@ class MainActivity : ComponentActivity() {
                     bottomBar = {
                         if (showBottomBar) {
                             MainBottomNav(
-                                currentRoute = currentRoute,
+                                currentDestination = currentDestination,
                                 onNavigate = { targetRoute ->
                                     navController.navigate(targetRoute) {
                                         popUpTo(navController.graph.startDestinationId) {

@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -43,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
@@ -98,17 +101,16 @@ fun ExerciseHistory(
         containerColor = Background, // Pastikan Background adalah warna gelap
     ) { paddingValues ->
         // Gunakan LazyColumn sebagai kontainer utama daripada Column + verticalScroll
+        val layoutDirection = LocalLayoutDirection.current
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 20.dp),
+                .padding( start = paddingValues.calculateStartPadding(layoutDirection) , end = paddingValues.calculateEndPadding(layoutDirection))
+                .padding(horizontal = 20.dp)
+            ,
         ) {
-
             item {
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Row ( horizontalArrangement = Arrangement.spacedBy(5.dp) ) {
+                Row ( horizontalArrangement = Arrangement.spacedBy(5.dp), modifier = Modifier.padding( top = 20.dp) ) {
                     Text(
                         text = "RIWAYAT",
                         fontSize = 24.sp,
@@ -356,23 +358,28 @@ fun HistoryCard(history: HistoryExercise, navController: NavController) {
 
 @Composable
 fun MiniInfoItem(iconRes: Int, text: String, color: Color) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(color.copy(alpha = 0.1f)) // Opsional: tambah background tipis agar lebih estetik
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+    ) {
         Icon(
             painter = painterResource(id = iconRes),
             contentDescription = null,
-            modifier = Modifier.size(12.dp),
-            tint = color.copy(alpha = 0.8f)
+            modifier = Modifier.size(14.dp),
+            tint = color
         )
         Spacer(modifier = Modifier.width(4.dp))
         Text(
             text = text,
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium,
-            color = Color.White.copy(alpha = 0.7f)
+            color = Color.White.copy(alpha = 0.8f)
         )
     }
 }
-
 
 /* Function untuk menentukan icon berdasarkan exercise */
 fun getExerciseIcon(code: String?): Int {

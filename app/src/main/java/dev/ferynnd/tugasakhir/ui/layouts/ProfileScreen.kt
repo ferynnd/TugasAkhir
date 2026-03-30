@@ -89,7 +89,6 @@ fun ProfileScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .statusBarsPadding()
                     .padding(horizontal = 24.dp, vertical = 24.dp),
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
@@ -432,7 +431,7 @@ fun ExpandableFab(
             FloatingActionButton(
                 onClick = { expanded = !expanded },
                 containerColor = Primary,
-                shape = RoundedCornerShape(14),
+                shape = RoundedCornerShape(30),
                 elevation = FloatingActionButtonDefaults.elevation(0.dp),
                 modifier = Modifier.size(60.dp)
             ) {

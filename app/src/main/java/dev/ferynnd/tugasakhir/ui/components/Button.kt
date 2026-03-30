@@ -107,7 +107,7 @@ fun SmallFab(
             .size(56.dp)
             .background(
                 color = Primary.copy(alpha = 0.9f),
-                shape = RoundedCornerShape(12)
+                shape = RoundedCornerShape(30)
             )
             .clickable(onClick = onClick)
     ) {

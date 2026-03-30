@@ -142,7 +142,6 @@ fun TopBarSection(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .statusBarsPadding()
             .padding(20.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -255,11 +254,12 @@ fun BMIStatusCard( displayBMIValue: Double = 0.0, displayBMICategory: CategoryBm
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
-                            CustomIcon(
-                                iconRes = R.drawable.jump,
-                                contentDescription = null,
-                                tint = Primary, // Icon warna lime
-                                modifier = Modifier.size(100.dp)
+                            Icon(
+                                painterResource(R.drawable.fitlenlogo),
+                                null,
+                                tint = Primary,
+                                modifier = Modifier.size(60.dp).padding(bottom = 6.dp)
+
                             )
                         }
                     }
@@ -408,7 +408,7 @@ fun QuickAction(
                         shape = RoundedCornerShape(50.dp)
                     ) {
                         Row(
-                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
+                            modifier = Modifier.padding(horizontal = 20.dp).height(60.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(

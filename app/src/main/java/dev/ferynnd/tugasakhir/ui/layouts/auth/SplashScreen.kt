@@ -8,6 +8,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,6 +22,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
@@ -77,49 +79,15 @@ fun SplashScreen() {
             modifier = Modifier.align(Alignment.Center),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Logo Section (Circle with Rings)
-            Box(contentAlignment = Alignment.Center) {
 
-                Box(Modifier.size(200.dp).border(0.5.dp, Color.LightGray.copy(alpha = 0.2f), CircleShape))
-
-                Box(Modifier.size(160.dp).border(0.5.dp, Color.LightGray.copy(alpha = 0.4f), CircleShape))
-
-                Box(
-                    modifier = Modifier
-                        .size(120.dp)
-                        .background(
-                            brush = Brush.verticalGradient(listOf(Primary, Primary.copy(alpha = 0.5f))),
-                            shape = CircleShape
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-//                    CustomIcon(
-//                        iconRes = R.drawable.jump,
-//                        contentDescription = null,
-//                        tint = Color.White,
-//                        modifier = Modifier.size(100.dp)
-//                    )
-                    Text("LOGO", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                }
-            }
-
-            Spacer(modifier = Modifier.height(48.dp))
-
-            Text(
-//                text = buildAnnotatedString {
-//                    withStyle(style = SpanStyle(color = TextMain, fontWeight = FontWeight.Black, fontStyle = FontStyle.Italic)) {
-//                        append("BLAZE")
-//                    }
-//                    withStyle(style = SpanStyle(color = Primary, fontWeight = FontWeight.Black, fontStyle = FontStyle.Italic)) {
-//                        append("FIT")
-//                    }
-//                },
-                text = "NAMEAPP",
-                color = White,
-                fontWeight = FontWeight.Black,
-                fontSize = 42.sp,
-                letterSpacing = (-1).sp
+            Icon(
+                painter = painterResource(id = R.drawable.fitlenlogo),
+                contentDescription = "Logo",
+                tint = Primary,
+                modifier = Modifier.size(180.dp)
             )
+
+            Spacer(modifier = Modifier.height(20.dp))
 
             Text(
                 text = "E V A L U A T I O N   E N G I N E",
@@ -138,7 +106,7 @@ fun SplashScreen() {
                     verticalAlignment = Alignment.Bottom
                 ) {
                     Text(
-                        text = "LOADING RESOURCES",
+                        text = "LOADING SUMBER DAYA",
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
                         color = TextSub

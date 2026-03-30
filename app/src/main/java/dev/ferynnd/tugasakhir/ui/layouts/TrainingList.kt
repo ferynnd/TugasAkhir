@@ -18,6 +18,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -34,16 +35,18 @@ fun TrainingList(navController: NavController) {
     Scaffold(
         containerColor = Background
     ) { paddingValues ->
+        val layoutDirection = LocalLayoutDirection.current
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding( start = paddingValues.calculateStartPadding(layoutDirection) , end = paddingValues.calculateEndPadding(layoutDirection))
                 .padding(horizontal = 20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Column {
+            Column (
+                modifier = Modifier.padding(top = 20.dp),
+                horizontalAlignment = Alignment.Start
+            ) {
                 Text(
                     text = "PILIH LATIHAN",
                     fontSize = 24.sp,
@@ -58,7 +61,7 @@ fun TrainingList(navController: NavController) {
                 )
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(5.dp))
 
            LazyColumn(
                 modifier = Modifier.fillMaxSize(),

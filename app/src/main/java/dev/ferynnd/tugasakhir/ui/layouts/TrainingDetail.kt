@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
@@ -41,6 +42,7 @@ import dev.ferynnd.tugasakhir.ui.components.*
 import dev.ferynnd.tugasakhir.ui.theme.Background
 import dev.ferynnd.tugasakhir.ui.theme.Black
 import dev.ferynnd.tugasakhir.ui.theme.Card
+import dev.ferynnd.tugasakhir.ui.theme.Geist
 import dev.ferynnd.tugasakhir.ui.theme.Primary
 import dev.ferynnd.tugasakhir.ui.theme.TextSub
 import dev.ferynnd.tugasakhir.ui.theme.White
@@ -68,8 +70,7 @@ fun TrainingDetail(navController: NavController, exerciseId: Int?) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .statusBarsPadding()
-                    .padding(24.dp),
+                    .padding(horizontal = 20.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
@@ -104,10 +105,12 @@ fun TrainingDetail(navController: NavController, exerciseId: Int?) {
         },
     ) { paddingValues ->
 
+         val layotDirection = LocalLayoutDirection.current
+
          Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(top = paddingValues.calculateTopPadding(), start = paddingValues.calculateStartPadding(layotDirection),end = paddingValues.calculateEndPadding(layotDirection))
         ) {
              Column(
                  modifier = Modifier
@@ -222,7 +225,8 @@ fun TrainingDetail(navController: NavController, exerciseId: Int?) {
                              "MULAI LATIHAN",
                              fontWeight = FontWeight.Bold,
                              fontSize = 16.sp,
-                             color = Black
+                             color = Black,
+                             fontFamily = Geist
                          )
                      }
                  }

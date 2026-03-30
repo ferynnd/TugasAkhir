@@ -74,7 +74,6 @@ fun TrainingSummary(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .statusBarsPadding()
                     .padding(24.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -133,7 +132,7 @@ fun TrainingSummary(
                     shape = RoundedCornerShape(28.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Primary)
                 ) {
-                    Text("CLOSE", color = Color.Black, fontWeight = FontWeight.Black)
+                    Text("TUTUP", color = Color.Black, fontSize = 14.sp, fontWeight = FontWeight.Black)
                 }
             }
         }

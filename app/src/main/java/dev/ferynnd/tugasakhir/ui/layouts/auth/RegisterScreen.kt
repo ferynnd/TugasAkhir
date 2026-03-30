@@ -81,8 +81,6 @@ fun RegisterScreen(
                     .padding(horizontal = 24.dp)
                     .verticalScroll(rememberScrollState())
             ) {
-                Spacer(modifier = Modifier.height(40.dp))
-
                 // Header Section
                 Text(
                     text = buildAnnotatedString {

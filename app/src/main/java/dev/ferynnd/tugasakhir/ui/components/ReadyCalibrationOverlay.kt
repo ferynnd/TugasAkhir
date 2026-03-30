@@ -65,18 +65,18 @@ fun ReadyCalibrationOverlay(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Ikon Ilustrasi Minimalis (Sesuai Gambar 2)
-            Box(
-                modifier = Modifier
-                    .size(120.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                CustomIcon(
-                    iconRes = R.drawable.jump,
-                    contentDescription = "Person Icon",
-                    tint = Primary,
-                    modifier = Modifier.size(100.dp)
-                )
-            }
+//            Box(
+//                modifier = Modifier
+//                    .size(120.dp),
+//                contentAlignment = Alignment.Center
+//            ) {
+//                CustomIcon(
+//                    iconRes = R.drawable.jump,
+//                    contentDescription = "Person Icon",
+//                    tint = Primary,
+//                    modifier = Modifier.size(100.dp)
+//                )
+//            }
 
             Text(
                 text = "Tampilkan seluruh tubuh, diam sebentar...",
