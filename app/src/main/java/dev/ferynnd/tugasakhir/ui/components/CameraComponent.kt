@@ -78,7 +78,7 @@ fun RepsBadge(count: Int, modifier: Modifier) {
 }
 
 @Composable
-fun BottomInfoPanel(onEndSessionClick: () -> Unit, feedback: String, elapsedTime: Int, modifier: Modifier) {
+fun BottomInfoPanel(onEndSessionClick: () -> Unit, feedback: String, elapsedTime: Int, modifier: Modifier, exerciseName: String) {
 
     val minutes = elapsedTime / 60
     val seconds = elapsedTime % 60
@@ -139,7 +139,7 @@ fun BottomInfoPanel(onEndSessionClick: () -> Unit, feedback: String, elapsedTime
                 Row(modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                     Icon(painterResource(R.drawable.icbodyscan), null, tint = colFire, modifier = Modifier.size(14.dp))
                     Spacer(Modifier.width(4.dp))
-                    Text("LIVE DETECTION" , fontSize = 12.sp, fontWeight = FontWeight.Bold, color = White)
+                    Text("LIVE ${exerciseName}" , fontSize = 12.sp, fontWeight = FontWeight.Bold, color = White)
                 }
             }
 
