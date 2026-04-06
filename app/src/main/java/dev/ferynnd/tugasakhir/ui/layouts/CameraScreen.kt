@@ -78,6 +78,7 @@ import kotlin.coroutines.resume
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import dev.ferynnd.tugasakhir.helper.exercise.PostureGate
+import dev.ferynnd.tugasakhir.ui.components.OnboardingOverlay
 import dev.ferynnd.tugasakhir.ui.theme.Background
 import java.util.Optional
 
@@ -100,7 +101,7 @@ fun CameraScreen(
         }
     }
 
-    var weightValue by remember { mutableIntStateOf(60) } // Default 60kg
+    var weightValue by remember { mutableIntStateOf(60) }
 
     LaunchedEffect(userViewModel.weightValue) {
         weightValue = userViewModel.weightValue
@@ -114,10 +115,11 @@ fun CameraScreen(
         }
     }
 
+    var screenPhase by remember { mutableStateOf(ScreenPhase.ONBOARDING) }
+
     ////
     /// SPEECH FEEDBACK DLL, MENGIKUTI RECOMPOSE / FRAME DARI DETEKSI
     ///
-
 
     var quitDialog by remember { mutableStateOf(false) }
     var finishDialog by remember { mutableStateOf(false) }
@@ -169,11 +171,11 @@ fun CameraScreen(
     var poseResult by remember { mutableStateOf<PoseLandmarkerResult?>(null) }
     var counter by remember { mutableStateOf(0) }
     var currentState by remember { mutableStateOf(ExerciseState.WAITING_START) }
-    var feedback by remember { mutableStateOf<String?>(null) }
+
+    var rawFeedback by remember { mutableStateOf<String?>(null) }
+    var stableFeedback by remember { mutableStateOf<String?>(null) }
 
     val lastUpdateTime = remember { mutableStateOf(0L) }
-
-    var screenPhase by remember { mutableStateOf(ScreenPhase.WAITING_CALIBRATION) }
 
     val calibrationManager = remember { CalibrationManager(exerciseCode) }
     var calibration by remember { mutableStateOf(BodyCalibration()) }
@@ -207,10 +209,11 @@ fun CameraScreen(
                                     firstPerson[11].visibility().orElse(0f) > 0.5f && // bahu kiri
                                     firstPerson[12].visibility().orElse(0f) > 0.5f && // bahu kanan
                                     firstPerson[23].visibility().orElse(0f) > 0.5f && // pinggul kiri
-                                    firstPerson[24].visibility().orElse(0f) > 0.5f    // pinggul kanan
+                                    firstPerson[24].visibility().orElse(0f) > 0.5f &&   // pinggul kanan
+                                    firstPerson[25].visibility().orElse(0f) > 0.5f &&   // kaki kiri
+                                    firstPerson[26].visibility().orElse(0f) > 0.5f    // kaki kanan
 
                             if (!isBodyVisible) {
-                                // Tubuh tidak terdeteksi — reset progress, minta user perbaiki posisi
                                 calibrationManager.reset()
                                 isBodyDetected = false
                                 calibrationProgress = 0f
@@ -240,7 +243,7 @@ fun CameraScreen(
                             if (landmarkBuffer.size > BUFFER_SIZE) landmarkBuffer.removeFirst()
 
                             // ✅ Belum cukup frame, skip evaluate dulu
-                            if (landmarkBuffer.isEmpty()) return
+                            if (landmarkBuffer.size < BUFFER_SIZE) return
 
                             // ✅ Rata-rata tiap titik landmark dari semua frame di buffer
                             val landmarkCount = firstPerson.size
@@ -255,7 +258,6 @@ fun CameraScreen(
                                     it[i].presence().orElse(0f).toDouble()
                                 }.average().toFloat()
 
-                                // Buat NormalizedLandmark baru dari nilai rata-rata
                                 NormalizedLandmark.create(
                                     avgX,
                                     avgY,
@@ -280,7 +282,7 @@ fun CameraScreen(
                             poseResult = result
                             counter = evaluation.reps
                             currentState = evaluation.state
-                            feedback = evaluation.feedback
+                            rawFeedback  = evaluation.feedback
                             isFormCorrect = evaluation.isCorrect
 
                         }
@@ -405,8 +407,22 @@ fun CameraScreen(
         }
     }
 
-    LaunchedEffect(feedback) {
-        feedback?.let { newFeedback ->
+    LaunchedEffect(rawFeedback) {
+        rawFeedback?.let { newFeedback ->
+
+            if (newFeedback.isBlank() || newFeedback == "-") return@let
+
+            delay(600) // debounce biar stabil
+
+            // kalau selama delay tidak berubah → valid
+            if (newFeedback == rawFeedback) {
+                stableFeedback = newFeedback
+            }
+        }
+    }
+
+    LaunchedEffect(stableFeedback ) {
+        stableFeedback ?.let { newFeedback ->
             if (
                 newFeedback.isBlank() ||
                 newFeedback == "-"
@@ -418,15 +434,12 @@ fun CameraScreen(
             feedbackJob = launch {
                 delay(800)
 
-                if (newFeedback == feedback) {
-                    // ✅ Ucapkan meski sama, tapi batasi dengan waktu
+                if (newFeedback == stableFeedback ) {
                     if (newFeedback != lastFeedbackSpoken) {
                         speakAndWait(newFeedback)
                         lastFeedbackSpoken = newFeedback
 
-                        // ✅ Reset lastFeedbackSpoken setelah 4 detik
-                        // agar feedback yang sama bisa diucapkan lagi
-                        delay(4000)
+                        delay(3000)
                         if (lastFeedbackSpoken == newFeedback) {
                             lastFeedbackSpoken = null
                         }
@@ -449,7 +462,7 @@ fun CameraScreen(
 
             delay(500)
             speakAndWait("Kalibrasi selesai")
-            startCountdown = true  // ✅ trigger effect 2
+            startCountdown = true
         }
     }
 
@@ -474,7 +487,6 @@ fun CameraScreen(
         speakAndWait("Mulai")
         Log.d("COUNTDOWN", ">>> MULAI EXERCISE")
         screenPhase = ScreenPhase.EXERCISE
-        isCountdownActive = false
     }
 
     Column(
@@ -516,11 +528,17 @@ fun CameraScreen(
                     .padding(16.dp)
             )
 
+            if (screenPhase == ScreenPhase.ONBOARDING) {
+                OnboardingOverlay(
+                    exerciseCode = exerciseCode,
+                    onFinish = {
+                        screenPhase = ScreenPhase.WAITING_CALIBRATION
+                    }
+                )
+            }
             // ✅ OVERLAY 1: Siap kalibrasi?
             if (screenPhase == ScreenPhase.WAITING_CALIBRATION) {
                 ReadyCalibrationOverlay(
-                    exerciseCode = exerciseCode,
-                    instruction = calibrationManager.instruction,
                     onStart = {
                         calibrationManager.reset()
                         screenPhase = ScreenPhase.CALIBRATING
@@ -528,21 +546,20 @@ fun CameraScreen(
                 )
             }
 
-            // ✅ OVERLAY 2: Progress kalibrasi
+            //  ✅ OVERLAY 2: Progress kalibrasi
             if (screenPhase == ScreenPhase.CALIBRATING) {
                 CalibrationProgressOverlay(
                     progress = calibrationProgress,
-                    instruction = calibrationManager.instruction,
-                    isBodyDetected = isBodyDetected
+                    isStable = isBodyDetected
                 )
             }
 
-            // ✅ OVERLAY 3: Kalibrasi selesai
+            //  ✅ OVERLAY 3: Kalibrasi selesai
             if (screenPhase == ScreenPhase.CALIBRATION_DONE) {
                 CalibrationDoneOverlay()
             }
 
-            // ✅ OVERLAY 4: Countdown
+            //  ✅ OVERLAY 4: Countdown
             if (screenPhase == ScreenPhase.COUNTDOWN) {
                 CountdownOverlay(countdownValue)
             }
@@ -556,7 +573,7 @@ fun CameraScreen(
                     onEndSessionClick = {
                         finishDialog = true
                     },
-                    feedback = feedback ?: "",
+                    feedback = stableFeedback  ?: "",
                     elapsedTime = runningSeconds,
                     exerciseName = exerciseCode.name
                 )
@@ -599,9 +616,7 @@ fun CameraScreen(
 
     LaunchedEffect(viewModel.lastInsertedId) {
         viewModel.lastInsertedId?.let { newId ->
-            // Navigasi ke summary dengan ID asli dari DB
             navController.navigate("trainingSummary/$newId") {
-                // Bersihkan CameraScreen dari history agar tidak bisa "Back" ke kamera
                 popUpTo("cameraScreen") { inclusive = true }
             }
         }

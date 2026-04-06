@@ -49,54 +49,47 @@ import kotlin.io.path.moveTo
 
 @Composable
 fun ReadyCalibrationOverlay(
-    exerciseCode: ExerciseCode,
-    instruction: String,
     onStart: () -> Unit
 ) {
     Box(
-        modifier = Modifier.fillMaxSize().background(Black.copy(alpha = 0.8f)),
+        modifier = Modifier.fillMaxSize().background(Black.copy(alpha = 0.85f)),
         contentAlignment = Alignment.Center
     ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth(0.85f)
-                .background(Card, RoundedCornerShape(12.dp)) // Dialog Gelap
-                .padding(24.dp),
+                    .fillMaxWidth(0.88f)
+                    .background(Card, RoundedCornerShape(16.dp))
+                    .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Ikon Ilustrasi Minimalis (Sesuai Gambar 2)
-//            Box(
-//                modifier = Modifier
-//                    .size(120.dp),
-//                contentAlignment = Alignment.Center
-//            ) {
-//                CustomIcon(
-//                    iconRes = R.drawable.jump,
-//                    contentDescription = "Person Icon",
-//                    tint = Primary,
-//                    modifier = Modifier.size(100.dp)
-//                )
-//            }
+            Box(
+                modifier = Modifier
+                    .background(Primary.copy(alpha = 0.1f), RoundedCornerShape(50))
+                    .size(80.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                CustomIcon(
+                    iconRes = R.drawable.jump,
+                    contentDescription = "Person Icon",
+                    tint = Primary,
+                    modifier = Modifier.size(60.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(22.dp))
 
             Text(
                 text = "Tampilkan seluruh tubuh, diam sebentar...",
                 textAlign = TextAlign.Center,
                 style = TextStyle(
-                    fontSize = 20.sp,
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text(
-                text = if (instruction.isNotEmpty()) instruction else "-",
-                textAlign = TextAlign.Center,
-                style = TextStyle(fontSize = 14.sp, color = Color.Gray, lineHeight = 20.sp)
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(22.dp))
 
             Button(
                 onClick = onStart,
@@ -104,55 +97,106 @@ fun ReadyCalibrationOverlay(
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Primary)
             ) {
-                Text("Mulai Kalibrasi", color = Color.Black, fontWeight = FontWeight.Black, fontSize = 16.sp)
+                Text("Mulai Sekarang", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 14.sp)
             }
         }
     }
 }
 
 @Composable
-fun CalibrationProgressOverlay(progress: Float, instruction: String, isBodyDetected: Boolean) {
-    Box(modifier = Modifier.fillMaxSize().background(Black.copy(alpha = 0.8f))) {
-        // Bingkai Kamera (Siku di pojok)
-        CameraFrameGuides(modifier = Modifier.fillMaxSize())
+fun CalibrationProgressOverlay(
+    progress: Float,
+    message: String = "Pastikan seluruh tubuh terlihat",
+    isStable: Boolean = false
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Black.copy(alpha = 0.88f))
+    ) {
+
+        // Frame Guide (tetap dipakai)
+//        CameraFrameGuides(modifier = Modifier.fillMaxSize())
 
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Progress Melingkar di Tengah (Sesuai Gambar 3)
+
+            // 🔥 Progress Circle
             Box(contentAlignment = Alignment.Center) {
+
                 CircularProgressIndicator(
                     progress = { progress },
                     modifier = Modifier.size(180.dp),
                     color = Primary,
-                    strokeWidth = 8.dp,
-                    trackColor = Color.White.copy(alpha = 0.2f)
+                    strokeWidth = 10.dp,
+                    trackColor = Color.White.copy(alpha = 0.15f)
                 )
-                Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                    Icon(  painter = painterResource(id = R.drawable.icbodyscan), null, tint = Primary, modifier = Modifier.size(30.dp))
+
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     Text(
                         text = "${(progress * 100).toInt()}%",
-                        style = TextStyle(fontSize = 32.sp, fontWeight = FontWeight.Black, color = Primary)
+                        fontSize = 34.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Primary
+                    )
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    Text(
+                        text = "Kalibrasi",
+                        fontSize = 14.sp,
+                        color = Color.White.copy(alpha = 0.7f)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-            // Glassmorphism Label "Mendeteksi Posisi"
-            Box(
+            // 🔥 Instruction utama (INI PENTING)
+            Text(
+                text = message,
+                color = Color.White,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 🔥 Status Indicator (dinamis)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .clip(RoundedCornerShape(50))
-                    .background(Color.White.copy(alpha = 0.1f))
-                    .padding(horizontal = 24.dp, vertical = 8.dp)
+                    .background(Color.White.copy(alpha = 0.08f))
+                    .padding(horizontal = 20.dp, vertical = 10.dp)
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(modifier = Modifier.size(8.dp).background(Primary, CircleShape))
-                    Spacer(Modifier.width(8.dp))
-                    Text("Mendeteksi Posisi...", color = Color.White, fontWeight = FontWeight.Medium)
-                }
+
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .background(
+                            if (isStable) Primary else Color.Yellow,
+                            CircleShape
+                        )
+                )
+
+                Spacer(modifier = Modifier.width(10.dp))
+
+                Text(
+                    text = if (isStable)
+                        "Posisi stabil, lanjutkan..."
+                    else
+                        "Menyesuaikan posisi...",
+                    color = Color.White,
+                    fontSize = 14.sp
+                )
             }
         }
     }
@@ -163,10 +207,10 @@ fun CalibrationDoneOverlay() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.75f)),
+            .background(Color.Black.copy(alpha = 0.88f)),
         contentAlignment = Alignment.Center
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier =  Modifier.padding(24.dp)) {
             Icon(
                 painter = painterResource(id = R.drawable.iccheck),
                 contentDescription = null,
@@ -191,6 +235,7 @@ fun CalibrationDoneOverlay() {
 }
 
 enum class ScreenPhase {
+    ONBOARDING,           // Overlay awal "Tampilkan seluruh tubuh dulu"
     WAITING_CALIBRATION,  // Overlay awal "Siap kalibrasi?"
     CALIBRATING,          // Progress bar kalibrasi
     CALIBRATION_DONE,     // Selesai, langsung trigger countdown
@@ -201,14 +246,14 @@ enum class ScreenPhase {
 @Composable
 fun CameraFrameGuides(
     modifier: Modifier = Modifier,
-    color: Color = Primary, // Gunakan warna Lime Green Anda
+    color: Color = Primary,
     strokeWidth: Float = 8f,
     cornerLength: Float = 60f
 ) {
     Canvas(modifier = modifier.fillMaxSize()) {
         val width = size.width
         val height = size.height
-        val padding = 40f // Jarak garis dari tepi layar
+        val padding = 40f
 
         // 1. Pojok Kiri Atas
         drawPath(
@@ -255,3 +300,5 @@ fun CameraFrameGuides(
         )
     }
 }
+
+

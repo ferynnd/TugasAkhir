@@ -258,16 +258,6 @@ fun BMICard(
                     )
                 }
 
-                Surface(
-                    color = Primary,
-                    shape = RoundedCornerShape(100)
-                ) {
-                    Row(modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(painterResource(R.drawable.iccheck), null, tint = Black, modifier = Modifier.size(14.dp))
-                        Spacer(Modifier.width(4.dp))
-                        Text("BERAT ${categoryName.toString()}" , fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Black)
-                    }
-                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))

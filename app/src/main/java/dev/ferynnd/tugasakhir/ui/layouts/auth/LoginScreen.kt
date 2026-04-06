@@ -23,6 +23,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -113,8 +114,13 @@ fun LoginScreen(
             )
         }
 
-        // Gunakan Box untuk menaruh efek background glow di belakang
-        Box(modifier = Modifier.fillMaxSize()) {
+        val layotDirection = LocalLayoutDirection.current
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 0.dp, start = paddingValues.calculateStartPadding(layotDirection),end = paddingValues.calculateEndPadding(layotDirection))
+        ){
             // Efek Cahaya Glow di pojok kiri atas
             Box(
                 modifier = Modifier

@@ -55,6 +55,7 @@ import dev.ferynnd.tugasakhir.ui.theme.Card
 import dev.ferynnd.tugasakhir.ui.theme.Primary
 import dev.ferynnd.tugasakhir.ui.theme.TextSub
 import dev.ferynnd.tugasakhir.ui.theme.White
+import dev.ferynnd.tugasakhir.ui.theme.colError
 import dev.ferynnd.tugasakhir.ui.theme.colFire
 import dev.ferynnd.tugasakhir.ui.theme.colTime
 import dev.ferynnd.tugasakhir.ui.theme.colWarning
@@ -114,13 +115,13 @@ fun BottomInfoPanel(onEndSessionClick: () -> Unit, feedback: String, elapsedTime
             onClick = onEndSessionClick,
             modifier = Modifier.fillMaxWidth().height(56.dp),
             shape = RoundedCornerShape(12.dp),
-            border = BorderStroke(1.5.dp, colFire.copy(alpha = 0.8f)),
-            colors = ButtonDefaults.outlinedButtonColors(containerColor = Black.copy(alpha = 0.7f))
+            border = BorderStroke(1.5.dp, colError.copy(alpha = 0.8f)),
+            colors = ButtonDefaults.outlinedButtonColors(containerColor = colError.copy(alpha = 0.6f))
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(modifier = Modifier.size(12.dp).background(colFire, RectangleShape))
+                Box(modifier = Modifier.size(12.dp).background(White, RectangleShape))
                 Spacer(Modifier.width(10.dp))
-                Text("AKHIRI LATIHAN", color = colFire, fontWeight = FontWeight.Black)
+                Text("AKHIRI LATIHAN", color = White, fontWeight = FontWeight.Black)
             }
         }
 
@@ -163,17 +164,16 @@ fun CountdownOverlay(count: Int) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Black.copy(alpha = 0.8f)), // Latar belakang gelap pekat
+            .background(Black.copy(alpha = 0.88f)), // Latar belakang gelap pekat
         contentAlignment = Alignment.Center
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(24.dp)) {
             Text(
                 text = if (count > 0) count.toString() else "MULAI",
                 style = TextStyle(
-                    fontSize = 120.sp,
+                    fontSize = 100.sp,
                     fontWeight = FontWeight.Black,
-                    color = Primary, // Warna Lime Green
-                    // Memberikan efek Glow pada angka
+                    color = Primary,
                     shadow = Shadow(
                         color = Primary.copy(alpha = 0.8f),
                         blurRadius = 50f

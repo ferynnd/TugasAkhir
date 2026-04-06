@@ -273,7 +273,7 @@ fun EditProfileScreen(
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 HorizontalDivider(modifier = Modifier.weight(1f), color = Border)
-                Text(" Or Additional ", color = Color.Gray, fontSize = 14.sp, modifier = Modifier.padding(horizontal = 8.dp))
+                Text(" Atau Lainnya ", color = Color.Gray, fontSize = 14.sp, modifier = Modifier.padding(horizontal = 8.dp))
                 HorizontalDivider(modifier = Modifier.weight(1f), color = Border)
             }
 

@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -55,10 +56,11 @@ fun RegisterScreen(
         containerColor = Background
     ) { paddingValues ->
         // Gunakan Box sebagai container utama di dalam Scaffold
+        val layotDirection = LocalLayoutDirection.current
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues) // Penting agar konten tidak tertutup elemen sistem
+                .padding(top = 0.dp, start = paddingValues.calculateStartPadding(layotDirection),end = paddingValues.calculateEndPadding(layotDirection))
         ) {
             // Efek Dekorasi Background (Glow)
             Box(

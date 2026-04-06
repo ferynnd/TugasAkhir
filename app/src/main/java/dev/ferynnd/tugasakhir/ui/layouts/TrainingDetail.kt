@@ -570,10 +570,9 @@ fun BenefitsSection(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        benefits.forEachIndexed { index, (id, title , description )->
+        benefits.forEachIndexed { index, (id, title )->
             BenefitItem(
-                title = title,
-                description = description.toString()
+                title = title
             )
 
             if (index < benefits.size - 1) {
@@ -586,10 +585,9 @@ fun BenefitsSection(
 @Composable
 fun BenefitItem(
     title: String,
-    description: String
 ) {
     Row(
-         modifier = Modifier
+        modifier = Modifier
             .fillMaxWidth()
             .border( 1.5.dp, colHeart.copy(0.1f), shape = RoundedCornerShape(8.dp) )
             .background(
@@ -601,7 +599,7 @@ fun BenefitItem(
 
     ) {
         Icon(
-            imageVector = ImageVector.vectorResource(id = R.drawable.icplay),
+            imageVector = ImageVector.vectorResource(id = R.drawable.ben),
             contentDescription = null,
             tint = colHeart,
             modifier = Modifier
