@@ -70,7 +70,7 @@ fun ReadyCalibrationOverlay(
                 contentAlignment = Alignment.Center
             ) {
                 CustomIcon(
-                    iconRes = R.drawable.jump,
+                    iconRes = R.drawable.bodyscan,
                     contentDescription = "Person Icon",
                     tint = Primary,
                     modifier = Modifier.size(60.dp)
