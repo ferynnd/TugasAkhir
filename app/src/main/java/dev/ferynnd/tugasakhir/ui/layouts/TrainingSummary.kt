@@ -58,10 +58,8 @@ import dev.ferynnd.tugasakhir.ui.theme.White
 fun TrainingSummary(
     historyId: Int,
     viewModel: ExerciseViewModel = hiltViewModel(),
-    navController: NavController,
     onClose: () -> Unit
 ) {
-    // Load data saat screen dibuka
     LaunchedEffect(historyId) {
         viewModel.getSummaryData(historyId)
     }
@@ -116,16 +114,6 @@ fun TrainingSummary(
         containerColor = Background,
         bottomBar = {
             Column(modifier = Modifier.padding(20.dp)) {
-                // Tombol Share (Outline)
-//                OutlinedButton(
-//                    onClick = { /* Share Logic */ },
-//                    modifier = Modifier.fillMaxWidth().height(56.dp),
-//                    shape = RoundedCornerShape(28.dp),
-//                    border = BorderStroke(2.dp, Primary)
-//                ) {
-//                    Text("SHARE", color = Color.White, fontWeight = FontWeight.Black)
-//                }
-//                Spacer(Modifier.height(12.dp))
                 Button(
                     onClick = onClose,
                     modifier = Modifier.fillMaxWidth().height(56.dp),
@@ -147,7 +135,7 @@ fun TrainingSummary(
 
             StatsRow(
                 calories = "${current?.totalCalorie ?: 0}",
-                duration = "${current?.duration?.split(":")?.get(1) ?: 0}",
+                duration = "${timeToMinutes(current?.duration)}",
                 reps = "${current?.reps ?: 0}"
             )
 
@@ -175,8 +163,8 @@ fun TrainingSummary(
                     )
                     ComparisonRow(
                         label = "Durasi",
-                        currentVal = "${current?.duration?.split(":")?.get(1) ?: 0} min",
-                        lastVal = "${last?.duration?.split(":")?.get(1) ?: 0} min",
+                        currentVal = "${timeToMinutes(current?.duration.toString())} min",
+                        lastVal = "${timeToMinutes(last?.duration.toString())} min",
                         icon = R.drawable.icoclock,
                         currentRaw = current?.duration?.split(":")?.get(1)?.toInt() ?: 0,
                         lastRaw = last?.duration?.split(":")?.get(1)?.toInt() ?: 0
@@ -213,10 +201,9 @@ fun ComparisonRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp), // Beri ruang antar baris
+            .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // 1. Icon dengan Glassmorphism style
         Box(
             modifier = Modifier
                 .size(48.dp)
@@ -233,7 +220,7 @@ fun ComparisonRow(
 
         Spacer(modifier = Modifier.width(16.dp))
 
-        // 2. Info Utama
+
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = label.uppercase(),
@@ -264,8 +251,7 @@ fun ComparisonRow(
                 )
             }
         }
-
-        // 3. Status Badge (UX Indicator)
+        // Bagian indikator performa
         if (diff != 0) {
             Column(horizontalAlignment = Alignment.End) {
                 Row(verticalAlignment = Alignment.CenterVertically) {

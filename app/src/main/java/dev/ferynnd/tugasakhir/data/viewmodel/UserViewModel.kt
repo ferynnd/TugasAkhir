@@ -31,7 +31,10 @@ class UserViewModel
     @Inject constructor(
         private val supabaseClient: SupabaseClient
     ) : ViewModel() {
-
+    // Inject ini berfungsi sebagai dependency injection
+    // Yang memungkinkan kita untuk menginject SupabaseClient ke dalam ViewModel
+    // Tanpa harus membuat instance SupabaseClient di ViewModel
+    // @Inject bikin SupabaseClient otomatis tersedia di ViewModel tanpa perlu dibuat manual.
     var isLoading by mutableStateOf(false)
         private set
     var isSuccess by mutableStateOf(false)
@@ -54,8 +57,6 @@ class UserViewModel
     var bmiResult by mutableDoubleStateOf(0.0)
     var bmiCategory by mutableStateOf("NORMAL")
 
-
-
     fun showError(title: String, message: String) {
         dialogState = DialogState(
             lottieRes = R.raw.error,
@@ -70,14 +71,6 @@ class UserViewModel
         dialogState = null
     }
 
-    fun resetSuccess() {
-        isSuccess = false
-    }
-
-    fun clearMessage() {
-        textMessage = ""
-    }
-
     fun loadProfileIfNeeded(userId: String) {
         if (hasLoadedProfile) return
         hasLoadedProfile = true
@@ -86,7 +79,7 @@ class UserViewModel
     }
 
 
-     fun getProfile(userId: String) {
+    fun getProfile(userId: String) {
         viewModelScope.launch {
             try {
                 isLoading = true
@@ -119,7 +112,9 @@ class UserViewModel
                 // Jika imageUri adalah file lokal (dimulai dengan content://)
                 if (imageUri?.startsWith("content://") == true) {
                     val inputStream = context.contentResolver.openInputStream(Uri.parse(imageUri))
-                    inputStream?.use { stream -> // Menggunakan .use agar otomatis ditutup
+                    inputStream?.use { stream ->
+                        // Menggunakan .use agar otomatis ditutup
+                        // stream disini sebagai lamda yang berfungsi untuk membaca file
                         val bytes = stream.readBytes()
                         val fileName = "$userId/avatar.jpg"
                         val bucket = supabaseClient.storage.from("avatars")
@@ -189,7 +184,8 @@ class UserViewModel
         }
     }
 
-    fun updateBMI(userId: String, gender : Gender, height : Int, weight : Int, age : Int) {
+    fun updateBMI(userId: String, gender : Gender,
+                  height : Int, weight : Int, age : Int) {
         try {
             isLoading = true
             isSuccess = false

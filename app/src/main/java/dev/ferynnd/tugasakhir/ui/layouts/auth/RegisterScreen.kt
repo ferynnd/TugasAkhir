@@ -6,8 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,24 +16,14 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import dev.ferynnd.tugasakhir.data.viewmodel.AuthViewModel
-import dev.ferynnd.tugasakhir.ui.components.CustomIcon
-import dev.ferynnd.tugasakhir.ui.theme.TextMain
-import dev.ferynnd.tugasakhir.ui.theme.TextSub
-import dev.ferynnd.tugasakhir.R // Pastikan import R untuk icon google
-import dev.ferynnd.tugasakhir.ui.components.LottieDialog
 import dev.ferynnd.tugasakhir.ui.layouts.ProfileInput
 import dev.ferynnd.tugasakhir.ui.theme.Background
-import dev.ferynnd.tugasakhir.ui.theme.Border
 import dev.ferynnd.tugasakhir.ui.theme.Primary
-import dev.ferynnd.tugasakhir.ui.theme.colEmail
-import dev.ferynnd.tugasakhir.ui.theme.colSuccess
 
 @Composable
 fun RegisterScreen(
@@ -46,23 +34,17 @@ fun RegisterScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(true) }
-    var confirmPasswordVisible by remember { mutableStateOf(true) }
     var isChecked by remember { mutableStateOf(false) }
-    val dialogState = viewModel.dialogState
 
     Scaffold(
-        // Mengatur warna background utama aplikasi
         containerColor = Background
     ) { paddingValues ->
-        // Gunakan Box sebagai container utama di dalam Scaffold
         val layotDirection = LocalLayoutDirection.current
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = 0.dp, start = paddingValues.calculateStartPadding(layotDirection),end = paddingValues.calculateEndPadding(layotDirection))
         ) {
-            // Efek Dekorasi Background (Glow)
             Box(
                 modifier = Modifier
                     .size(250.dp)
@@ -75,7 +57,6 @@ fun RegisterScreen(
                     )
             )
 
-            // Konten Utama yang bisa di-scroll
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -144,7 +125,6 @@ fun RegisterScreen(
                     )
                 }
 
-                // Persetujuan Layanan
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()

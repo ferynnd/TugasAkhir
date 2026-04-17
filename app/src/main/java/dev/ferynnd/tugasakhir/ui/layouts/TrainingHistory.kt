@@ -2,6 +2,7 @@ package dev.ferynnd.tugasakhir.ui.layouts
 
 import android.R.attr.iconTint
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -45,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
@@ -141,10 +143,9 @@ fun ExerciseHistory(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    // Gunakan warna Lime Green atau warna aksen yang konsisten
                     SummaryCard(
                         R.drawable.icfire,
-                        colFire, // Ganti ke Lime Green agar sesuai tema
+                        colFire,
                         totalCalories.toString(),
                         "Kal",
                         modifier = Modifier.weight(1f).height(120.dp)
@@ -185,35 +186,33 @@ fun ExerciseHistory(
                     }
                 }
             } else {
-                // Langsung gunakan items di dalam LazyColumn utama
                 val displayedHistory = historyList.take(visibleItemCount)
 
                 items(displayedHistory) { history ->
                     HistoryCard(history, navController)
                 }
 
-                // Tampilkan tombol LOAD MORE jika masih ada item yang belum tampil
                 if (visibleItemCount < historyList.size) {
                     item {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 16.dp), // Beri jarak atas-bawah agar tidak sesak
-                            horizontalArrangement = Arrangement.Center // INI KUNCINYA agar di tengah
+                                .padding(vertical = 16.dp),
+                            horizontalArrangement = Arrangement.Center
                         ) {
                             Surface(
                                 onClick = { visibleItemCount += 5 },
-                                color = Primary, // Menggunakan Lime Green tema baru Anda
+                                color = Primary,
                                 shape = RoundedCornerShape(50.dp),
-                                shadowElevation = 4.dp // Sedikit bayangan agar pop-out
+                                shadowElevation = 4.dp
                             ) {
                                 Text(
                                     text = "LIHAT LEBIH",
                                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                                     color = Color.Black,
                                     fontSize = 14.sp,
-                                    fontWeight = FontWeight.ExtraBold, // Lebih tebal agar sporty
-                                    letterSpacing = 1.sp // Jarak antar huruf untuk kesan modern
+                                    fontWeight = FontWeight.ExtraBold,
+                                    letterSpacing = 1.sp
                                 )
                             }
                         }
@@ -221,7 +220,6 @@ fun ExerciseHistory(
                 }
             }
 
-            // Spacer akhir agar scroll tidak mepet bawah
             item { Spacer(modifier = Modifier.height(24.dp)) }
         }
     }
@@ -291,18 +289,16 @@ fun HistoryCard(history: HistoryExercise, navController: NavController) {
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // 1. Icon Section dengan Glassmorphism style
             Box(
                 modifier = Modifier
-                    .size(56.dp)
-                    .background(Color.White.copy(alpha = 0.05f), RoundedCornerShape(12.dp)),
+                    .size(56.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
+                Image(
                     painter = painterResource(id = exerciseIcon),
                     contentDescription = null,
-                    modifier = Modifier.size(30.dp),
-                    tint = Primary // Gunakan warna Lime Green agar konsisten
+                    modifier = Modifier.fillMaxSize().clip(shape = RoundedCornerShape(10.dp)),
+                    contentScale = ContentScale.Crop
                 )
             }
 
@@ -340,14 +336,13 @@ fun HistoryCard(history: HistoryExercise, navController: NavController) {
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
 
-                // 3. Stats Row (Lebih bersih tanpa background berat)
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     MiniInfoItem(R.drawable.icfire, "${history.totalCalorie ?: 0} kcal", colFire)
                     MiniInfoItem(R.drawable.jump, "${history.reps ?: 0} reps", colLightning)
-                    MiniInfoItem(R.drawable.icoclock, "${history.duration?.split(":")?.get(1) ?: 0} min",
+                    MiniInfoItem(R.drawable.icoclock, "${timeToMinutes(history.duration.toString())} min",
                         colHeart
                     )
                 }
@@ -384,9 +379,9 @@ fun MiniInfoItem(iconRes: Int, text: String, color: Color) {
 /* Function untuk menentukan icon berdasarkan exercise */
 fun getExerciseIcon(code: String?): Int {
     return when (code) {
-        "PUSH_UP" -> R.drawable.icpushup
-        "SQUAT" -> R.drawable.icsquat
-        "SIT_UP" -> R.drawable.icsitup
+        "PUSH_UP" -> R.drawable.imgpushup
+        "SQUAT" -> R.drawable.imgsquat
+        "SIT_UP" -> R.drawable.imgsitup
         else -> R.drawable.bgta
     }
 }
@@ -398,4 +393,13 @@ fun getExerciseName(code: String?): String {
         "SIT_UP" -> "Sit Up"
         else -> "-"
     }
+}
+
+
+fun timeToMinutes(time: String?): Int {
+    if (time.isNullOrEmpty() || time == "null") return 0
+
+    val (h, m, s) = time.split(":").map { it.toIntOrNull() ?: 0 }
+
+    return h * 60 + m + (s / 60) // integer division → otomatis ke bawah
 }

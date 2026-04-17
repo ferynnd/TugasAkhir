@@ -72,7 +72,7 @@ fun TrainingList(navController: NavController) {
                         title = dummyExercise.name,
                         muscle = dummyExercise.duration + " Min ",
                         kcal = dummyExercise.cal,
-                        imageRes = dummyExercise.icon,
+                        imageRes = dummyExercise.image,
                         onDetail = {
                             navController.navigate("trainingDetail/${dummyExercise.id}")
                         },

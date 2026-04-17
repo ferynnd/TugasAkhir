@@ -6,8 +6,8 @@ import dev.ferynnd.tugasakhir.helper.BodyPartAngle
 import dev.ferynnd.tugasakhir.helper.ExerciseState
 
 data class CorrectionResult(
-    val feedback: String?,           // teks koreksi (null = semua benar)
-    val isCorrect: Boolean,          // true = hijau, false = merah
+    val feedback: String?,
+    val isCorrect: Boolean,
     val correctionType: CorrectionType = CorrectionType.NONE
 )
 
@@ -15,10 +15,7 @@ enum class CorrectionType {
     NONE,
     SPINE_NOT_STRAIGHT,     // punggung tidak lurus
     HAND_TOO_WIDE,          // tangan terlalu lebar
-    HAND_TOO_NARROW,        // tangan terlalu sempit
     KNEE_WRONG_ANGLE,       // lutut salah sudut
-    FOOT_TOO_NARROW,        // kaki terlalu rapat
-    FOOT_TOO_WIDE,          // kaki terlalu lebar
     DEPTH_NOT_ENOUGH        // kedalaman kurang
 }
 
@@ -31,9 +28,9 @@ class FormCorrection(
     //  PUSH-UP CORRECTIONS
     // ══════════════════════════════════════════
     fun analyzePushUp(state: ExerciseState): CorrectionResult {
-        val spine    = angleSpine()
-        val shoulder = (angleLeftShoulder() + angleRightShoulder()) / 2
-        val elbow    = (angleLeftArm() + angleRightArm()) / 2
+        val spine    = angleSpine() // Posisi tulang belakang
+        val shoulder = (angleLeftShoulder() + angleRightShoulder()) / 2 // Posisi Bahu
+        val elbow    = (angleLeftArm() + angleRightArm()) / 2 // Posisi Siku
         val spineOffset = if (calibration.isCalibrated) calibration.spineOffset else 0.0
 
         val isActiveState = state in listOf(
@@ -92,9 +89,9 @@ class FormCorrection(
 
     fun analyzeSquat(state: ExerciseState): CorrectionResult {
 
-        val spineRaw = angleSpine()
-        val kneeRaw = angleKnee()
-        val torso = angleTorso()
+        val spineRaw = angleSpine() //  Posisi tulang belakang
+        val kneeRaw = angleKnee() // Posisi Lutut
+        val torso = angleTorso() // Posisi bagian tubuh tengah Dada + perut + punggung
 
         val spineOffset = if (calibration.isCalibrated) calibration.spineOffset else 0.0
         val kneeOffset = if (calibration.isCalibrated) calibration.kneeOffset else 0.0
@@ -170,10 +167,13 @@ class FormCorrection(
         val knee  = angleKnee()
         val torso = angleTorso()
 
-        Log.d("FORM_SITUP", "state=$state | spine=${"%.1f".format(spine)} | knee=${"%.1f".format(knee)} | torso=${"%.1f".format(torso)}")
+        Log.d("FORM_SITUP",
+            "state=$state | " +
+                    "spine=${"%.1f".format(spine)} |" +
+                    " knee=${"%.1f".format(knee)} |" +
+                    " torso=${"%.1f".format(torso)}")
 
         // 1. Lutut: berbaring ~40-80°, saat TOP ~80-100° (dari gambar lutut ±90°)
-        // ✅ Tidak pakai offset, cek berdasarkan state
         val kneeRange = when (state) {
             ExerciseState.BOTTOM,
             ExerciseState.ASCENDING,
@@ -181,6 +181,7 @@ class FormCorrection(
             ExerciseState.TOP        -> 70.0..115.0  // saat fase atas lutut ~90°
             else                     -> 40.0..115.0
         }
+
         if (knee !in kneeRange) {
             Log.d("FORM_SITUP", "❌ Lutut salah: $knee (harus $kneeRange)")
             return CorrectionResult(
@@ -191,7 +192,7 @@ class FormCorrection(
         }
 
         // 2. Torso tidak cukup naik saat TOP (dari gambar: 60–75°)
-        if (state == ExerciseState.TOP && torso > 78.0) {
+        if (state == ExerciseState.TOP && torso > 75.0) {
             Log.d("FORM_SITUP", "❌ Torso kurang naik: $torso saat TOP")
             return CorrectionResult(
                 feedback = "Angkat torso lebih tinggi, 60-75°",
@@ -200,8 +201,7 @@ class FormCorrection(
             )
         }
 
-        // 3. Punggung tidak rebah saat BOTTOM
-        // ✅ Dari log spine raw ~165–178° saat berbaring → threshold 155° cukup
+        // 3. Punggung tidak rebah saat BOTTOM (dari gambar: 155°)
         if (state == ExerciseState.BOTTOM && spine < 155.0) {
             Log.d("FORM_SITUP", "❌ Punggung tidak rebah: spine=$spine")
             return CorrectionResult(

@@ -88,7 +88,6 @@ fun BottomInfoPanel(onEndSessionClick: () -> Unit, feedback: String, elapsedTime
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Kotak Feedback (Glassmorphism)
         Box(
             modifier = Modifier
                 .fillMaxWidth()

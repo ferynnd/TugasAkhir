@@ -6,7 +6,7 @@ import kotlin.math.atan2
 
 object PoseMath {
 
-    // Fungsi untuk menghitung sudut antara 3 titik (seperti fungsi Python Anda)
+    // Fungsi untuk menghitung sudut berdasarkan 3 titik
     fun calculateAngle(
         first: Point,
         mid: Point,
@@ -19,8 +19,6 @@ object PoseMath {
         }
         return angle
     }
-
-    // Helper class untuk koordinat
     data class Point(val x: Float, val y: Float)
 }
 

@@ -163,8 +163,6 @@ fun ExerciseItem(
                 }
             }
 
-
-            // Arrow
             Card(
                 shape = RoundedCornerShape(10.dp),
                 colors = CardDefaults.cardColors(

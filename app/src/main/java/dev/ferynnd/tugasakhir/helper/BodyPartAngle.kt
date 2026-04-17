@@ -82,7 +82,6 @@ open class BodyPartAngle(val landmarks: List<NormalizedLandmark>) {
     // Rata-rata shoulder
     fun angleShoulder() = (angleLeftShoulder() + angleRightShoulder()) / 2
 
-
     // ================= HEAD / NECK =================
 
     // Sudut kepala terhadap bahu (untuk cek kepala terlalu turun / naik)

@@ -27,7 +27,6 @@ data class OnboardingStep(
 )
 
 fun getOnboardingSteps(exerciseCode: ExerciseCode): List<OnboardingStep> {
-    // Kamu bisa sesuaikan teks per jenis latihan
     val exerciseName = when (exerciseCode) {
         ExerciseCode.PUSH_UP -> "push up"
         ExerciseCode.SQUAT   -> "squat"
@@ -148,8 +147,6 @@ fun OnboardingOverlay(
                 }
             }
 
-
-            // Step badge
             Surface(
                 shape = RoundedCornerShape(50),
                 color = Color.White.copy(alpha = 0.08f),
@@ -230,7 +227,6 @@ fun OnboardingOverlay(
                     Text("Kembali", fontSize = 13.sp)
                 }
 
-                // Tombol Lanjut / Mulai
                 Button(
                     onClick = {
                         if (isLast) onFinish()

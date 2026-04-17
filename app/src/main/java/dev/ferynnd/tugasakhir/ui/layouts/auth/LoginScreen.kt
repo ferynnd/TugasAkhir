@@ -7,50 +7,36 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import dev.ferynnd.tugasakhir.R // Pastikan import R untuk icon google
 import dev.ferynnd.tugasakhir.data.remote.supabase.SupabaseClient
 import dev.ferynnd.tugasakhir.data.viewmodel.AuthViewModel
-import dev.ferynnd.tugasakhir.ui.components.CustomIcon
 import dev.ferynnd.tugasakhir.ui.components.LottieDialog
 import dev.ferynnd.tugasakhir.ui.layouts.ProfileInput
 import dev.ferynnd.tugasakhir.ui.theme.Background
 import dev.ferynnd.tugasakhir.ui.theme.Border
 import dev.ferynnd.tugasakhir.ui.theme.Geist
 import dev.ferynnd.tugasakhir.ui.theme.Primary
-import dev.ferynnd.tugasakhir.ui.theme.TextMain
-import dev.ferynnd.tugasakhir.ui.theme.TextSub
 import dev.ferynnd.tugasakhir.ui.theme.colSuccess
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.Google
 import io.github.jan.supabase.compose.auth.composable.NativeSignInResult
 import io.github.jan.supabase.compose.auth.composable.rememberSignInWithGoogle
-import io.github.jan.supabase.compose.auth.composeAuth
 import kotlinx.coroutines.launch
 
 @Composable
@@ -101,7 +87,6 @@ fun LoginScreen(
         containerColor = Background // Pastikan ini warna hitam pekat/dark
     ) { paddingValues ->
 
-        // Dialog Lottie tetap di luar scroll agar selalu di tengah layar
         dialogState?.let { state ->
             LottieDialog(
                 lottieRes = state.lottieRes,
@@ -150,15 +135,8 @@ fun LoginScreen(
                     modifier = Modifier.size(180.dp)
                 )
 
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
-                Text(
-                    text = "MASUK",
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Black,
-                    color = Color.White,
-                    letterSpacing = (-1).sp
-                )
                 Text(
                     text = "Gunakan akun yang terdaftar untuk melanjutkan",
                     fontSize = 14.sp,
@@ -168,9 +146,8 @@ fun LoginScreen(
                     lineHeight = 20.sp
                 )
 
-                Spacer(modifier = Modifier.height(40.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
-                // Form Input
                 Column(modifier = Modifier.fillMaxWidth()) {
                     ProfileInput(
                         label = "Email",
@@ -200,7 +177,6 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Tombol Sign In (Lime Green)
                 Button(
                     onClick = { viewModel.validateInputLogin(email, password) },
                     enabled = !viewModel.isLoading,

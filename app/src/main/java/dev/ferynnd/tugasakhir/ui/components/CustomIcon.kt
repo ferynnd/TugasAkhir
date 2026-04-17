@@ -26,10 +26,8 @@ fun CustomIcon(
     cornerRadius: Dp = 0.dp,
     padding: Dp = 0.dp
 ) {
-    // 1. Tentukan modifier dasar
     var boxModifier = modifier
 
-    // 2. Tambahkan background dan clip jika backgroundColor tidak null
     if (backgroundColor != null) {
         boxModifier = boxModifier
             .clip(RoundedCornerShape(cornerRadius))

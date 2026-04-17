@@ -209,7 +209,6 @@ class MainActivity : ComponentActivity() {
                                 TrainingSummary(
                                     historyId = historyId,
                                     viewModel = exerciseViewModel,
-                                    navController = navController,
                                     onClose = { navController.popBackStack() }
                                 )
                             }

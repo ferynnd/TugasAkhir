@@ -43,9 +43,9 @@ class PoseLandmarkerHelper(
             val options = PoseLandmarker.PoseLandmarkerOptions.builder()
                 .setBaseOptions(baseOptions)
                 .setRunningMode(runningMode)
-                .setMinPoseDetectionConfidence(0.5f)
-                .setMinTrackingConfidence(0.5f)
-                .setMinPosePresenceConfidence(0.5f)
+                .setMinPoseDetectionConfidence(0.7f) // Minimal kepercayaan untuk mendeteksi ada tubuh (pose)
+                .setMinTrackingConfidence(0.5f) // Minimal kepercayaan untuk tracking gerakan dari frame ke frame
+                .setMinPosePresenceConfidence(0.6f) // Minimal kepercayaan bahwa pose benar-benar ada di frame
                 .apply {
                     if (runningMode == RunningMode.LIVE_STREAM) {
                         setResultListener(::onLiveStreamResult)

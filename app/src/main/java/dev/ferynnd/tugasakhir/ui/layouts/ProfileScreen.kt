@@ -117,7 +117,6 @@ fun ProfileScreen(
            item {
                 BMICard(
                     bmiValue = userViewModel.bmiResult,
-                    categoryName = CategoryBmi.valueOf( userViewModel.bmiCategory)
                 )
            }
            item {
@@ -229,7 +228,6 @@ fun BiometricCard(
 @Composable
 fun BMICard(
     bmiValue : Double,
-    categoryName : CategoryBmi
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -249,7 +247,6 @@ fun BMICard(
                         color = TextSub,
                         fontWeight = FontWeight.Bold
                     )
-                    // Menampilkan 1 angka di belakang koma
                     Text(
                         text = String.format("%.1f", bmiValue),
                         fontSize = 32.sp,

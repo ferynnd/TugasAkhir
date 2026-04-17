@@ -240,29 +240,6 @@ fun TrainingDetail(navController: NavController, exerciseId: Int?) {
 // ==========================================================
 
 @Composable
-fun HeaderImageSection(
-    imageRes: Int,
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(10.dp)
-            .clip(RoundedCornerShape( 16.dp))
-            .height(250.dp)
-
-    ) {
-        // Background Image
-        Image(
-            painter = painterResource(id = imageRes),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
-        )
-    }
-}
-
-
-@Composable
 fun StatsRow(
     calories: String,
     duration: String,

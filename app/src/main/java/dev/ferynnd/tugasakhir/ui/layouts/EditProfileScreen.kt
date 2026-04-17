@@ -424,7 +424,7 @@ fun ProfileInput(
         OutlinedTextField(
             value = value,
             placeholder = {
-                if (placeholder != null) Text(text = placeholder.toString(), color = Color.LightGray) else Text(text = "")
+                if (placeholder != null) Text(text = placeholder.toString(), color = Color.LightGray.copy(0.2f)) else Text(text = "")
             },
             onValueChange = onValueChange,
             enabled = enabled,

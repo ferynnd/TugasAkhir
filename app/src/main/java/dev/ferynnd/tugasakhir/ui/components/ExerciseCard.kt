@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -42,7 +43,6 @@ import dev.ferynnd.tugasakhir.ui.theme.White
 import dev.ferynnd.tugasakhir.R
 import dev.ferynnd.tugasakhir.ui.theme.Black
 import dev.ferynnd.tugasakhir.ui.theme.Card
-import dev.ferynnd.tugasakhir.ui.theme.TextMain
 import dev.ferynnd.tugasakhir.ui.theme.colFire
 
 
@@ -87,15 +87,14 @@ fun ExerciseCard(
             ) {
                 Box(
                     modifier = Modifier
-                        .size(100.dp)
-                        .background(Color.White.copy(alpha = 0.05f), RoundedCornerShape(12.dp)),
+                        .size(100.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
+                    Image(
                         painter = painterResource(id = imageRes),
                         contentDescription = null,
-                        modifier = Modifier.fillMaxSize().padding(20.dp),
-                        tint = Primary // Gunakan warna Lime Green agar konsisten
+                        modifier = Modifier.fillMaxSize().clip(shape = RoundedCornerShape(10.dp)),
+                        contentScale = ContentScale.Crop
                     )
                 }
 

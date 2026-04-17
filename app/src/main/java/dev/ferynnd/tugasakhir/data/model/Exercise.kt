@@ -24,6 +24,8 @@ data class Exercise(
     val benefits : List<Additional>,
     val color: Color = White,
     val icon: Int = R.drawable.icpushup,
+
+    val image: Int = R.drawable.imgpushup,
     val media : List<MediaComp>
 )
 
@@ -103,6 +105,7 @@ val dummyExercises = listOf(
         ),
         color = Primary,
         icon = R.drawable.icpushup,
+        image = R.drawable.imgpushup,
         media = listOf(
             MediaComp.Image("https://raw.githubusercontent.com/ferynnd/PublicAsset/refs/heads/main/pushup.jpeg")
         )
@@ -135,6 +138,7 @@ val dummyExercises = listOf(
         ),
         color = colEmail,
         icon = R.drawable.icsitup,
+        image = R.drawable.imgsitup,
         media = listOf(
             MediaComp.Image("https://raw.githubusercontent.com/ferynnd/PublicAsset/refs/heads/main/situp.jpeg")
         )
@@ -173,6 +177,7 @@ val dummyExercises = listOf(
         ),
         color = colWarning,
         icon = R.drawable.icsquat,
+        image = R.drawable.imgsquat,
         media = listOf(
             MediaComp.Image("https://raw.githubusercontent.com/ferynnd/PublicAsset/refs/heads/main/squat.jpeg")
         )

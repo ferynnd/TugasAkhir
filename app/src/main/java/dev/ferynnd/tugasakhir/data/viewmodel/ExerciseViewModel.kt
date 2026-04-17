@@ -35,27 +35,18 @@ class ExerciseViewModel @Inject constructor
         private set
     var isSuccess by mutableStateOf(false)
     var textMessage by mutableStateOf("")
-    var dialogState by mutableStateOf<DialogState?>(null)
-        private set
-
     var lastInsertedId by mutableStateOf<Int?>(null)
         private set
-
     var historyList by mutableStateOf<List<HistoryExercise>>(emptyList())
     private set
-
     var totalCaloriesToday by mutableIntStateOf(0)
         private set
-
     var totalRepsToday by mutableIntStateOf(0)
         private set
-
     var totalMinutesToday by mutableIntStateOf(0)
         private set
-
     var totalExerciseToday by mutableIntStateOf(0)
         private set
-
 
 
     fun getHistoryExercise(userId: String) {
@@ -154,7 +145,7 @@ class ExerciseViewModel @Inject constructor
                 val seconds = durationSeconds % 60
                 val durationString = String.format("%02d:%02d:%02d", hours, minutes, seconds)
 
-                // 🔥 PINDAH KE IO THREAD YANG BENAR
+                // 🔥 PINDAH KE IO THREAD YANG BENAR / DI JALANKAN DI BACKGROUND THREAD
                 val insertedData = withContext(Dispatchers.IO) {
                     val data = HistoryExerciseInsert(
                         userId          = userId,
@@ -184,8 +175,6 @@ class ExerciseViewModel @Inject constructor
         }
     }
 
-
-    // Di ExerciseViewModel.kt
     var currentHistory by mutableStateOf<HistoryExercise?>(null)
     var lastHistory by mutableStateOf<HistoryExercise?>(null)
 
@@ -226,6 +215,7 @@ class ExerciseViewModel @Inject constructor
             }
         }
     }
+
     var totalCalories by mutableStateOf(0)
     var totalExercises by mutableStateOf(0)
     var totalDurationFormatted by mutableStateOf("0j 0m")
@@ -271,7 +261,6 @@ class ExerciseViewModel @Inject constructor
             }
         }
     }
-
 
     fun getHistoryHome(userId: String) {
         viewModelScope.launch {

@@ -62,7 +62,6 @@ fun ReadyCalibrationOverlay(
                     .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Ikon Ilustrasi Minimalis (Sesuai Gambar 2)
             Box(
                 modifier = Modifier
                     .background(Primary.copy(alpha = 0.1f), RoundedCornerShape(50))
@@ -115,9 +114,6 @@ fun CalibrationProgressOverlay(
             .background(Black.copy(alpha = 0.88f))
     ) {
 
-        // Frame Guide (tetap dipakai)
-//        CameraFrameGuides(modifier = Modifier.fillMaxSize())
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -126,7 +122,6 @@ fun CalibrationProgressOverlay(
             verticalArrangement = Arrangement.Center
         ) {
 
-            // 🔥 Progress Circle
             Box(contentAlignment = Alignment.Center) {
 
                 CircularProgressIndicator(
@@ -159,7 +154,6 @@ fun CalibrationProgressOverlay(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // 🔥 Instruction utama (INI PENTING)
             Text(
                 text = message,
                 color = Color.White,
@@ -169,7 +163,6 @@ fun CalibrationProgressOverlay(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 🔥 Status Indicator (dinamis)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
@@ -242,63 +235,3 @@ enum class ScreenPhase {
     COUNTDOWN,            // 5,4,3,2,1
     EXERCISE              // Latihan berjalan
 }
-
-@Composable
-fun CameraFrameGuides(
-    modifier: Modifier = Modifier,
-    color: Color = Primary,
-    strokeWidth: Float = 8f,
-    cornerLength: Float = 60f
-) {
-    Canvas(modifier = modifier.fillMaxSize()) {
-        val width = size.width
-        val height = size.height
-        val padding = 40f
-
-        // 1. Pojok Kiri Atas
-        drawPath(
-            path = Path().apply {
-                moveTo(padding, padding + cornerLength)
-                lineTo(padding, padding)
-                lineTo(padding + cornerLength, padding)
-            } as Path,
-            color = color,
-            style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
-        )
-
-        // 2. Pojok Kanan Atas
-        drawPath(
-            path = Path().apply {
-                moveTo(width - padding - cornerLength, padding)
-                lineTo(width - padding, padding)
-                lineTo(width - padding, padding + cornerLength)
-            },
-            color = color,
-            style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
-        )
-
-        // 3. Pojok Kiri Bawah
-        drawPath(
-            path = Path().apply {
-                moveTo(padding, height - padding - cornerLength)
-                lineTo(padding, height - padding)
-                lineTo(padding + cornerLength, height - padding)
-            },
-            color = color,
-            style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
-        )
-
-        // 4. Pojok Kanan Bawah
-        drawPath(
-            path = Path().apply {
-                moveTo(width - padding - cornerLength, height - padding)
-                lineTo(width - padding, height - padding)
-                lineTo(width - padding, height - padding - cornerLength)
-            },
-            color = color,
-            style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
-        )
-    }
-}
-
-

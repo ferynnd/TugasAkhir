@@ -22,18 +22,11 @@ class TypeOfExercise(landmarks: List<NormalizedLandmark>) : BodyPartAngle(landma
         val repCounter = RepCounter(landmarks, calibration)
         val correction = FormCorrection(landmarks, calibration)
 
-        // 1. Cek apakah postur dasar valid (apakah ini posisi push-up?)
         val isValidPosture = validator.isPushUpPosture()
-
-        // 2. Update PostureGate (Gate menghitung durasi kestabilan postur)
-        // PostureGate.update(isValid) harus mengembalikan true hanya jika
-        // isValid=true secara konsisten selama misal 1.5 detik.
-        val isStable = postureGate.update(isValidPosture)
 
         if (currentState == ExerciseState.WAITING_START) {
             postureGate.reset()
-            Log.d("PUSHUP_STATE", "WAITING_START → isValid=$isValidPosture")
-            return if (isValidPosture && isStable) {
+            return if (isValidPosture) {
                 ExerciseEvaluation(counter, ExerciseState.TOP, true, false,
                     "Posisi siap, mulai push-up", isCorrect = true)
             } else {
@@ -49,7 +42,10 @@ class TypeOfExercise(landmarks: List<NormalizedLandmark>) : BodyPartAngle(landma
         }
 
         val correctionResult = correction.analyzePushUp(currentState)
-        Log.d("PUSHUP_CORRECTION", "feedback=${correctionResult.feedback} | isCorrect=${correctionResult.isCorrect} | type=${correctionResult.correctionType}")
+        Log.d("PUSHUP_CORRECTION",
+            "feedback=${correctionResult.feedback} |" +
+                    " isCorrect=${correctionResult.isCorrect} |" +
+                    " type=${correctionResult.correctionType}")
 
         val result = if ( correctionResult.isCorrect) {
             repCounter.countPushUp(counter, currentState)
@@ -89,11 +85,9 @@ class TypeOfExercise(landmarks: List<NormalizedLandmark>) : BodyPartAngle(landma
         val correction = FormCorrection(landmarks, calibration)
 
         val isValidPosture = validator.isSitUpPosture()
-        val isStable = postureGate.update(isValidPosture)
-
 
         if (currentState == ExerciseState.WAITING_START) {
-            return if (isValidPosture && isStable) {
+            return if (isValidPosture) {
                 ExerciseEvaluation(
                     counter,
                     ExerciseState.BOTTOM,
@@ -114,30 +108,29 @@ class TypeOfExercise(landmarks: List<NormalizedLandmark>) : BodyPartAngle(landma
             }
         }
 
-        // ✅ PERBAIKAN UTAMA: Jangan reset saat state sedang ASCENDING / TOP / DESCENDING
+        // Jangan reset saat state sedang ASCENDING / TOP / DESCENDING
         // PostureGate hanya relevan saat di BOTTOM (istirahat antar rep)
-//        val isActiveMovement = currentState in listOf(
-//            ExerciseState.ASCENDING,
-//            ExerciseState.TOP,
-//            ExerciseState.DESCENDING
-//        )
-//
-//        if (!isActiveMovement) {
-//            val shouldReset = postureGate.update(isValidPosture)
-//            if (shouldReset) {
-//                postureGate.reset()
-//                return ExerciseEvaluation(
-//                    counter,
-//                    ExerciseState.WAITING_START,
-//                    false,
-//                    false,
-//                    "Kembali ke posisi sit-up",
-//                    isCorrect = false
-//                )
-//            }
-//        }
+        val isActiveMovement = currentState in listOf(
+            ExerciseState.ASCENDING,
+            ExerciseState.TOP,
+            ExerciseState.DESCENDING
+        )
 
-        // 2. Proteksi saat bergerak:
+        if (!isActiveMovement) {
+            val shouldReset = postureGate.update(isValidPosture)
+            if (shouldReset) {
+                postureGate.reset()
+                return ExerciseEvaluation(
+                    counter,
+                    ExerciseState.WAITING_START,
+                    false,
+                    false,
+                    "Kembali ke posisi sit-up",
+                    isCorrect = false
+                )
+            }
+        }
+
         // Jika postur hilang total (misal tiba-tiba berdiri), balik ke WAITING_START
         if (!isValidPosture) {
             postureGate.reset()
@@ -184,7 +177,6 @@ class TypeOfExercise(landmarks: List<NormalizedLandmark>) : BodyPartAngle(landma
         val correction = FormCorrection(landmarks, calibration)
 
         val isValidPosture = validator.isSquatPosture()
-        val isStable = postureGate.update(isValidPosture)
 
         if (currentState == ExerciseState.WAITING_START) {
             return if (isValidPosture) {
@@ -219,7 +211,9 @@ class TypeOfExercise(landmarks: List<NormalizedLandmark>) : BodyPartAngle(landma
 
         Log.d(
             "SQUAT_CORRECTION",
-            "feedback=${correctionResult.feedback} | isCorrect=${correctionResult.isCorrect} | type=${correctionResult.correctionType}"
+            "feedback=${correctionResult.feedback} |" +
+                    " isCorrect=${correctionResult.isCorrect} |" +
+                    " type=${correctionResult.correctionType}"
         )
 
         val result = if (correctionResult.isCorrect) {
@@ -239,7 +233,6 @@ class TypeOfExercise(landmarks: List<NormalizedLandmark>) : BodyPartAngle(landma
             "SQUAT_REP",
             "reps=${result.reps} | newState=${result.state}"
         )
-
 
         return result.copy(
             feedback = correctionResult.feedback,

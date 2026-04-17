@@ -33,10 +33,7 @@ class AuthViewModel @Inject constructor (
     var textMessage by mutableStateOf("")
     var dialogState by mutableStateOf<DialogState?>(null)
         private set
-    var fullName by mutableStateOf("")
     var email by mutableStateOf("")
-    var avatar by mutableStateOf("")
-    var isUpdateSuccess by mutableStateOf(false)
 
     fun showError(title: String, message: String) {
         dialogState = DialogState(
@@ -54,10 +51,6 @@ class AuthViewModel @Inject constructor (
 
     fun resetSuccess() {
         isSuccess = false
-    }
-
-    fun clearMessage() {
-        textMessage = ""
     }
 
 
@@ -89,7 +82,6 @@ class AuthViewModel @Inject constructor (
 
             else -> {
                 onRegister(email, pass, fullname)
-                Log.d("AuthViewModel", "Validasi berhasil")
             }
         }
     }
@@ -103,23 +95,19 @@ class AuthViewModel @Inject constructor (
                     this.email = email
                     this.password = pass
                     data = buildJsonObject {
-                         put("full_name", JsonPrimitive(username))
+                        put("full_name", JsonPrimitive(username))
                     }
                 }
                 isSuccess = true
-                Log.d("AuthViewModel", "Registrasi berhasil")
             } catch (e: Exception) {
                 showError("Error", e.localizedMessage ?: "Registrasi Gagal")
-                Log.d("AuthViewModel", "Registrasi gagal: ${e.localizedMessage}")
             } finally {
                 isLoading = false
             }
         }
     }
 
-     fun validateInputLogin(email: String, password: String) {
-        Log.d("AuthViewModel", "Validasi dimulai")
-
+    fun validateInputLogin(email: String, password: String) {
         when {
             email.isBlank() || password.isBlank() -> {
                 showError("Error", "Email dan password tidak boleh kosong")
@@ -132,7 +120,6 @@ class AuthViewModel @Inject constructor (
             }
         }
 
-        Log.d("AuthViewModel", "Validasi berhasil")
         onLogin(email, password)
     }
 
@@ -140,8 +127,6 @@ class AuthViewModel @Inject constructor (
     private fun onLogin(email: String, password: String) {
         viewModelScope.launch {
             isLoading = true
-            Log.d("AuthViewModel", "Login dimulai")
-
             try {
                 supabaseClient.auth.signInWith(Email) {
                     this.email = email
@@ -171,15 +156,10 @@ class AuthViewModel @Inject constructor (
         isSuccess = true
         Log.d("GOOGLE", "isSucces = ${isSuccess}")
     }
-
-     fun logout() {
+    fun logout() {
         viewModelScope.launch {
             supabaseClient.auth.signOut() // logout Supabase
         }
-    }
-
-     fun isUserLoggedIn(): Boolean {
-        return supabaseClient.auth.currentSessionOrNull() != null
     }
 
     fun changePassword(email: String, oldPassword: String, newPassword: String) {

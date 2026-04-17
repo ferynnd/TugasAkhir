@@ -200,11 +200,11 @@ fun CameraScreen(
                     if (allLandmarks.isEmpty()) return
                     val firstPerson = allLandmarks[0]
 
-                    // ✅ Handle kalibrasi dulu
+                    // Handle kalibrasi dulu
                     when (screenPhase) {
 
                         ScreenPhase.CALIBRATING -> {
-                            // ✅ Cek minimal landmark terdeteksi (visibility > 0.5)
+                            // Cek minimal landmark terdeteksi (visibility > 0.5)
                             val isBodyVisible = firstPerson.size >= 25 &&
                                     firstPerson[11].visibility().orElse(0f) > 0.5f && // bahu kiri
                                     firstPerson[12].visibility().orElse(0f) > 0.5f && // bahu kanan
@@ -238,14 +238,14 @@ fun CameraScreen(
                             if (now - lastUpdateTime.value < 60) return
                             lastUpdateTime.value = now
 
-                            // ✅ Kumpulkan landmark ke buffer
+                            // Kumpulkan landmark ke buffer
                             landmarkBuffer.addLast(firstPerson)
                             if (landmarkBuffer.size > BUFFER_SIZE) landmarkBuffer.removeFirst()
 
-                            // ✅ Belum cukup frame, skip evaluate dulu
+                            // Belum cukup frame, skip evaluate dulu
                             if (landmarkBuffer.size < BUFFER_SIZE) return
 
-                            // ✅ Rata-rata tiap titik landmark dari semua frame di buffer
+                            // Rata-rata tiap titik landmark dari semua frame di buffer
                             val landmarkCount = firstPerson.size
                             val averaged = (0 until landmarkCount).map { i ->
                                 val avgX = landmarkBuffer.map { it[i].x() }.average().toFloat()
@@ -267,7 +267,7 @@ fun CameraScreen(
                                 )
                             }
 
-                            // ✅ Kirim landmark yang sudah di-average ke evaluate
+                            // Kirim landmark yang sudah di-average ke evaluate
                             val exerciseLogic = TypeOfExercise(averaged)
 
                             val evaluation = when (exerciseCode) {
@@ -320,7 +320,7 @@ fun CameraScreen(
 
                     Log.e("TTS", "Bahasa Indonesia tidak tersedia, switch ke English")
 
-                    // 2️⃣ Fallback ke English
+                    // Fallback ke English
                     result = tts?.setLanguage(Locale.US)
 
                     if (result == TextToSpeech.LANG_MISSING_DATA ||
@@ -328,7 +328,7 @@ fun CameraScreen(
 
                         Log.e("TTS", "English juga tidak tersedia, pakai default device")
 
-                        // 3️⃣ Fallback terakhir
+                        // Fallback terakhir
                         tts?.setLanguage(Locale.getDefault())
                     }
                 }
@@ -536,7 +536,7 @@ fun CameraScreen(
                     }
                 )
             }
-            // ✅ OVERLAY 1: Siap kalibrasi?
+            // OVERLAY 1: Siap kalibrasi?
             if (screenPhase == ScreenPhase.WAITING_CALIBRATION) {
                 ReadyCalibrationOverlay(
                     onStart = {
@@ -546,7 +546,7 @@ fun CameraScreen(
                 )
             }
 
-            //  ✅ OVERLAY 2: Progress kalibrasi
+            //  OVERLAY 2: Progress kalibrasi
             if (screenPhase == ScreenPhase.CALIBRATING) {
                 CalibrationProgressOverlay(
                     progress = calibrationProgress,
@@ -554,12 +554,12 @@ fun CameraScreen(
                 )
             }
 
-            //  ✅ OVERLAY 3: Kalibrasi selesai
+            //  OVERLAY 3: Kalibrasi selesai
             if (screenPhase == ScreenPhase.CALIBRATION_DONE) {
                 CalibrationDoneOverlay()
             }
 
-            //  ✅ OVERLAY 4: Countdown
+            //  OVERLAY 4: Countdown
             if (screenPhase == ScreenPhase.COUNTDOWN) {
                 CountdownOverlay(countdownValue)
             }

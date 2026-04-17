@@ -14,6 +14,4 @@ data class BodyCalibration(
     val hipOffset:    Double get() = baselineHip     - 180.0
     val elbowOffset:  Double get() = baselineElbow   - 180.0
 
-    // Sit-up: baseline torso saat berbaring (bukan 180°, tapi ~170–180°)
-    val torsoBaselineLying: Double get() = baselineTorso
 }

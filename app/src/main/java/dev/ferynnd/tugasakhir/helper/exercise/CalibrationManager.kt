@@ -20,13 +20,6 @@ class CalibrationManager(val exerciseType: ExerciseCode) {
     val progress: Int get() = minOf(samplesSpine.size, requiredSamples)
     val isDone: Boolean get() = samplesSpine.size >= requiredSamples
 
-    // Instruksi yang ditampilkan ke user sesuai exercise
-    val instruction: String get() = when (exerciseType) {
-        ExerciseCode.SQUAT   -> "Pastikan seluruh tubuh terlihat dari kepala hingga kaki.."
-        ExerciseCode.PUSH_UP -> "Pastikan seluruh tubuh terlihat dari kepala hingga kaki.."
-        ExerciseCode.SIT_UP  -> "Pastikan seluruh tubuh terlihat dari kepala hingga kaki.."
-    }
-
     fun addSample(landmarks: List<NormalizedLandmark>) {
         if (isDone) return
 

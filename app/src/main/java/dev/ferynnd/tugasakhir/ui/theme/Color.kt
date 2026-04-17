@@ -29,12 +29,6 @@ val colLightning = Color(0xFFFFC700)
 val colTime = Color(0xFF7C3AED)
 
 // Typography & Border
-val TextMain = Color(0xFF111827)      // text-main (Sangat gelap/hampir hitam)
 val TextSub = Color(0xFF6B7280)       // text-sub (Abu-abu untuk keterangan)
 val Border = Color(0xFFE5E7EB)        // Border halus untuk mode light
 val Input = Color(0xFFF3F4F6)         // Warna background input field
-
-// Helper untuk penyesuaian variable lama Anda
-val Foreground = TextMain
-val Secondary = Color(0xFFC0121A)     // Menggunakan variasi red sebagai secondary
-val Red = Primary                     // Alias untuk warna utama
