@@ -136,10 +136,11 @@ fun CameraScreen(
     var lastFeedbackSpoken by remember { mutableStateOf<String?>(null) }
     var feedbackJob by remember { mutableStateOf<Job?>(null) }
 
-    var isCountdownActive by remember { mutableStateOf(true) }
     var countdownValue by remember { mutableStateOf(0) }
 
-    val runningSeconds = rememberElapsedSeconds(isRunning = !isCountdownActive)  // menyimpan & menghitung waktu yang sudah berlalu
+    val runningSeconds = rememberElapsedSeconds(
+        isRunning = screenPhase == ScreenPhase.EXERCISE
+    )
 
     LaunchedEffect(runningSeconds) {
         elapsedSeconds = runningSeconds

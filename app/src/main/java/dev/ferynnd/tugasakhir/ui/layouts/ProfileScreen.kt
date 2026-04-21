@@ -39,6 +39,8 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
@@ -97,10 +99,11 @@ fun ProfileScreen(
             }
         }
     ) { paddingValues ->
+        val layoutDirection = LocalLayoutDirection.current
        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(top = paddingValues.calculateTopPadding(), start = paddingValues.calculateStartPadding(layoutDirection), end = paddingValues.calculateEndPadding(layoutDirection))
                 .padding(horizontal = 24.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
@@ -128,7 +131,8 @@ fun ProfileScreen(
                 )
            }
         }
-         ExpandableFab(
+
+        ExpandableFab(
             onEdBmi = {
                 navController.navigate("editBMI")
             },
