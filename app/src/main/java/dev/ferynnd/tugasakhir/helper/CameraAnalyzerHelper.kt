@@ -28,9 +28,11 @@ class CameraAnalyzerHelper(
             }
         }
 
+        // buat bitmap baru dengan orientasi yang benar
         val rotated = Bitmap.createBitmap(
             bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true
         )
+
 
         val mpImage = BitmapImageBuilder(rotated).build()
         val timestamp = System.currentTimeMillis()
@@ -41,11 +43,12 @@ class CameraAnalyzerHelper(
     }
 }
 
+// function untuk konversi ImageProxy ke Bitmap
 fun ImageProxy.toBitmap(): Bitmap? {
-    val plane = planes.firstOrNull() ?: return null
-    val buffer = plane.buffer
-    val bytes = ByteArray(buffer.remaining())
-    buffer.get(bytes)
+    val plane = planes.firstOrNull() ?: return null // “plane” (layer data gambar)
+    val buffer = plane.buffer // data mentah gambar (byte)
+    val bytes = ByteArray(buffer.remaining()) // konversi ke ByteArray
+    buffer.get(bytes) // simpan ke ByteArray
 
-    return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+    return BitmapFactory.decodeByteArray(bytes, 0, bytes.size) // konversi ke Bitmap
 }

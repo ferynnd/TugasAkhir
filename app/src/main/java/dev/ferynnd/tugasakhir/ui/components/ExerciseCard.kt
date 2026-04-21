@@ -185,12 +185,12 @@ fun ExerciseCard(
                             modifier = Modifier
                                 .size(45.dp)
                                 .clickable { onDetail() },
-                            color = Primary.copy(0.2f), // Warna abu muda sesuai gambar
+                            color = Primary.copy(0.2f),
                             shape = RoundedCornerShape(12.dp)
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
-                                    imageVector = Icons.Default.Info, // Atau R.drawable.ic_info
+                                    imageVector = Icons.Default.Info,
                                     contentDescription = null,
                                     modifier = Modifier.size(20.dp),
                                     tint = White

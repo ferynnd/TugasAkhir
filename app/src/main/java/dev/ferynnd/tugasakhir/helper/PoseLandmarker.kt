@@ -13,6 +13,7 @@ class PoseLandmarkerHelper(
     private val listener: Listener,
     private val runningMode: RunningMode = RunningMode.LIVE_STREAM
 ) {
+    // Class ini untuk wrapper API mediapipe poselandmarker
 
     private var landmarker: PoseLandmarker? = null
 
@@ -20,6 +21,7 @@ class PoseLandmarkerHelper(
         fun onPoseResult(result: PoseLandmarkerResult, inferenceTime: Long)
         fun onError(message: String)
     }
+
 
     init {
         setupLandmarker()

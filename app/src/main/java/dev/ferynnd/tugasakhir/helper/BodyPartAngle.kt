@@ -4,6 +4,7 @@ import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 
 open class BodyPartAngle(val landmarks: List<NormalizedLandmark>) {
 
+    // menghasilkan kordinat landmark perdasarkan index point
     fun getPoint(index: Int): PoseMath.Point {
         val lm = landmarks[index]
         return PoseMath.Point(lm.x(), lm.y())

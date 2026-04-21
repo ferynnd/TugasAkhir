@@ -157,7 +157,7 @@ fun HeaderProfile(
              AsyncImage(
                  model = ImageRequest.Builder(LocalContext.current)
                         .data(avatar)
-                        .size(128) // sesuai UI
+                        .size(128)
                         .crossfade(false)
                         .build(),
                 contentDescription = "Image Profil User",
@@ -274,7 +274,7 @@ fun BMICard(
             BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
                 val barWidth = maxWidth
 
-                 val progress = when {
+                val progress = when {
                     bmiValue < 18.5 ->  0.15f
                     bmiValue < 25.0 ->  0.5f
                     bmiValue < 30.0 ->  0.85f

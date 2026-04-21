@@ -50,7 +50,6 @@ import dev.ferynnd.tugasakhir.ui.theme.Typography
 import dev.ferynnd.tugasakhir.ui.theme.White
 import kotlinx.coroutines.delay
 
-
 @Composable
 fun LottieDialog(
     lottieRes: Int,

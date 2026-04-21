@@ -108,7 +108,7 @@ fun EditProfileScreen(
     LaunchedEffect(userViewModel.isSuccess) {
         if (userViewModel.isSuccess) {
             showSuccessDialog= true
-            userViewModel.isSuccess = false // RESET agar tidak muncul terus
+            userViewModel.isSuccess = false // RESET
         }
     }
     val scope = rememberCoroutineScope()
@@ -143,7 +143,7 @@ fun EditProfileScreen(
                         tint = Black,
                         modifier = Modifier
                             .size(24.dp)
-                            .graphicsLayer(scaleX = -1f) // Flip horizontal
+                            .graphicsLayer(scaleX = -1f)
 
                     )
                 }
@@ -163,7 +163,7 @@ fun EditProfileScreen(
         containerColor = Background,
     ) { padding ->
 
-         dialogState?.let { state ->
+        dialogState?.let { state ->
             LottieDialog(
                 lottieRes = state.lottieRes,
                 title = state.title,
@@ -290,23 +290,23 @@ fun EditProfileScreen(
                     shape = RoundedCornerShape(12.dp),
                     border = BorderStroke(1.5.dp, TextSub),
                     colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = TextSub.copy(alpha = 0.15f), // Pindahkan background ke sini agar rapi
+                        containerColor = TextSub.copy(alpha = 0.15f),
                         contentColor = TextSub
                     ),
-                    contentPadding = PaddingValues(horizontal = 20.dp) // Padding internal button 8dp
+                    contentPadding = PaddingValues(horizontal = 20.dp)
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Start // Memaksa isi ke kiri
+                        horizontalArrangement = Arrangement.Start
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.lockk),
                             contentDescription = null,
                             tint = TextSub,
-                            modifier = Modifier.size(20.dp) // Ukuran icon sedikit diperbesar agar proporsional
+                            modifier = Modifier.size(20.dp)
                         )
-                        Spacer(Modifier.width(12.dp)) // Jarak antara icon dan teks
+                        Spacer(Modifier.width(12.dp))
                         Text(
                             text = "UBAH PASSWORD",
                             fontWeight = FontWeight.SemiBold,
@@ -338,7 +338,7 @@ fun EditProfileScreen(
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Start // Memaksa isi ke kiri
+                    horizontalArrangement = Arrangement.Start
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.logoout),
@@ -361,7 +361,7 @@ fun EditProfileScreen(
             LogoutDialog(
                 onDismissRequest = { logoutDialog = false },
                 onConfirmLogout = {
-                    logoutDialog = false // Tutup dialog dulu
+                    logoutDialog = false
                     authViewModel.logout()
                     navController.navigate("login") {
                         popUpTo(0) { inclusive = true }
@@ -384,7 +384,7 @@ fun EditProfileScreen(
                 onConfirm = { oldPass, newPass ->
                     showPasswordDialog = false
                     authViewModel.changePassword(
-                        email = authViewModel.email, // Ambil state email dari ViewModel
+                        email = authViewModel.email,
                         oldPassword = oldPass,
                         newPassword = newPass
                     )

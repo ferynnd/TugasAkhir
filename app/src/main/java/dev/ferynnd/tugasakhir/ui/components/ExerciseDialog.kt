@@ -116,7 +116,7 @@ fun ExerciseItem(
             Card(
                 shape = RoundedCornerShape(8.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = exercise.color.copy(0.15f)// Tambahkan property color di model
+                    containerColor = exercise.color.copy(0.15f)
                 )
             ) {
                 CustomIcon(
@@ -166,7 +166,7 @@ fun ExerciseItem(
             Card(
                 shape = RoundedCornerShape(10.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = White.copy(0.15f)// Tambahkan property color di model
+                    containerColor = White.copy(0.15f)
                 )
             ) {
                 CustomIcon(

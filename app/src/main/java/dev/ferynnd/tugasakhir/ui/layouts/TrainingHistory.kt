@@ -186,12 +186,14 @@ fun ExerciseHistory(
                     }
                 }
             } else {
+                // ambil jumlah 6
                 val displayedHistory = historyList.take(visibleItemCount)
 
                 items(displayedHistory) { history ->
                     HistoryCard(history, navController)
                 }
 
+                // cek apakah ada data yang belum ditampilkan
                 if (visibleItemCount < historyList.size) {
                     item {
                         Row(
@@ -280,8 +282,8 @@ fun HistoryCard(history: HistoryExercise, navController: NavController) {
             .clickable {
                 navController.navigate("trainingSummary/${history.id}")
             },
-        shape = RoundedCornerShape(12.dp), // Lebih membulat agar modern
-        colors = CardDefaults.cardColors(containerColor = Card), // Dark surface
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Card),
     ) {
         Row(
             modifier = Modifier
@@ -304,7 +306,6 @@ fun HistoryCard(history: HistoryExercise, navController: NavController) {
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // 2. Info Section
             Column(modifier = Modifier.weight(1f)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -357,7 +358,7 @@ fun MiniInfoItem(iconRes: Int, text: String, color: Color) {
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .clip(RoundedCornerShape(12.dp))
-            .background(color.copy(alpha = 0.1f)) // Opsional: tambah background tipis agar lebih estetik
+            .background(color.copy(alpha = 0.1f))
             .padding(horizontal = 8.dp, vertical = 4.dp)
     ) {
         Icon(
@@ -376,7 +377,6 @@ fun MiniInfoItem(iconRes: Int, text: String, color: Color) {
     }
 }
 
-/* Function untuk menentukan icon berdasarkan exercise */
 fun getExerciseIcon(code: String?): Int {
     return when (code) {
         "PUSH_UP" -> R.drawable.imgpushup

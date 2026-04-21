@@ -15,7 +15,7 @@ class TypeOfExercise(landmarks: List<NormalizedLandmark>) : BodyPartAngle(landma
         counter: Int,
         currentState: ExerciseState,
         calibration: BodyCalibration = BodyCalibration(),
-        postureGate: PostureGate
+        postureGate: PostureGate // Reset jika postur tidak valid
     ): ExerciseEvaluation {
 
         val validator  = PostureValidator(landmarks, calibration)
@@ -41,14 +41,14 @@ class TypeOfExercise(landmarks: List<NormalizedLandmark>) : BodyPartAngle(landma
                 "Kembali ke posisi push-up", isCorrect = false)
         }
 
-        val correctionResult = correction.analyzePushUp(currentState)
+        val correctionResult = correction.analyzePushUp(currentState) // return feedback dan isCorrect
         Log.d("PUSHUP_CORRECTION",
             "feedback=${correctionResult.feedback} |" +
                     " isCorrect=${correctionResult.isCorrect} |" +
                     " type=${correctionResult.correctionType}")
 
         val result = if ( correctionResult.isCorrect) {
-            repCounter.countPushUp(counter, currentState)
+            repCounter.countPushUp(counter, currentState) // return reps dan newState
         } else {
             ExerciseEvaluation(
                 reps = counter,
@@ -117,7 +117,7 @@ class TypeOfExercise(landmarks: List<NormalizedLandmark>) : BodyPartAngle(landma
         )
 
         if (!isActiveMovement) {
-            val shouldReset = postureGate.update(isValidPosture)
+            val shouldReset = postureGate.update(isValidPosture) // return true jika reset
             if (shouldReset) {
                 postureGate.reset()
                 return ExerciseEvaluation(
@@ -138,10 +138,10 @@ class TypeOfExercise(landmarks: List<NormalizedLandmark>) : BodyPartAngle(landma
                 "Kembali ke posisi berbaring", isCorrect = false)
         }
 
-        val correctionResult = correction.analyzeSitUp(currentState)
+        val correctionResult = correction.analyzeSitUp(currentState) // return feedback dan isCorrect
 
         val result = if(correctionResult.isCorrect) {
-            repCounter.countSitUp(counter, currentState)
+            repCounter.countSitUp(counter, currentState) // return reps dan newState
         } else {
             ExerciseEvaluation(
                 reps = counter,
@@ -207,7 +207,7 @@ class TypeOfExercise(landmarks: List<NormalizedLandmark>) : BodyPartAngle(landma
                 "Kembali ke posisi berdiri tegak", isCorrect = false)
         }
 
-        val correctionResult = correction.analyzeSquat(currentState)
+        val correctionResult = correction.analyzeSquat(currentState) // return feedback dan isCorrect
 
         Log.d(
             "SQUAT_CORRECTION",
@@ -217,7 +217,7 @@ class TypeOfExercise(landmarks: List<NormalizedLandmark>) : BodyPartAngle(landma
         )
 
         val result = if (correctionResult.isCorrect) {
-            repCounter.countSquat(counter, currentState)
+            repCounter.countSquat(counter, currentState) // return reps dan newState
         } else {
             ExerciseEvaluation(
                 reps = counter,

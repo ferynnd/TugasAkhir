@@ -68,7 +68,7 @@ fun RepsBadge(count: Int, modifier: Modifier) {
     Box(
         modifier = modifier
             .size(100.dp, 80.dp)
-            .background(Color.White, RoundedCornerShape(24.dp)), // Putih bersih sesuai Gambar 4
+            .background(Color.White, RoundedCornerShape(24.dp)),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -79,7 +79,11 @@ fun RepsBadge(count: Int, modifier: Modifier) {
 }
 
 @Composable
-fun BottomInfoPanel(onEndSessionClick: () -> Unit, feedback: String, elapsedTime: Int, modifier: Modifier, exerciseName: String) {
+fun BottomInfoPanel(onEndSessionClick: () -> Unit,
+                    feedback: String, elapsedTime: Int,
+                    modifier: Modifier,
+                    exerciseName: String
+) {
 
     val minutes = elapsedTime / 60
     val seconds = elapsedTime % 60

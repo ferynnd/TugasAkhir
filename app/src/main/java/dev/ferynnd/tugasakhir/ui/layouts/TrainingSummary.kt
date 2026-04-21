@@ -251,7 +251,7 @@ fun ComparisonRow(
                 )
             }
         }
-        // Bagian indikator performa
+
         if (diff != 0) {
             Column(horizontalAlignment = Alignment.End) {
                 Row(verticalAlignment = Alignment.CenterVertically) {

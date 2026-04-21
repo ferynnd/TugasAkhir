@@ -98,14 +98,14 @@ fun RegisterScreen(
                         label = "Nama Lengkap",
                         value = fullname,
                         onValueChange = { fullname = it },
-                        placeholder = "Nama mahasiswa"
+                        placeholder = "Nama Lengkap"
                     )
 
                     ProfileInput(
-                        label = "Email Mahasiswa",
+                        label = "Email ",
                         value = email,
                         onValueChange = { email = it },
-                        placeholder = "nim@pnm.ac.id"
+                        placeholder = "jhondoe@gmail.com"
                     )
 
                     ProfileInput(

@@ -64,9 +64,9 @@ fun TrainingDetail(navController: NavController, exerciseId: Int?) {
         return
     }
 
-     Scaffold(
+    Scaffold(
         containerColor = Background,
-          topBar = {
+        topBar = {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -78,7 +78,7 @@ fun TrainingDetail(navController: NavController, exerciseId: Int?) {
                     modifier = Modifier
                         .size(36.dp)
                         .clip(CircleShape)
-                       .background(Primary)
+                        .background(Primary)
 
                 ) {
                     CustomIcon(
@@ -87,7 +87,7 @@ fun TrainingDetail(navController: NavController, exerciseId: Int?) {
                         tint = Black,
                         modifier = Modifier
                             .size(24.dp)
-                            .graphicsLayer(scaleX = -1f) // Flip horizontal
+                            .graphicsLayer(scaleX = -1f)
 
                     )
                 }
@@ -105,133 +105,129 @@ fun TrainingDetail(navController: NavController, exerciseId: Int?) {
         },
     ) { paddingValues ->
 
-         val layotDirection = LocalLayoutDirection.current
+        val layotDirection = LocalLayoutDirection.current
 
-         Box(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = paddingValues.calculateTopPadding(), start = paddingValues.calculateStartPadding(layotDirection),end = paddingValues.calculateEndPadding(layotDirection))
         ) {
-             Column(
-                 modifier = Modifier
-                     .fillMaxSize()
-                     .verticalScroll(scrollState)
-             ) {
-                 // Header Image Section
-                 MediaCarousel(
-                     mediaItems = exercise.media
-                 )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+            ) {
+                MediaCarousel(
+                    mediaItems = exercise.media
+                )
 
                  // Content Section
-                 Column(
-                     modifier = Modifier
-                         .fillMaxWidth()
-                         .padding(horizontal = 20.dp)
-                         .clip(
-                             RoundedCornerShape(
-                                 topStart = 16.dp,
-                                 topEnd = 16.dp,
-                                 bottomStart = 0.dp,
-                                 bottomEnd = 0.dp
-                             )
-                         )
-                 ) {
-                     Spacer(modifier = Modifier.height(12.dp))
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
+                        .clip(
+                            RoundedCornerShape(
+                                topStart = 16.dp,
+                                topEnd = 16.dp,
+                                bottomStart = 0.dp,
+                                bottomEnd = 0.dp
+                            )
+                        )
+                ) {
+                    Spacer(modifier = Modifier.height(12.dp))
 
-                     // Title
-                     Text(
-                         text = exercise.name.uppercase(),
-                         fontSize = 28.sp,
-                         fontWeight = FontWeight.Bold,
-                         color = Primary
-                     )
+                    Text(
+                        text = exercise.name.uppercase(),
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Primary
+                    )
 
-                     Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                     // Stats Row
-                     StatsRow(
-                         calories = exercise.cal,
-                         duration = exercise.duration,
-                         reps = exercise.reps
-                     )
+                    // Stats Row
+                    StatsRow(
+                        calories = exercise.cal,
+                        duration = exercise.duration,
+                        reps = exercise.reps
+                    )
 
-                     Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
 
-                     // Description Section
-                     DescriptionSection(
-                         description = exercise.description.toString()
-                     )
+                    // Description Section
+                    DescriptionSection(
+                        description = exercise.description.toString()
+                    )
 
-                     Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
 
-                     // How to Perform Section
-                     HowToPerformSection(
-                         steps = exercise.howUse
-                     )
+                    // How to Perform Section
+                    HowToPerformSection(
+                        steps = exercise.howUse
+                    )
 
-                     Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
 
-                     // Common Mistakes Section
-                     CommonMistakesSection(
-                         mistakes = exercise.commonMistakes
-                     )
+                    // Common Mistakes Section
+                    CommonMistakesSection(
+                        mistakes = exercise.commonMistakes
+                    )
 
-                     Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
 
-                     // Benefits Section
-                     BenefitsSection(
-                         benefits = exercise.benefits
-                     )
+                    // Benefits Section
+                    BenefitsSection(
+                        benefits = exercise.benefits
+                    )
 
-                     Spacer(modifier = Modifier.height(120.dp)) // Space for button
-                 }
-             }
+                    Spacer(modifier = Modifier.height(120.dp)) // Space for button
+                }
+            }
 
-             // Floating Button at Bottom
-             Box(
-                 modifier = Modifier
-                     .align(Alignment.BottomCenter)
-                     .fillMaxWidth()
-                     .background(Black)
-                     .drawBehind {
-                         drawLine(
-                             color = TextSub.copy(0.1f),
-                             start = Offset(0f, 0f),
-                             end = Offset(size.width, 0f),
-                             strokeWidth = 1.dp.toPx()
-                         )
-                     }
-                     .padding(horizontal = 20.dp, vertical = 16.dp)
-
-             ) {
-                 Button(
-                     onClick = {
-                         navController.navigate("cameraScan/${exercise.code}")
-                     },
-                     modifier = Modifier.fillMaxWidth().height(60.dp),
-                     colors = ButtonDefaults.buttonColors(containerColor = Primary),
-                     shape = RoundedCornerShape(12.dp),
-                     contentPadding = PaddingValues(0.dp)
-                 ) {
-                     Row(verticalAlignment = Alignment.CenterVertically) {
-                         Icon(
-                             painter = painterResource(id = R.drawable.icplay),
-                             contentDescription = null,
-                             modifier = Modifier.size(24.dp),
-                             tint = Black
-                         )
-                         Spacer(Modifier.width(10.dp))
-                         Text(
-                             "MULAI LATIHAN",
-                             fontWeight = FontWeight.Bold,
-                             fontSize = 16.sp,
-                             color = Black,
-                             fontFamily = Geist
-                         )
-                     }
-                 }
-             }
-         }
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .background(Black)
+                    .drawBehind {
+                        drawLine(
+                            color = TextSub.copy(0.1f),
+                            start = Offset(0f, 0f),
+                            end = Offset(size.width, 0f),
+                            strokeWidth = 1.dp.toPx()
+                        )
+                    }
+                    .padding(horizontal = 20.dp, vertical = 16.dp)
+            ) {
+                Button(
+                    onClick = {
+                        navController.navigate("cameraScan/${exercise.code}")
+                              },
+                    modifier = Modifier.fillMaxWidth().height(60.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Primary),
+                    shape = RoundedCornerShape(12.dp),
+                    contentPadding = PaddingValues(0.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.icplay),
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                            tint = Black
+                        )
+                        Spacer(Modifier.width(10.dp))
+                        Text(
+                            "MULAI LATIHAN",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
+                            color = Black,
+                            fontFamily = Geist
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 

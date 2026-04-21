@@ -22,15 +22,17 @@ fun PoseOverlay(
 
     Canvas(modifier = modifier.fillMaxSize()) {
 
-        if (poseResult == null) return@Canvas
+        if (poseResult == null) return@Canvas // Jangan gambar apa-apa
 
         val landmarks = poseResult.landmarks().firstOrNull() ?: return@Canvas
+        // hasil landmark itu bukan pixel, tapi normalized coordinate
         val width = size.width
         val height = size.height
 
         for (point in landmarks) {
             val x = point.x() * width
             val y = point.y() * height
+            // val diatas untuk mengubah koordinat 0–1 → pixel layar
 
             drawCircle(
                 color = jointColor,
@@ -73,13 +75,14 @@ private fun DrawScope.drawGroup(
     color: Color
 ) {
     connections.forEach { (start, end) ->
+        // mengambil dua nilai dari Pair (start, end) dengan destructuring
         if (start < landmarks.size && end < landmarks.size) {
             val p1 = landmarks[start]
             val p2 = landmarks[end]
 
             drawLine(
                 color = color,
-                start = Offset(p1.x() * width, p1.y() * height),
+                start = Offset(p1.x() * width, p1.y() * height), // mengubah ke pixel
                 end = Offset(p2.x() * width, p2.y() * height),
                 strokeWidth = 6f // Sedikit lebih tebal agar jelas
             )

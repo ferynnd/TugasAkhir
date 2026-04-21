@@ -40,13 +40,13 @@ class FormCorrection(
         )
 
         Log.d("FORM_PUSHUP", """
-        |=== FORM CORRECTION ===
-        |State        : $state
-        |isActiveState: $isActiveState
-        |Spine        : ${"%.1f".format(spine)}° (min=${150.0 + spineOffset})
-        |Shoulder     : ${"%.1f".format(shoulder)}° (valid=20..150)
-        |Elbow        : ${"%.1f".format(elbow)}° 
-    """.trimMargin())
+            |=== FORM CORRECTION ===
+            |State        : $state
+            |isActiveState: $isActiveState
+            |Spine        : ${"%.1f".format(spine)}° (min=${150.0 + spineOffset})
+            |Shoulder     : ${"%.1f".format(shoulder)}° (valid=20..150)
+            |Elbow        : ${"%.1f".format(elbow)}° 
+        """.trimMargin())
 
         // 1. Punggung tidak lurus (spine harusnya 140-185° saat plank)
         if (spine < 140.0 || (spine > 185.0 && spine < 350.0)) {
@@ -58,8 +58,8 @@ class FormCorrection(
             )
         }
 
-        // 2. Bahu terlalu lebar (>90° dari gambar = tidak ideal)
-        // Dari gambar: bahu ideal = 45° saat turun
+        // 2. Bahu terlalu lebar (>90° = tidak ideal)
+        // bahu ideal = 45° saat turun
         if (isActiveState && shoulder > 75.0) {
             Log.d("FORM_PUSHUP", "❌ Shoulder terlalu lebar: $shoulder")
             return CorrectionResult(
@@ -69,7 +69,7 @@ class FormCorrection(
             )
         }
 
-        // 3. Kedalaman kurang saat BOTTOM (dari gambar siku harus ~90°)
+        // 3. Kedalaman kurang saat BOTTOM (siku harus ~90°)
         if (state == ExerciseState.BOTTOM && elbow > 110.0) {
             Log.d("FORM_PUSHUP", "❌ Depth kurang: elbow=$elbow saat BOTTOM")
             return CorrectionResult(
@@ -93,11 +93,11 @@ class FormCorrection(
         val kneeRaw = angleKnee() // Posisi Lutut
         val torso = angleTorso() // Posisi bagian tubuh tengah Dada + perut + punggung
 
-        val spineOffset = if (calibration.isCalibrated) calibration.spineOffset else 0.0
-        val kneeOffset = if (calibration.isCalibrated) calibration.kneeOffset else 0.0
+        val spineOffset = if (calibration.isCalibrated) calibration.spineOffset else 0.0 // selisih sudut bahu
+        val kneeOffset = if (calibration.isCalibrated) calibration.kneeOffset else 0.0 // selisih sudut lutut
 
-        val spine = spineRaw + spineOffset
-        val knee = kneeRaw + kneeOffset
+        val spine = spineRaw + spineOffset // sudut bahu yang sudah disesuaikan
+        val knee = kneeRaw + kneeOffset // sudut lutut yang sudah disesuaikan
 
         val isActiveState = state in listOf(
             ExerciseState.DESCENDING,
@@ -108,18 +108,16 @@ class FormCorrection(
         Log.d(
             "FORM_SQUAT",
             """
-        state=$state
-        spine=${"%.1f".format(spine)}
-        knee=${"%.1f".format(knee)}
-        torso=${"%.1f".format(torso)}
-        """.trimIndent()
-        )
+                state=$state
+                spine=${"%.1f".format(spine)}
+                knee=${"%.1f".format(knee)}
+                torso=${"%.1f".format(torso)}
+                """.trimIndent()
+                )
 
-        // 1️⃣ Punggung membungkuk
+        // Punggung membungkuk
         if (spine < 70) {
-
             Log.d("FORM_SQUAT", "❌ Spine membungkuk")
-
             return CorrectionResult(
                 feedback = "Tegakkan punggung",
                 isCorrect = false,
@@ -127,7 +125,8 @@ class FormCorrection(
             )
         }
 
-        // 2️⃣ Badan terlalu condong
+        // Badan terlalu condong
+        // torso = tubuh bagian tengah (dada + perut + punggung)
         if (isActiveState && torso < 30.0) {
 
             Log.d("FORM_SQUAT", "❌ Torso terlalu condong")
@@ -139,7 +138,7 @@ class FormCorrection(
             )
         }
 
-        // 3️⃣ Depth kurang
+        // Depth kurang
         if (state == ExerciseState.BOTTOM && knee > 100.0) {
 
             Log.d("FORM_SQUAT", "❌ Squat kurang dalam")
@@ -171,9 +170,10 @@ class FormCorrection(
             "state=$state | " +
                     "spine=${"%.1f".format(spine)} |" +
                     " knee=${"%.1f".format(knee)} |" +
-                    " torso=${"%.1f".format(torso)}")
+                    " torso=${"%.1f".format(torso)}"
+        )
 
-        // 1. Lutut: berbaring ~40-80°, saat TOP ~80-100° (dari gambar lutut ±90°)
+        // Lutut: berbaring ~40-80°, saat TOP ~80-100° (lutut ±90°)
         val kneeRange = when (state) {
             ExerciseState.BOTTOM,
             ExerciseState.ASCENDING,
@@ -191,7 +191,7 @@ class FormCorrection(
             )
         }
 
-        // 2. Torso tidak cukup naik saat TOP (dari gambar: 60–75°)
+        // Torso tidak cukup naik saat TOP (60–75°)
         if (state == ExerciseState.TOP && torso > 75.0) {
             Log.d("FORM_SITUP", "❌ Torso kurang naik: $torso saat TOP")
             return CorrectionResult(
@@ -201,7 +201,7 @@ class FormCorrection(
             )
         }
 
-        // 3. Punggung tidak rebah saat BOTTOM (dari gambar: 155°)
+        // Punggung tidak rebah saat BOTTOM (155°)
         if (state == ExerciseState.BOTTOM && spine < 155.0) {
             Log.d("FORM_SITUP", "❌ Punggung tidak rebah: spine=$spine")
             return CorrectionResult(

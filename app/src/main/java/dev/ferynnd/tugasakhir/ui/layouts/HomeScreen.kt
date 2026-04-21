@@ -72,7 +72,6 @@ fun HomeScreen(
     val displayAvatar by remember { derivedStateOf { userViewModel.avatar } }
     val displayBMIValue by remember { derivedStateOf { userViewModel.bmiResult } }
     val displayBMICategory by remember { derivedStateOf { userViewModel.bmiCategory } }
-    Log.d("HomeScreen", "displayBMICat: $displayBMICategory")
 
     var showExerciseDialog by remember { mutableStateOf(false) }
 
@@ -93,7 +92,10 @@ fun HomeScreen(
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
 
-            BMIStatusCard( displayBMIValue = displayBMIValue, displayBMICategory = CategoryBmi.valueOf(displayBMICategory) )
+            BMIStatusCard(
+                displayBMIValue = displayBMIValue,
+                displayBMICategory = CategoryBmi.valueOf(displayBMICategory)
+            )
             ProgressSection(
                 todayCalories = todayCalories,
                 todayExercise = todayExercise
@@ -115,7 +117,7 @@ fun HomeScreen(
 
     if (userViewModel.showBmiWarning) {
         LottieDialog(
-            lottieRes = R.raw.warning, // Ganti dengan file lottie Anda
+            lottieRes = R.raw.warning,
             title = "Lengkapi Profil BMI",
             message = "Lengkapi data BMI untuk mengetahui status berat badan Anda.",
             confirmText = "Lengkapi",
@@ -123,7 +125,7 @@ fun HomeScreen(
             dismissText = "Nanti Saja",
             onConfirm = {
                 userViewModel.showBmiWarning = false
-                navController.navigate("editBMI") // Arahkan ke halaman edit
+                navController.navigate("editBMI")
             },
             onDismiss = {
                 userViewModel.showBmiWarning = false
@@ -147,7 +149,6 @@ fun TopBarSection(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            // Profile Picture with Online Dot
             Box {
                  AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
@@ -221,7 +222,6 @@ fun BMIStatusCard( displayBMIValue: Double = 0.0, displayBMICategory: CategoryBm
                         Text("BMI", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextSub, modifier = Modifier.padding(bottom = 3.dp, start = 5.dp))
                     }
                     Spacer(modifier = Modifier.height(14.dp))
-                    // Normal Weight Chip
                     Surface(
                         color = Primary,
                         shape = RoundedCornerShape(100)
@@ -235,17 +235,16 @@ fun BMIStatusCard( displayBMIValue: Double = 0.0, displayBMICategory: CategoryBm
                 }
 
                 Card(
-                    modifier = Modifier.size(110.dp), // Ukuran sedikit lebih proporsional
-                    shape = RoundedCornerShape(24.dp), // Lebih rounded agar modern
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF2C2C2E)) // Background card gelap
+                    modifier = Modifier.size(110.dp),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF2C2C2E))
                 ) {
                     Box(modifier = Modifier.fillMaxSize()) {
-                        // Efek Pattern titik-titik atau glow di background card
                         Canvas(modifier = Modifier.fillMaxSize()) {
                             drawCircle(
                                 color = Primary.copy(alpha = 0.1f),
                                 radius = size.minDimension / 1.5f,
-                                center = Offset(size.width, 0f) // Glow di pojok
+                                center = Offset(size.width, 0f)
                             )
                         }
 

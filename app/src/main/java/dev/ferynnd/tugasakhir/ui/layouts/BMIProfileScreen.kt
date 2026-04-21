@@ -44,8 +44,9 @@ fun BMIProfileScreen(
     supabaseClient: SupabaseClient
 ) {
 
+    // remember untuk menyimpan state saat recomposition
     val user = remember { supabaseClient.auth.currentUserOrNull() }
-    val scope = rememberCoroutineScope()
+    val scope = rememberCoroutineScope() // Untuk menjalankan coroutine / async task
 
     var gender by remember { mutableStateOf(Gender.MALE) }
     var weightValue by remember { mutableIntStateOf(60) } // Default 60kg
@@ -55,13 +56,18 @@ fun BMIProfileScreen(
     val dialogState by remember { derivedStateOf { userViewModel.dialogState } }
     var showSuccessDialog by remember { mutableStateOf(false) }
 
+    // untuk memastikan data tidak berulang kecuali jika ada perubahan
     LaunchedEffect(user?.id) {
         user?.id?.let { id ->
             userViewModel.getUserBMI(id)
         }
     }
 
-    LaunchedEffect(userViewModel.weightValue, userViewModel.heightValue , userViewModel.ageValue, userViewModel.selectedGender) {
+    LaunchedEffect(userViewModel.weightValue,
+        userViewModel.heightValue ,
+        userViewModel.ageValue,
+        userViewModel.selectedGender)
+    {
         weightValue = userViewModel.weightValue
         heightValue = userViewModel.heightValue.toString()
         ageValue = userViewModel.ageValue.toString()
@@ -109,16 +115,16 @@ fun BMIProfileScreen(
         },
     ) { paddingValues ->
 
-          dialogState?.let { state ->
-              LottieDialog(
-                  lottieRes = state.lottieRes,
-                  title = state.title,
-                  message = state.message,
-                  colorBg = state.colorBg,
-                  autoDismiss = state.autoDismiss,
-                  onConfirm = { userViewModel.dismissDialog() },
-                  onDismiss = { userViewModel.dismissDialog() }
-              )
+        dialogState?.let { state ->
+            LottieDialog(
+                lottieRes = state.lottieRes,
+                title = state.title,
+                message = state.message,
+                colorBg = state.colorBg,
+                autoDismiss = state.autoDismiss,
+                onConfirm = { userViewModel.dismissDialog() },
+                onDismiss = { userViewModel.dismissDialog() }
+            )
         }
 
         Column(
@@ -129,7 +135,6 @@ fun BMIProfileScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            // Header Text
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -149,7 +154,7 @@ fun BMIProfileScreen(
                     style = TextStyle(
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Black,
-                        color = Primary, // Warna Lime Green andalan
+                        color = Primary,
                         letterSpacing = (-1).sp
                     )
                 )
@@ -284,7 +289,7 @@ fun GenderCard(modifier: Modifier, label: String, isSelected: Boolean, onClick: 
         border = BorderStroke(1.5.dp, if (isSelected) Primary else TextSub)
     ) {
         Box(
-            modifier = Modifier.fillMaxSize() // Mengisi seluruh area Surface/Card
+            modifier = Modifier.fillMaxSize()
         ) {
                 Row(
                     modifier = Modifier.align(Alignment.Center),

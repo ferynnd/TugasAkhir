@@ -5,6 +5,8 @@ import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import dev.ferynnd.tugasakhir.data.model.ExerciseCode
 import dev.ferynnd.tugasakhir.helper.BodyPartAngle
 
+// mengumpulkan data sudut tubuh selama beberapa detik
+// untuk menentukan baseline (posisi normal user)
 class CalibrationManager(val exerciseType: ExerciseCode) {
 
     private val samplesSpine  = mutableListOf<Double>()
@@ -13,9 +15,12 @@ class CalibrationManager(val exerciseType: ExerciseCode) {
     private val samplesElbow  = mutableListOf<Double>()
     private val samplesTorso  = mutableListOf<Double>()
 
-    val requiredSamples = 60        // ✅ 60 sampel = ~3 detik pada 20fps
-    private var lastSampleTime = 0L
-    private val sampleIntervalMs = 50L  // max 20 sampel/detik
+    val requiredSamples = 60        // 60 sampel = ~3 detik pada 20fps
+    private var lastSampleTime = 0L // L disini tipe Long
+    private val sampleIntervalMs = 50L  // 50 ms = 0.05 detik
+
+    // 1 detik / 0.05 detik = 20 sample per detik
+    // 60 sample / 20 sample per detik = 3 detik
 
     val progress: Int get() = minOf(samplesSpine.size, requiredSamples)
     val isDone: Boolean get() = samplesSpine.size >= requiredSamples
@@ -38,7 +43,7 @@ class CalibrationManager(val exerciseType: ExerciseCode) {
     }
 
     fun buildCalibration(): BodyCalibration {
-        if (!isDone) return BodyCalibration()
+        if (!isDone) return BodyCalibration() // return default (180° semua)
         return when (exerciseType) {
 
             // Baseline berdiri → spine & knee & hip harusnya ~170–180°
@@ -67,14 +72,17 @@ class CalibrationManager(val exerciseType: ExerciseCode) {
     }
 
     fun reset() {
-        samplesSpine.clear(); samplesKnee.clear()
-        samplesHip.clear(); samplesElbow.clear(); samplesTorso.clear()
+        samplesSpine.clear();
+        samplesKnee.clear()
+        samplesHip.clear();
+        samplesElbow.clear();
+        samplesTorso.clear()
     }
 
     private fun List<Double>.median(): Double {
-        val sorted = this.sorted()
-        return if (sorted.size % 2 == 0)
-            (sorted[sorted.size / 2 - 1] + sorted[sorted.size / 2]) / 2.0
-        else sorted[sorted.size / 2]
+        val sorted = this.sorted() // urutkan daftar
+        return if (sorted.size % 2 == 0) // jika jumlah elemen genap
+            (sorted[sorted.size / 2 - 1] + sorted[sorted.size / 2]) / 2.0 // rata-rata dua nilai tengah
+        else sorted[sorted.size / 2] // jika jumlah elemen ganjil, ambil nilai tengah
     }
 }

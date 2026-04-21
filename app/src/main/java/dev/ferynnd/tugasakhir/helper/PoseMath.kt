@@ -12,11 +12,20 @@ object PoseMath {
         mid: Point,
         end: Point
     ): Double {
+        // Hitung sudut antara dua vektor:
+        // v1 = mid → end
+        // v2 = mid → first
         var angle = Math.toDegrees((atan2(end.y - mid.y, end.x - mid.x) - atan2(first.y - mid.y, first.x - mid.x)).toDouble())
+        // Ambil nilai absolut supaya tidak negatif
         angle = abs(angle)
+        // Jika sudut lebih dari 180°, ubah ke sudut terkecil
         if (angle > 180.0) {
+            // misal 360 - 300 = 60°
+            // kalau sudut lebih dari setengah lingkaran
+            // ambil sisi satunya (yang lebih kecil)
             angle = 360.0 - angle
         }
+        // Return sudut dalam derajat (0° - 180°)
         return angle
     }
     data class Point(val x: Float, val y: Float)

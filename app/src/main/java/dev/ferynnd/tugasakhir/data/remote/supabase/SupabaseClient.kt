@@ -16,7 +16,6 @@ import javax.inject.Inject
 class SupabaseClient @Inject constructor(){
 
     // Ganti dengan kredensial dari Dashboard Supabase -> Settings -> API
-
     private val _client = createSupabaseClient(
         supabaseUrl = "https://dgosuntfquttgeqhtsvr.supabase.co",
         supabaseKey = "sb_publishable_66ml-4eJDwGHIaVqOuq1oA_ArtLuSKW"

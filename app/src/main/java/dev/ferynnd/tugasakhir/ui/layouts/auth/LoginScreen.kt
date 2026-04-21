@@ -168,12 +168,12 @@ fun LoginScreen(
 
                 }
 
-                TextButton(
-                    onClick = { /* Lupa Password */ },
-                    modifier = Modifier.align(Alignment.End)
-                ) {
-                    Text("Lupa kata sandi?", color = Primary, fontWeight = FontWeight.Medium, fontSize = 14.sp)
-                }
+//                TextButton(
+//                    onClick = { /* Lupa Password */ },
+//                    modifier = Modifier.align(Alignment.End)
+//                ) {
+//                    Text("Lupa kata sandi?", color = Primary, fontWeight = FontWeight.Medium, fontSize = 14.sp)
+//                }
 
                 Spacer(modifier = Modifier.height(24.dp))
 

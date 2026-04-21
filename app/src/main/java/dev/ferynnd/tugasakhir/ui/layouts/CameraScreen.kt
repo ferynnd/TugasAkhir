@@ -107,6 +107,7 @@ fun CameraScreen(
         weightValue = userViewModel.weightValue
     }
 
+    // dipanggil saat sudah mengakhiri latihan
     LaunchedEffect(viewModel.isSuccess) {
         if (viewModel.isSuccess) {
             navController.navigate("trainingHistory") {
@@ -138,12 +139,13 @@ fun CameraScreen(
     var isCountdownActive by remember { mutableStateOf(true) }
     var countdownValue by remember { mutableStateOf(0) }
 
-    val runningSeconds = rememberElapsedSeconds(isRunning = !isCountdownActive)
+    val runningSeconds = rememberElapsedSeconds(isRunning = !isCountdownActive)  // menyimpan & menghitung waktu yang sudah berlalu
 
     LaunchedEffect(runningSeconds) {
         elapsedSeconds = runningSeconds
     }
 
+    // state yang menyimpan “kelanjutan coroutine”
     var currentContinuation by remember {
         mutableStateOf<CancellableContinuation<Unit>?>(null)
     }
@@ -164,6 +166,7 @@ fun CameraScreen(
         if (!granted) Toast.makeText(context, "Izin kamera diperlukan", Toast.LENGTH_SHORT).show()
     }
 
+    // Request izin kamera
     LaunchedEffect(Unit) {
         if (!hasCameraPermission) launcher.launch(Manifest.permission.CAMERA)
     }
@@ -204,14 +207,14 @@ fun CameraScreen(
                     when (screenPhase) {
 
                         ScreenPhase.CALIBRATING -> {
-                            // Cek minimal landmark terdeteksi (visibility > 0.5)
+                            // Cek minimal landmark terdeteksi
                             val isBodyVisible = firstPerson.size >= 25 &&
-                                    firstPerson[11].visibility().orElse(0f) > 0.5f && // bahu kiri
-                                    firstPerson[12].visibility().orElse(0f) > 0.5f && // bahu kanan
-                                    firstPerson[23].visibility().orElse(0f) > 0.5f && // pinggul kiri
-                                    firstPerson[24].visibility().orElse(0f) > 0.5f &&   // pinggul kanan
-                                    firstPerson[25].visibility().orElse(0f) > 0.5f &&   // kaki kiri
-                                    firstPerson[26].visibility().orElse(0f) > 0.5f    // kaki kanan
+                                    firstPerson[11].visibility().orElse(0f) > 0.6f && // bahu kiri
+                                    firstPerson[12].visibility().orElse(0f) > 0.6f && // bahu kanan
+                                    firstPerson[23].visibility().orElse(0f) > 0.6f && // pinggul kiri
+                                    firstPerson[24].visibility().orElse(0f) > 0.6f &&   // pinggul kanan
+                                    firstPerson[25].visibility().orElse(0f) > 0.6f &&   // kaki kiri
+                                    firstPerson[26].visibility().orElse(0f) > 0.6f    // kaki kanan
 
                             if (!isBodyVisible) {
                                 calibrationManager.reset()
@@ -266,7 +269,7 @@ fun CameraScreen(
                                     Optional.of(avgPres)
                                 )
                             }
-
+                            Log.d("POSE", "Averaged: $averaged")
                             // Kirim landmark yang sudah di-average ke evaluate
                             val exerciseLogic = TypeOfExercise(averaged)
 
@@ -300,6 +303,7 @@ fun CameraScreen(
         )
     }
 
+    // untuk menutup helper saat composable di-dispose
     DisposableEffect(Unit) {
         onDispose {
             poseHelper.close()
@@ -310,16 +314,14 @@ fun CameraScreen(
     DisposableEffect(Unit) {
 
         tts = TextToSpeech(context) { status ->
-
             if (status == TextToSpeech.SUCCESS) {
-
                 var result = tts?.setLanguage(Locale("id", "ID"))
 
+                // cek apakah bahasa Indonesia tersedia
                 if (result == TextToSpeech.LANG_MISSING_DATA ||
                     result == TextToSpeech.LANG_NOT_SUPPORTED) {
 
                     Log.e("TTS", "Bahasa Indonesia tidak tersedia, switch ke English")
-
                     // Fallback ke English
                     result = tts?.setLanguage(Locale.US)
 
@@ -327,24 +329,21 @@ fun CameraScreen(
                         result == TextToSpeech.LANG_NOT_SUPPORTED) {
 
                         Log.e("TTS", "English juga tidak tersedia, pakai default device")
-
                         // Fallback terakhir
                         tts?.setLanguage(Locale.getDefault())
                     }
                 }
 
-
+                // Tambahkan listener untuk melacak perubahan status
                 tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
 
                     override fun onStart(utteranceId: String?) {}
-
                     override fun onDone(utteranceId: String?) {
                         currentContinuation?.let {
                             if (it.isActive) it.resume(Unit)
                         }
                         currentContinuation = null
                     }
-
                     override fun onError(utteranceId: String?) {
                         currentContinuation?.let {
                             if (it.isActive) it.resume(Unit)
@@ -352,9 +351,7 @@ fun CameraScreen(
                         currentContinuation = null
                     }
                 })
-
                 isTtsReady = true
-
             } else {
                 Log.e("TTS", "Gagal inisialisasi TextToSpeech")
             }
@@ -376,10 +373,12 @@ fun CameraScreen(
             Log.d("TTS", "TTS belum siap, skip")
             return
         }
-
+        // batasi sampai timeout
         kotlinx.coroutines.withTimeoutOrNull(5000L) {
+            // buat continuation baru
             suspendCancellableCoroutine<Unit> { continuation ->
                 currentContinuation = continuation
+                // Panggil fungsi speak dengan utteranceId yang unik
                 val utteranceId = "utt_${System.currentTimeMillis()}"
 
                 tts?.speak(
@@ -389,6 +388,7 @@ fun CameraScreen(
                     utteranceId
                 )
 
+                // callback yang dipanggil saat coroutine dibatalkan (cancel)
                 continuation.invokeOnCancellation {
                     tts?.stop()
                     currentContinuation = null
@@ -449,7 +449,7 @@ fun CameraScreen(
         }
     }
 
-    // Effect 1 — hanya handle sampai trigger countdown
+    // Effect hanya handle sampai trigger countdown
     LaunchedEffect(screenPhase) {
         Log.d("PHASE", "screenPhase changed: $screenPhase")
 
@@ -466,7 +466,7 @@ fun CameraScreen(
         }
     }
 
-// Effect 2 — jalankan countdown, tidak akan di-restart
+    // Effect jalankan countdown, tidak akan di-restart
     LaunchedEffect(startCountdown) {
         if (!startCountdown) return@LaunchedEffect
 
@@ -528,6 +528,7 @@ fun CameraScreen(
                     .padding(16.dp)
             )
 
+            // OVERLAY 0: ONBOARDING
             if (screenPhase == ScreenPhase.ONBOARDING) {
                 OnboardingOverlay(
                     exerciseCode = exerciseCode,
@@ -568,7 +569,7 @@ fun CameraScreen(
                 BottomInfoPanel(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .align(Alignment.BottomCenter) // INI KUNCINYA
+                        .align(Alignment.BottomCenter)
                         .padding(24.dp),
                     onEndSessionClick = {
                         finishDialog = true
@@ -587,8 +588,8 @@ fun CameraScreen(
             onDismissRequest = { quitDialog = false },
             onConfirmQuit = {
                 landmarkBuffer.clear()
-                quitDialog = false // Tutup dialog dulu
-                navController.popBackStack() // Kembali ke route sebelumnya
+                quitDialog = false
+                navController.popBackStack()
             }
         )
     }
@@ -636,11 +637,13 @@ fun CameraPreviewContent(
     modifier: Modifier = Modifier
 ) {
 
+    // thread background
     val executor = remember { Executors.newSingleThreadExecutor() }
 
+    // thread dimatikan
     DisposableEffect(Unit) {
         onDispose {
-            executor.shutdown() //  FOR FIX THREAD LEAK
+            executor.shutdown()
         }
     }
 
@@ -648,9 +651,10 @@ fun CameraPreviewContent(
         modifier = modifier,
         factory = { ctx ->
 
-            val previewView = PreviewView(ctx)
-            val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
+            val previewView = PreviewView(ctx) // komponen CameraX untuk menampilkan kamera
+            val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx) // entry point CameraX
 
+            // jalankan setup kamera
             cameraProviderFuture.addListener({
 
                 val cameraProvider = cameraProviderFuture.get()
@@ -661,6 +665,7 @@ fun CameraPreviewContent(
 
                 val analyzer = ImageAnalysis.Builder()
                     .setBackpressureStrategy(
+                        // kalau frame numpuk → buang yang lama
                         ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST
                     )
                     .build().apply {
@@ -669,6 +674,7 @@ fun CameraPreviewContent(
 
                 cameraProvider.unbindAll()
 
+                // bind ke lifecycle dan analyzer
                 cameraProvider.bindToLifecycle(
                     lifecycle,
                     CameraSelector.DEFAULT_FRONT_CAMERA,

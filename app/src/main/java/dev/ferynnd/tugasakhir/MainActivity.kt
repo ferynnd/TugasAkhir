@@ -70,11 +70,12 @@ class MainActivity : ComponentActivity() {
                             MainBottomNav(
                                 currentDestination = currentDestination,
                                 onNavigate = { targetRoute ->
+                                    // untuk callback saat item di klik
                                     navController.navigate(targetRoute) {
                                         popUpTo(navController.graph.startDestinationId) {
                                             saveState = true
                                         }
-                                        launchSingleTop = true
+                                        launchSingleTop = true // memastikan tidak ada route yang duplikat
                                         restoreState = true
                                     }
                                 }
